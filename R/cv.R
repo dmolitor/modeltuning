@@ -146,7 +146,7 @@ CV <- R6Class(
                           scorer_args = NULL,
                           prediction_args = NULL,
                           convert_predictions = NULL) {
-      if (is.null(learner)){
+      if (is.null(enexpr(learner))){
         abort(
           c(
             "Missing argument:",
