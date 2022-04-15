@@ -2,6 +2,8 @@
 
 export(CV)
 export(FittedCV)
+export(FittedGridSearch)
+export(GridSearch)
 importFrom(R6,R6Class)
 importFrom(future.apply,future_lapply)
 importFrom(progressr,progressor)

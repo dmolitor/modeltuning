@@ -8,6 +8,13 @@
 \description{
 Provides model selection and tuning utilities.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{http://www.dmolitor.com/modelselection/}
+}
+
+}
 \author{
 \strong{Maintainer}: Daniel Molitor \email{molitdj97@gmail.com}
 
