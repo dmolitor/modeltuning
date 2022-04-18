@@ -65,7 +65,7 @@ iris_test <- iris_new[101:150, ]
 ```
 
 Now, let's specify and fit a 3-fold cross-validation scheme and calculate the 
-*F Measure*, *Accuracy*, and *ROC AUC* as our hold-out set evaluation metrics.
+**F Measure**, **Accuracy**, and **ROC AUC** as our hold-out set evaluation metrics.
 
 ```{r Cross Validation}
 # Specify Cross Validation schema
@@ -111,7 +111,7 @@ Another common model-tuning method is grid search. We'll use it to tune the
 choose our optimal hyper-parameters as those that maximize the ROC AUC on the
 validation set.
 ```{r Grid Search}
-# Initialize Grid Search schema
+# Specify Grid Search schema
 iris_grid <- GridSearch$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -135,6 +135,8 @@ iris_grid <- GridSearch$new(
     auc = function(i) i[, "FALSE"]
   )
 )
+
+# Fit models across grid
 iris_grid_fitted <- iris_grid$fit(
   formula = Species ~ .,
   data = iris_train,

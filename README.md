@@ -57,8 +57,8 @@ iris_test <- iris_new[101:150, ]
 ```
 
 Now, let’s specify and fit a 3-fold cross-validation scheme and
-calculate the *F Measure*, *Accuracy*, and *ROC AUC* as our hold-out set
-evaluation metrics.
+calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our
+hold-out set evaluation metrics.
 
 ``` r
 # Specify Cross Validation schema
@@ -96,9 +96,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 95.4% 
-#>  Accuracy: 93.99% 
-#>       AUC: 0.9343
+#> F-Measure: 94.44% 
+#>  Accuracy: 92.66% 
+#>       AUC: 0.9204
 ```
 
 ### Grid Search
@@ -109,7 +109,7 @@ tree. We will choose our optimal hyper-parameters as those that maximize
 the ROC AUC on the validation set.
 
 ``` r
-# Initialize Grid Search schema
+# Specify Grid Search schema
 iris_grid <- GridSearch$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -133,6 +133,8 @@ iris_grid <- GridSearch$new(
     auc = function(i) i[, "FALSE"]
   )
 )
+
+# Fit models across grid
 iris_grid_fitted <- iris_grid$fit(
   formula = Species ~ .,
   data = iris_train,
@@ -154,9 +156,9 @@ cat(
 )
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
-#>   - minbucket: 1
+#>   - minbucket: 5
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9295
+#> Optimal ROC AUC: 0.9835
 ```
 
 ### Parallelization
