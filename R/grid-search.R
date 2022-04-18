@@ -427,7 +427,7 @@ GridSearch <- R6Class(
           } else {
             input <- input[c("formula", "data")]
           }
-          parameters <- as.list(self$tune_params[grid_idx, ])
+          parameters <- as.list(self$tune_params[grid_idx, , drop = FALSE])
           fit <- eval_tidy(
             call2(
               self$learner,
