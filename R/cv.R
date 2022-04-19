@@ -462,6 +462,8 @@ CV <- R6Class(
 #' `FittedCV` is a fitted, cross-validated predictive model object that is
 #' returned by `CV$fit()` and contains relevant model components,
 #' cross-validation metrics, validation set predicted values, etc.
+#'
+#' @export
 FittedCV <- R6Class(
   classname = "FittedCV",
   public = list(

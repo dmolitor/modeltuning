@@ -5,6 +5,8 @@
 #' a tuning grid of hyper-parameters returned by `GridSearchCV$fit()` as well as
 #' relevant model information such as the best performing model, best
 #' hyper-parameters, etc.
+#'
+#' @export
 FittedGridSearchCV <- R6Class(
   classname = "FittedGridSearchCV",
   public = list(
