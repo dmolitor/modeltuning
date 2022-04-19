@@ -5,8 +5,6 @@
 #' a tuning grid of hyper-parameters returned by `GridSearch$fit()` as well as
 #' relevant model information such as the best performing model, best
 #' hyper-parameters, etc.
-#'
-#' @export
 FittedGridSearch <- R6Class(
   classname = "FittedGridSearch",
   public = list(
