@@ -96,17 +96,17 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 94.44% 
-#>  Accuracy: 92.66% 
-#>       AUC: 0.9204
+#> F-Measure: 95.57% 
+#>  Accuracy: 94.05% 
+#>       AUC: 0.9303
 ```
 
 ### Grid Search
 
 Another common model-tuning method is grid search. We’ll use it to tune
-the `minsplit`, `minbucket`, and `maxdepth` parameters of our decision
-tree. We will choose our optimal hyper-parameters as those that maximize
-the ROC AUC on the validation set.
+the `minsplit` and `maxdepth` parameters of our decision tree. We will
+choose our optimal hyper-parameters as those that maximize the ROC AUC
+on the validation set.
 
 ``` r
 # Specify Grid Search schema
@@ -115,13 +115,12 @@ iris_grid <- GridSearch$new(
   learner_args = list(method = "class"),
   tune_params = list(
     minsplit = seq(10, 30, by = 5),
-    minbucket = seq(1, 15, by = 1),
     maxdepth = seq(20, 30, by = 2)
   ),
   evaluation_data = list(x = iris_test, y = iris_test$Species),
   scorer = list(
-    accuracy = yardstick::accuracy_vec,
-    auc = yardstick::roc_auc_vec
+    accuracy = accuracy_vec,
+    auc = roc_auc_vec
   ),
   optimize_score = "max",
   prediction_args = list(
@@ -137,8 +136,7 @@ iris_grid <- GridSearch$new(
 # Fit models across grid
 iris_grid_fitted <- iris_grid$fit(
   formula = Species ~ .,
-  data = iris_train,
-  progress = TRUE
+  data = iris_train
 )
 ```
 
@@ -156,9 +154,70 @@ cat(
 )
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
-#>   - minbucket: 5
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9835
+#> Optimal ROC AUC: 0.8966
+```
+
+### Grid Search with Cross Validation
+
+Finally, `modelselection` supports model-tuning with Grid Search using
+Cross Validation to estimate each model’s true error rate instead of a
+hold-out validation set. We’ll use Cross Validation to tune the same
+parameters as above.
+
+``` r
+# Specify Grid Search schema with Cross Validation
+iris_grid_cv <- GridSearchCV$new(
+  learner = rpart,
+  learner_args = list(method = "class"),
+  tune_params = list(
+    minsplit = seq(10, 30, by = 5),
+    maxdepth = seq(20, 30, by = 2)
+  ),
+  splitter = vfold_cv,
+  splitter_args = list(v = 3),
+  scorer = list(
+    accuracy = accuracy_vec,
+    auc = roc_auc_vec
+  ),
+  optimize_score = "max",
+  prediction_args = list(
+    accuracy = list(type = "class"),
+    auc = list(type = "prob")
+  ),
+  convert_predictions = list(
+    accuracy = NULL,
+    auc = function(i) i[, "FALSE"]
+  )
+)
+
+# Fit models across grid
+iris_grid_cv_fitted <- iris_grid_cv$fit(
+  formula = Species ~ .,
+  data = iris_train
+)
+```
+
+Let’s check out some details on our optimal decision tree model.
+
+``` r
+cat(
+  "Optimal Hyper-parameters:\n  -",
+  paste0(
+    paste0(
+      names(iris_grid_cv_fitted$best_params), 
+      ": ", 
+      iris_grid_cv_fitted$best_params
+    ),
+    collapse = "\n  - "
+  ),
+  "\nOptimal ROC AUC:", 
+  round(iris_grid_cv_fitted$best_metric, 4)
+)
+#> Optimal Hyper-parameters:
+#>   - minsplit: 30
+#>   - maxdepth: 22 
+#> Optimal ROC AUC: 0.9792
 ```
 
 ### Parallelization

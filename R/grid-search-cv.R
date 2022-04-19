@@ -1,11 +1,20 @@
+#' Fitted Models with Cross Validation across a Tuning Grid of Hyper-parameters
+#'
+#' @description
+#' `FittedGridSearchCV` is an object containing fitted predictive models across
+#' a tuning grid of hyper-parameters returned by `GridSearchCV$fit()` as well as
+#' relevant model information such as the best performing model, best
+#' hyper-parameters, etc.
+#'
+#' @export
 FittedGridSearchCV <- R6Class(
   classname = "FittedGridSearchCV",
   public = list(
     #' @field best_idx An integer specifying the index of `$models` that
     #'   contains the best-performing model.
     best_idx = NULL,
-    #' @field best_metric The average performance metric of the best model across
-    #'   cross-validation folds.
+    #' @field best_metric The average performance metric of the best model
+    #'   across cross-validation folds.
     best_metric = NULL,
     #' @field best_model The best performing predictive model.
     best_model = NULL,
@@ -15,14 +24,16 @@ FittedGridSearchCV <- R6Class(
     #' @field folds A list of length `$models` where each element contains a
     #'   list of the cross-validation indices for each fold.
     folds = NULL,
-    #' @field tune_params Data.frame of the full hyper-parameter grid.
+    #' @field tune_params A [data.frame] of the full hyper-parameter grid.
     tune_params = NULL,
     #' @description
     #' Create a new [FittedGridSearchCV] object.
     #'
     #' @param tune_params Data.frame of the full hyper-parameter grid.
     #' @param models List of predictive models at every value of `$tune_params`.
-    #' @param metrics List of performance metrics on the validation data for
+    #' @param folds List of cross-validation indices at every value of
+    #'   `$tune_params`.
+    #' @param metrics List of cross-validation performance metrics for
     #'   every model in `$models`.
     #' @param predictions A list containing the predicted values on the
     #'   cross-validation folds for every model in `$models`.
@@ -30,7 +41,7 @@ FittedGridSearchCV <- R6Class(
     #'   specified performance metric was maximized or minimized to find the
     #'   optimal predictive model.
     #'
-    #' @return An object of class [FittedGridSearch].
+    #' @return An object of class [FittedGridSearchCV].
     initialize = function(tune_params,
                           models,
                           folds,
@@ -63,18 +74,107 @@ FittedGridSearchCV <- R6Class(
     },
     #' @field models List of predictive models at every value of `$tune_params`.
     models = NULL,
-    #' @field metrics Numeric list; Cross-validation performance metrics on each
-    #'   fold.
+    #' @field metrics Numeric list; Cross-validation performance metrics for
+    #'   every model in `$models`.
     metrics = NULL,
-    #' @field predictions A list containing the predicted hold-out values on
-    #'   every fold.
+    #' @field predictions A list containing the cross-validation fold
+    #'   predictions for each model in `$models`.
     predictions = NULL
   )
 )
 
+#' Tune Predictive Model Hyper-parameters with Grid Search and Cross-Validation
+#'
+#' @description
+#' `GridSearchCV` allows the user to specify a Grid Search schema for tuning
+#' predictive model hyper-parameters with Cross-Validation. `GridSearchCV` gives
+#' the user complete flexibility in the predictive model and performance
+#' metrics.
+#'
+#' @export
 GridSearchCV <- R6Class(
   classname = "GridSearchCV",
   public = list(
+    #' @description
+    #' `fit` tunes user-specified model hyper-parameters via Grid Search and
+    #' Cross-Validation.
+    #'
+    #' @details
+    #' `fit` follows standard R modeling convention by surfacing a formula
+    #' modeling interface as well as an alternate matrix option. The user should
+    #' use whichever interface is supported by the specified `$learner`
+    #' function.
+    #'
+    #' @param formula An object of class [formula]: a symbolic description of
+    #'   the model to be fitted.
+    #' @param data An optional data frame, or other object containing the
+    #'   variables in the model. If `data` is not provided, how `formula` is
+    #'   handled depends on `$learner`.
+    #' @param x Predictor data (independent variables), alternative interface to
+    #'   data with formula.
+    #' @param y Response vector (dependent variable), alternative interface to
+    #'   data with formula.
+    #' @param progress Logical; indicating whether to print progress across
+    #'   the hyper-parameter grid.
+    #' @return An object of class [FittedGridSearchCV].
+    #' @examples
+    #' if (require(rpart) && require(rsample) && require(yardstick)) {
+    #'
+    #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
+    #'   iris_new$Species <- factor(iris_new$Species == "virginica")
+    #'   iris_train <- iris_new[1:100, ]
+    #'   iris_validate <- iris_new[101:150, ]
+    #'
+    #'   ### Basic Example
+    #'
+    #'   iris_grid_cv <- GridSearchCV$new(
+    #'     learner = rpart::rpart,
+    #'     learner_args = list(method = "class"),
+    #'     tune_params = list(
+    #'       minsplit = seq(10, 30, by = 5),
+    #'       maxdepth = seq(20, 30, by = 2)
+    #'     ),
+    #'     splitter = rsample::vfold_cv,
+    #'     splitter_args = list(v = 3),
+    #'     scorer = list(accuracy = yardstick::accuracy_vec),
+    #'     optimize_score = "max",
+    #'     prediction_args = list(accuracy = list(type = "class"))
+    #'   )
+    #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
+    #'     formula = Species ~ .,
+    #'     data = iris_train
+    #'   )
+    #'
+    #'   ### Example with multiple metric functions
+    #'
+    #'   iris_grid_cv <- GridSearchCV$new(
+    #'     learner = rpart::rpart,
+    #'     learner_args = list(method = "class"),
+    #'     tune_params = list(
+    #'       minsplit = seq(10, 30, by = 5),
+    #'       maxdepth = seq(20, 30, by = 2)
+    #'     ),
+    #'     splitter = rsample::vfold_cv,
+    #'     splitter_args = list(v = 3),
+    #'     scorer = list(
+    #'       accuracy = yardstick::accuracy_vec,
+    #'       auc = yardstick::roc_auc_vec
+    #'     ),
+    #'     optimize_score = "max",
+    #'     prediction_args = list(
+    #'       accuracy = list(type = "class"),
+    #'       auc = list(type = "prob")
+    #'     ),
+    #'     convert_predictions = list(
+    #'       accuracy = NULL,
+    #'       auc = function(i) i[, "FALSE"]
+    #'     )
+    #'   )
+    #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
+    #'     formula = Species ~ .,
+    #'     data = iris_train
+    #'   )
+    #' }
     fit = function(formula = NULL,
                    data = NULL,
                    x = NULL,
@@ -97,6 +197,51 @@ GridSearchCV <- R6Class(
         optimize_score = private$optimize_score
       )
     },
+    #' @description
+    #' Create a new [GridSearchCV] object.
+    #'
+    #' @param learner Function that estimates a predictive model. It is
+    #'   essential that this function support either a formula interface with
+    #'   `formula` and `data` arguments, or an alternate matrix interface with
+    #'   `x` and `y` arguments.
+    #' @param tune_params A named list specifying the arguments of `$learner` to
+    #'   tune.
+    #' @param splitter A function that computes cross validation folds from an
+    #'   input data set or a pre-computed list of cross validation fold indices.
+    #'   If `splitter` is a function, it must have a `data` argument for the
+    #'   input data, and it must return a list of cross validation fold indices.
+    #'   If `splitter` is a list of integers, the number of cross validation
+    #'   folds is `length(splitter)` and each element contains the indices of
+    #'   the data observations that are included in that fold.
+    #' @param scorer A named list of metric functions to evaluate model
+    #'   performance on `evaluation_data`. Any provided metric function
+    #'   must have `truth` and `estimate` arguments, for true outcome values and
+    #'   predicted outcome values respectively, and must return a single numeric
+    #'   metric value. The last metric function will be the one used to identify
+    #'   the optimal model from the Grid Search.
+    #' @param optimize_score One of "max" or "min"; Whether to maximize or
+    #'   minimize the metric defined in `scorer` to find the optimal Grid Search
+    #'   parameters.
+    #' @param learner_args A named list of additional arguments to pass to
+    #'   `learner`.
+    #' @param splitter_args A named list of additional arguments to pass to
+    #'   `splitter`.
+    #' @param scorer_args A named list of additional arguments to pass to
+    #'   `scorer`. `scorer_args` must either be length 1 or `length(scorer)` in
+    #'   the case where different arguments are being passed to each scoring
+    #'   function.
+    #' @param prediction_args A named list of additional arguments to pass to
+    #'   `predict`. `prediction_args` must either be length 1 or
+    #'   `length(scorer)` in the case where different arguments are being passed
+    #'   to each scoring function.
+    #' @param convert_predictions A list of functions to convert predicted
+    #'   values prior to being evaluated by the metric functions supplied in
+    #'   `scorer`. This list should either be length 1, in which case the same
+    #'   function will be applied to all predicted values, or `length(scorer)`
+    #'   in which case each function in `convert_predictions` will correspond
+    #'   with each function in `scorer`.
+    #'
+    #' @return An object of class [GridSearch].
     initialize = function(learner = NULL,
                           tune_params = NULL,
                           splitter = NULL,
