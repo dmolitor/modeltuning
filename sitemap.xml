@@ -25,7 +25,13 @@
     <loc>http://www.dmolitor.com/modelselection/reference/FittedGridSearch.html</loc>
   </url>
   <url>
+    <loc>http://www.dmolitor.com/modelselection/reference/FittedGridSearchCV.html</loc>
+  </url>
+  <url>
     <loc>http://www.dmolitor.com/modelselection/reference/GridSearch.html</loc>
+  </url>
+  <url>
+    <loc>http://www.dmolitor.com/modelselection/reference/GridSearchCV.html</loc>
   </url>
   <url>
     <loc>http://www.dmolitor.com/modelselection/reference/index.html</loc>

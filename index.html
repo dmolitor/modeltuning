@@ -120,14 +120,14 @@
   <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,
   <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
-<span class="co">#&gt; F-Measure: 94.44% </span>
-<span class="co">#&gt;  Accuracy: 92.66% </span>
-<span class="co">#&gt;       AUC: 0.9204</span></code></pre></div>
+<span class="co">#&gt; F-Measure: 95.57% </span>
+<span class="co">#&gt;  Accuracy: 94.05% </span>
+<span class="co">#&gt;       AUC: 0.9303</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
 </h3>
-<p>Another common model-tuning method is grid search. We’ll use it to tune the <code>minsplit</code>, <code>minbucket</code>, and <code>maxdepth</code> parameters of our decision tree. We will choose our optimal hyper-parameters as those that maximize the ROC AUC on the validation set.</p>
+<p>Another common model-tuning method is grid search. We’ll use it to tune the <code>minsplit</code> and <code>maxdepth</code> parameters of our decision tree. We will choose our optimal hyper-parameters as those that maximize the ROC AUC on the validation set.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Specify Grid Search schema</span>
 <span class="va">iris_grid</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/GridSearch.html">GridSearch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
@@ -135,13 +135,12 @@
   learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,
   tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
     minsplit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,
-    minbucket <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">15</span>, by <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,
     maxdepth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
   <span class="op">)</span>,
   evaluation_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">iris_test</span>, y <span class="op">=</span> <span class="va">iris_test</span><span class="op">$</span><span class="va">Species</span><span class="op">)</span>,
   scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
-    accuracy <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/accuracy.html" class="external-link">accuracy_vec</a></span>,
-    auc <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/roc_auc.html" class="external-link">roc_auc_vec</a></span>
+    accuracy <span class="op">=</span> <span class="va">accuracy_vec</span>,
+    auc <span class="op">=</span> <span class="va">roc_auc_vec</span>
   <span class="op">)</span>,
   optimize_score <span class="op">=</span> <span class="st">"max"</span>,
   prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
@@ -157,8 +156,7 @@
 <span class="co"># Fit models across grid</span>
 <span class="va">iris_grid_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_grid</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>
   formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>,
-  data <span class="op">=</span> <span class="va">iris_train</span>,
-  progress <span class="op">=</span> <span class="cn">TRUE</span>
+  data <span class="op">=</span> <span class="va">iris_train</span>
 <span class="op">)</span></code></pre></div>
 <p>Let’s check out some details on our optimal decision tree model.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
@@ -173,15 +171,69 @@
 <span class="op">)</span>
 <span class="co">#&gt; Optimal Hyper-parameters:</span>
 <span class="co">#&gt;   - minsplit: 10</span>
-<span class="co">#&gt;   - minbucket: 5</span>
 <span class="co">#&gt;   - maxdepth: 20 </span>
-<span class="co">#&gt; Optimal ROC AUC: 0.9835</span></code></pre></div>
+<span class="co">#&gt; Optimal ROC AUC: 0.8966</span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="grid-search-with-cross-validation">Grid Search with Cross Validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
+</h3>
+<p>Finally, <code>modelselection</code> supports model-tuning with Grid Search using Cross Validation to estimate each model’s true error rate instead of a hold-out validation set. We’ll use Cross Validation to tune the same parameters as above.</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="co"># Specify Grid Search schema with Cross Validation</span>
+<span class="va">iris_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span>
+  learner <span class="op">=</span> <span class="va">rpart</span>,
+  learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,
+  tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
+    minsplit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,
+    maxdepth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>
+  <span class="op">)</span>,
+  splitter <span class="op">=</span> <span class="va">vfold_cv</span>,
+  splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,
+  scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
+    accuracy <span class="op">=</span> <span class="va">accuracy_vec</span>,
+    auc <span class="op">=</span> <span class="va">roc_auc_vec</span>
+  <span class="op">)</span>,
+  optimize_score <span class="op">=</span> <span class="st">"max"</span>,
+  prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
+    accuracy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,
+    auc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span>
+  <span class="op">)</span>,
+  convert_predictions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>
+    accuracy <span class="op">=</span> <span class="cn">NULL</span>,
+    auc <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="va">i</span><span class="op">[</span>, <span class="st">"FALSE"</span><span class="op">]</span>
+  <span class="op">)</span>
+<span class="op">)</span>
+
+<span class="co"># Fit models across grid</span>
+<span class="va">iris_grid_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_grid_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>
+  formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>,
+  data <span class="op">=</span> <span class="va">iris_train</span>
+<span class="op">)</span></code></pre></div>
+<p>Let’s check out some details on our optimal decision tree model.</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span>
+  <span class="st">"Optimal Hyper-parameters:\n  -"</span>,
+  <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span>
+    <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span>
+      <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_params</span><span class="op">)</span>, 
+      <span class="st">": "</span>, 
+      <span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_params</span>
+    <span class="op">)</span>,
+    collapse <span class="op">=</span> <span class="st">"\n  - "</span>
+  <span class="op">)</span>,
+  <span class="st">"\nOptimal ROC AUC:"</span>, 
+  <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span>, <span class="fl">4</span><span class="op">)</span>
+<span class="op">)</span>
+<span class="co">#&gt; Optimal Hyper-parameters:</span>
+<span class="co">#&gt;   - minsplit: 30</span>
+<span class="co">#&gt;   - maxdepth: 22 </span>
+<span class="co">#&gt; Optimal ROC AUC: 0.9792</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
 </h3>
 <p>As noted above, <code>modelselection</code> is built on top of the <code>future.apply</code> package and can utilize any parallelization method supported by the <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local multi-core parallelization.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># Initialize multi-core parallel strategy</span>
 <span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span>
 
