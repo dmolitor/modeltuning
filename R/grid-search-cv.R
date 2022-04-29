@@ -482,9 +482,34 @@ GridSearchCV <- R6Class(
           pb()
           cv_model
         },
+        future.globals = structure(TRUE, add = modelselection_fns()),
+        future.packages = private$future_packages(),
         future.seed = TRUE
       )
       model_contents
+    },
+    # Get all packages required to evaluate futures
+    future_packages = function() {
+      pkgs <- unlist(
+        lapply(
+          append(
+            list(eval(self$learner)),
+            c(
+              list(self$splitter),
+              self$scorer,
+              private$convert_predictions
+            )
+          ),
+          get_namespace_name
+        )
+      )
+      unname(
+        sort(
+          unique(
+            c(pkgs, c("future.apply", "progressr", "R6", "rlang"))
+          )
+        )
+      )
     },
     # Arguments to pass to learner function
     learner_args = NULL,
