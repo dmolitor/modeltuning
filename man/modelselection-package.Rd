@@ -4,14 +4,14 @@
 \name{modelselection-package}
 \alias{modelselection}
 \alias{modelselection-package}
-\title{modelselection: What the Package Does (One Line, Title Case)}
+\title{modelselection: Model Selection and Tuning Utilities}
 \description{
-Provides model selection and tuning utilities.
+Provides common model selection and tuning utilities in an intuitive and extremely flexible manner.
 }
 \seealso{
 Useful links:
 \itemize{
-  \item \url{http://www.dmolitor.com/modelselection/}
+  \item \url{https://www.dmolitor.com/modelselection/}
 }
 
 }
