@@ -171,12 +171,20 @@ CV <- R6Class(
         )
       }
       self$learner <- enexpr(learner)
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(learner)
+      )
       private$learner_args <- learner_args
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
         call2(enexpr(splitter), !!!splitter_args)
       }
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(splitter)
+      )
       if (is.null(names(scorer)) || any(vapply(names(scorer), function(i) i == "", NA))) {
         abort(
           c(
@@ -260,6 +268,10 @@ CV <- R6Class(
         scorer,
         if (is.null(scorer_args)) list(NULL) else scorer_args
       )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(scorer, get_namespace_name))
+      )
       private$prediction_args <- if (is.null(prediction_args)) {
         list(NULL)
       } else {
@@ -269,10 +281,19 @@ CV <- R6Class(
         !is.null(convert_predictions) &&
         !(is.list(convert_predictions) || is.atomic(convert_predictions))
       ) {
+        private$future_packages <- append(
+          private$future_packages,
+          get_namespace_name(convert_predictions)
+        )
         list(convert_predictions)
       } else {
+        private$future_packages <- append(
+          private$future_packages,
+          unname(lapply(convert_predictions, get_namespace_name))
+        )
         convert_predictions
       }
+      private$future_packages <- sort(unlist(private$future_packages))
     },
     #' @field learner Predictive modeling function.
     learner = NULL,
@@ -379,6 +400,8 @@ CV <- R6Class(
           pb()
           list(model = fit, preds = preds, metrics = metrics)
         },
+        future.globals = structure(TRUE, add = modelselection_fns()),
+        future.packages = private$future_packages,
         future.seed = TRUE
       )
       model <- model_contents[[length(model_contents)]]$model
@@ -401,6 +424,8 @@ CV <- R6Class(
       )
       list(model = model, preds = preds, metrics = metrics)
     },
+    # Get all packages required to evaluate futures
+    future_packages = c("future.apply", "progressr", "R6", "rlang"),
     # Arguments to pass to learner function
     learner_args = NULL,
     # Arguments to pass to prediction method

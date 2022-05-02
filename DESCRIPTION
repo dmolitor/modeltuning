@@ -1,9 +1,10 @@
 Package: modelselection
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Model Selection and Tuning Utilities
+Version: 0.0.0.9001
 Authors@R: 
     person("Daniel", "Molitor", , "molitdj97@gmail.com", role = c("aut", "cre"))
-Description: Provides model selection and tuning utilities.
+Description: Provides common model selection and tuning utilities in an 
+    intuitive and extremely flexible manner.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
@@ -19,4 +20,4 @@ Suggests:
     rsample,
     rpart,
     yardstick
-URL: http://www.dmolitor.com/modelselection/
+URL: https://www.dmolitor.com/modelselection/

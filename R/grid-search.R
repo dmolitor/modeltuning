@@ -345,11 +345,19 @@ GridSearch <- R6Class(
         )
       }
       self$learner <- enexpr(learner)
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(learner)
+      )
       private$learner_args <- learner_args
       self$scorer <- Map(
         f = function(.x, .y) call2(.x, !!!.y),
         scorer,
         if (is.null(scorer_args)) list(NULL) else scorer_args
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(scorer, get_namespace_name))
       )
       private$prediction_args <- if (is.null(prediction_args)) {
         list(NULL)
@@ -360,10 +368,19 @@ GridSearch <- R6Class(
         !is.null(convert_predictions) &&
         !(is.list(convert_predictions) || is.atomic(convert_predictions))
       ) {
+        private$future_packages <- append(
+          private$future_packages,
+          get_namespace_name(convert_predictions)
+        )
         list(convert_predictions)
       } else {
+        private$future_packages <- append(
+          private$future_packages,
+          unname(lapply(convert_predictions, get_namespace_name))
+        )
         convert_predictions
       }
+      private$future_packages <- sort(unlist(private$future_packages))
       self$tune_params <- expand.grid(tune_params)
       private$optimize_score <- match.arg(optimize_score)
       private$evaluation_data <- evaluation_data
@@ -465,6 +482,8 @@ GridSearch <- R6Class(
           pb()
           list(model = fit, preds = preds, metrics = metrics)
         },
+        future.globals = structure(TRUE, add = modelselection_fns()),
+        future.packages = private$future_packages,
         future.seed = TRUE
       )
       models <- lapply(model_contents, function(i) i$model)
@@ -479,6 +498,7 @@ GridSearch <- R6Class(
       )
       list(models = models, preds = preds, metrics = metrics)
     },
+    future_packages = c("future.apply", "progressr", "R6", "rlang"),
     learner_args = NULL,
     optimize_score = NULL,
     prediction_args = NULL,
