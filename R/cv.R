@@ -173,7 +173,7 @@ CV <- R6Class(
       self$learner <- enexpr(learner)
       private$future_packages <- append(
         private$future_packages,
-        get_namespace_name(learner)
+        get_namespace_name(eval(self$learner))
       )
       private$learner_args <- learner_args
       self$splitter <- if (is.list(splitter)) {

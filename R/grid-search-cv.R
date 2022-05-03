@@ -69,7 +69,9 @@ FittedGridSearchCV <- R6Class(
         )
       )
       self$best_metric <- eval_metrics[[self$best_idx]]
-      self$best_params <- unlist(tune_params[self$best_idx, , drop = FALSE])
+      best_params <- as.list(tune_params[self$best_idx, , drop = FALSE])
+      best_params <- lapply(best_params, function(.x) .x)
+      self$best_params <- best_params
       self$best_model <- models[[self$best_idx]]
     },
     #' @field models List of predictive models at every value of `$tune_params`.
@@ -293,12 +295,20 @@ GridSearchCV <- R6Class(
         )
       }
       self$learner <- enexpr(learner)
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(learner)
+      )
       private$learner_args <- learner_args
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
         enexpr(splitter)
       }
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(splitter)
+      )
       private$splitter_args <- splitter_args
       if (is.null(names(scorer)) || any(vapply(names(scorer), function(i) i == "", NA))) {
         abort(
@@ -380,6 +390,10 @@ GridSearchCV <- R6Class(
       }
       self$scorer <- scorer
       private$scorer_args <- scorer_args
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(scorer, get_namespace_name))
+      )
       private$prediction_args <- if (is.null(prediction_args)) {
         list(NULL)
       } else {
@@ -389,12 +403,21 @@ GridSearchCV <- R6Class(
         !is.null(convert_predictions) &&
         !(is.list(convert_predictions) || is.atomic(convert_predictions))
       ) {
+        private$future_packages <- append(
+          private$future_packages,
+          get_namespace_name(convert_predictions)
+        )
         list(convert_predictions)
       } else {
+        private$future_packages <- append(
+          private$future_packages,
+          unname(lapply(convert_predictions, get_namespace_name))
+        )
         convert_predictions
       }
-      self$tune_params <- expand.grid(tune_params)
+      self$tune_params <- expand.grid(tune_params, stringsAsFactors = FALSE)
       private$optimize_score <- match.arg(optimize_score)
+      private$future_packages <- sort(unlist(private$future_packages))
     },
     #' @field learner Predictive modeling function.
     learner = NULL,
@@ -483,34 +506,13 @@ GridSearchCV <- R6Class(
           cv_model
         },
         future.globals = structure(TRUE, add = modelselection_fns()),
-        future.packages = private$future_packages(),
+        future.packages = private$future_packages,
         future.seed = TRUE
       )
       model_contents
     },
     # Get all packages required to evaluate futures
-    future_packages = function() {
-      pkgs <- unlist(
-        lapply(
-          append(
-            list(eval(self$learner)),
-            c(
-              list(self$splitter),
-              self$scorer,
-              private$convert_predictions
-            )
-          ),
-          get_namespace_name
-        )
-      )
-      unname(
-        sort(
-          unique(
-            c(pkgs, c("future.apply", "progressr", "R6", "rlang"))
-          )
-        )
-      )
-    },
+    future_packages = c("future.apply", "progressr", "R6", "rlang"),
     # Arguments to pass to learner function
     learner_args = NULL,
     # How to optimize CV score
