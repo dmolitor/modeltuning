@@ -108,13 +108,13 @@
 
 <span class="co"># Quick overview of the dataset</span>
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span>
-<span class="co">#   Sepal.Length    Sepal.Width     Petal.Length     Petal.Width     </span>
-<span class="co">#  Min.   :4.298   Min.   :1.999   Min.   :0.9985   Min.   :0.09803  </span>
-<span class="co">#  1st Qu.:5.101   1st Qu.:2.799   1st Qu.:1.5984   1st Qu.:0.30022  </span>
-<span class="co">#  Median :5.799   Median :3.001   Median :4.3500   Median :1.30103  </span>
-<span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.7580   Mean   :1.19936  </span>
-<span class="co">#  3rd Qu.:6.401   3rd Qu.:3.302   3rd Qu.:5.1004   3rd Qu.:1.80088  </span>
-<span class="co">#  Max.   :7.902   Max.   :4.401   Max.   :6.9019   Max.   :2.50187</span></code></pre></div>
+<span class="co">#   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width     </span>
+<span class="co">#  Min.   :4.298   Min.   :1.998   Min.   :0.998   Min.   :0.09806  </span>
+<span class="co">#  1st Qu.:5.100   1st Qu.:2.799   1st Qu.:1.598   1st Qu.:0.30024  </span>
+<span class="co">#  Median :5.799   Median :3.001   Median :4.350   Median :1.30106  </span>
+<span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.19938  </span>
+<span class="co">#  3rd Qu.:6.401   3rd Qu.:3.302   3rd Qu.:5.100   3rd Qu.:1.80097  </span>
+<span class="co">#  Max.   :7.902   Max.   :4.402   Max.   :6.901   Max.   :2.50194</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-specification">Grid Search Specification<a class="anchor" aria-label="anchor" href="#grid-search-specification"></a>
@@ -277,8 +277,8 @@
   <span class="st">"%\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">metrics</span><span class="op">$</span><span class="va">auc</span><span class="op">[[</span><span class="va">best_idx</span><span class="op">]</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span>
 <span class="op">)</span>
 <span class="co">#  Accuracy: 98.47 %</span>
-<span class="co"># F-Measure: 98.85 %</span>
-<span class="co">#       AUC: 0.999</span>
+<span class="co"># F-Measure: 98.84 %</span>
+<span class="co">#       AUC: 0.9991</span>
 
 <span class="va">params</span> <span class="op">&lt;-</span> <span class="va">iris_grid_fitted</span><span class="op">$</span><span class="va">best_params</span>
 

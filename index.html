@@ -127,9 +127,9 @@
   <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,
   <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span>
 <span class="op">)</span>
-<span class="co">#&gt; F-Measure: 95.57% </span>
-<span class="co">#&gt;  Accuracy: 94.05% </span>
-<span class="co">#&gt;       AUC: 0.9303</span></code></pre></div>
+<span class="co">#&gt; F-Measure: 96.04% </span>
+<span class="co">#&gt;  Accuracy: 94.67% </span>
+<span class="co">#&gt;       AUC: 0.9352</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -179,7 +179,7 @@
 <span class="co">#&gt; Optimal Hyper-parameters:</span>
 <span class="co">#&gt;   - minsplit: 10</span>
 <span class="co">#&gt;   - maxdepth: 20 </span>
-<span class="co">#&gt; Optimal ROC AUC: 0.8966</span></code></pre></div>
+<span class="co">#&gt; Optimal ROC AUC: 0.9253</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-with-cross-validation">Grid Search with Cross Validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
@@ -232,9 +232,9 @@
   <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span>, <span class="fl">4</span><span class="op">)</span>
 <span class="op">)</span>
 <span class="co">#&gt; Optimal Hyper-parameters:</span>
-<span class="co">#&gt;   - minsplit: 30</span>
-<span class="co">#&gt;   - maxdepth: 22 </span>
-<span class="co">#&gt; Optimal ROC AUC: 0.9792</span></code></pre></div>
+<span class="co">#&gt;   - minsplit: 20</span>
+<span class="co">#&gt;   - maxdepth: 30 </span>
+<span class="co">#&gt; Optimal ROC AUC: 0.9722</span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
