@@ -20,14 +20,7 @@ knitr::opts_chunk$set(
 [![pkgdown](https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg)](https://github.com/dmolitor/modelselection/actions)
 <!-- badges: end -->
 
-The goal of `modelselection` is to provide common model selection and tuning 
-utilities in an intuitive manner. Specifically, I want something that is 
-lightweight (so not `mlr3`) and doesn't force you to adopt a whole new modeling
-paradigm (so not `tidymodels`). Also, I want the provided functionality to be
-very type agnostic and be able to work with data frames, standard dense
-matrices, and `Matrix` sparse matrices. Finally, I want it to be easily
-distributable (It's built on top of the `future.apply` package) and I want to 
-have full control over it 😉.
+The goal of `modelselection` is to provide common model selection and tuning utilities in an intuitive manner. Specifically, I want something that is lightweight (so not `mlr3`) and doesn't force you to adopt a whole new modeling paradigm (so not `tidymodels`). Also, I want the provided functionality to be very type agnostic and be able to work with data frames, standard dense matrices, and `Matrix` sparse matrices. Finally, I want it to be easily distributable (It's built on top of the `future.apply` package) and I want to have full control over it 😉.
 
 ## Installation
 
@@ -40,15 +33,11 @@ devtools::install_github("dmolitor/modelselection")
 
 ## Usage
 
-These are simple examples that use the built-in `iris` data-set to illustrate
-the basic functionality of `modelselection`. 
+These are simple examples that use the built-in `iris` data-set to illustrate the basic functionality of `modelselection`. 
 
 ### Cross Validation
 
-First we'll train a binary classification Decision Tree model to predict
-whether the flowers in `iris` are of Species `virginica` and we'll specify a 
-3-fold Cross-Validation scheme with stratification by Species to estimate our 
-model's true error rate.
+First we'll train a binary classification Decision Tree model to predict whether the flowers in `iris` are of Species `virginica` and we'll specify a 3-fold Cross-Validation scheme with stratification by Species to estimate our model's true error rate.
 
 First, let's split our data into a train and test set.
 ```{r Data Prep, echo = TRUE, results = "hide"}
@@ -64,8 +53,7 @@ iris_train <- iris_new[1:100, ]
 iris_test <- iris_new[101:150, ]
 ```
 
-Now, let's specify and fit a 3-fold cross-validation scheme and calculate the 
-**F Measure**, **Accuracy**, and **ROC AUC** as our hold-out set evaluation metrics.
+Now, let's specify and fit a 3-fold cross-validation scheme and calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our hold-out set evaluation metrics.
 
 ```{r Cross Validation}
 # Specify Cross Validation schema
@@ -106,10 +94,7 @@ cat(
 
 ### Grid Search
 
-Another common model-tuning method is grid search. We'll use it to tune the 
-`minsplit` and `maxdepth` parameters of our decision tree. We will
-choose our optimal hyper-parameters as those that maximize the ROC AUC on the
-validation set.
+Another common model-tuning method is grid search. We'll use it to tune the `minsplit` and `maxdepth` parameters of our decision tree. We will choose our optimal hyper-parameters as those that maximize the ROC AUC on the validation set.
 ```{r Grid Search}
 # Specify Grid Search schema
 iris_grid <- GridSearch$new(
@@ -157,9 +142,7 @@ cat(
 
 ### Grid Search with Cross Validation
 
-Finally, `modelselection` supports model-tuning with Grid Search using Cross
-Validation to estimate each model's true error rate instead of a hold-out
-validation set. We'll use Cross Validation to tune the same parameters as above.
+Finally, `modelselection` supports model-tuning with Grid Search using Cross Validation to estimate each model's true error rate instead of a hold-out validation set. We'll use Cross Validation to tune the same parameters as above.
 ```{r Grid Search with Cross Validation}
 # Specify Grid Search schema with Cross Validation
 iris_grid_cv <- GridSearchCV$new(
@@ -212,12 +195,7 @@ cat(
 
 ### Parallelization
 
-As noted above, `modelselection` is built on top of the `future.apply` package
-and can utilize any parallelization method supported by the 
-[`future`](https://future.futureverse.org/) package when fitting 
-cross-validated models or tuning models with grid search. The code below 
-evaluates the same cross-validated binary classification model using local 
-multi-core parallelization.
+As noted above, `modelselection` is built on top of the `future.apply` package and can utilize any parallelization method supported by the [`future`](https://future.futureverse.org/) package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local multi-core parallelization.
 ```{r Parallelization, eval = FALSE}
 # Initialize multi-core parallel strategy
 plan(multisession)
