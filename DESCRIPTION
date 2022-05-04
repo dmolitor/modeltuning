@@ -17,7 +17,14 @@ Imports:
     R6,
     rlang
 Suggests:
+    e1071,
+    future,
+    parallelly,
+    paws,
     rsample,
     rpart,
-    yardstick
+    yardstick,
+    knitr,
+    rmarkdown
 URL: https://www.dmolitor.com/modelselection/
+VignetteBuilder: knitr
