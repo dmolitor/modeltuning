@@ -32,13 +32,13 @@ every fold.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{FittedCV$new()}}
-\item \href{#method-clone}{\code{FittedCV$clone()}}
+\item \href{#method-FittedCV-new}{\code{FittedCV$new()}}
+\item \href{#method-FittedCV-clone}{\code{FittedCV$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-FittedCV-new"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedCV-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{FittedCV} object.
 \subsection{Usage}{
@@ -68,8 +68,8 @@ An object of class \link{FittedCV}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-FittedCV-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedCV-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

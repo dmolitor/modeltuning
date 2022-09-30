@@ -85,14 +85,14 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-fit}{\code{GridSearch$fit()}}
-\item \href{#method-new}{\code{GridSearch$new()}}
-\item \href{#method-clone}{\code{GridSearch$clone()}}
+\item \href{#method-GridSearch-fit}{\code{GridSearch$fit()}}
+\item \href{#method-GridSearch-new}{\code{GridSearch$new()}}
+\item \href{#method-GridSearch-clone}{\code{GridSearch$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fit"></a>}}
-\if{latex}{\out{\hypertarget{method-fit}{}}}
+\if{html}{\out{<a id="method-GridSearch-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearch-fit}{}}}
 \subsection{Method \code{fit()}}{
 \code{fit} tunes user-specified model hyper-parameters via Grid Search.
 \subsection{Usage}{
@@ -200,8 +200,8 @@ An object of class \link{FittedGridSearch}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GridSearch-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearch-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{GridSearch} object.
 \subsection{Usage}{
@@ -271,8 +271,8 @@ An object of class \link{GridSearch}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GridSearch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearch-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

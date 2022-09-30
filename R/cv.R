@@ -385,9 +385,22 @@ CV <- R6Class(
             metrics <- Map(
               f = function(.x, .y, .z) {
                 if (!is.null(.y)) {
-                  preds <- .y(unlist(.z))
+                  preds <- .y(.z)
                 } else {
-                  preds <- unlist(.z)
+                  if (is.recursive(.z)) {
+                    abort(
+                      c(
+                        "Mis-shaped Predictions:",
+                        "x" = "Predicted values should be an atomic vector",
+                        "i" = paste(
+                          "You may need to specify `convert_predictions` to",
+                          "transform the output of `predict` appropriately"
+                        )
+                      ),
+                      call = NULL
+                    )
+                  }
+                  preds <- .z
                 }
                 truth <- response_var[-idx]
                 eval_tidy(call_modify(.x, truth = truth, estimate = preds))

@@ -90,14 +90,14 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-fit}{\code{GridSearchCV$fit()}}
-\item \href{#method-new}{\code{GridSearchCV$new()}}
-\item \href{#method-clone}{\code{GridSearchCV$clone()}}
+\item \href{#method-GridSearchCV-fit}{\code{GridSearchCV$fit()}}
+\item \href{#method-GridSearchCV-new}{\code{GridSearchCV$new()}}
+\item \href{#method-GridSearchCV-clone}{\code{GridSearchCV$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fit"></a>}}
-\if{latex}{\out{\hypertarget{method-fit}{}}}
+\if{html}{\out{<a id="method-GridSearchCV-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearchCV-fit}{}}}
 \subsection{Method \code{fit()}}{
 \code{fit} tunes user-specified model hyper-parameters via Grid Search and
 Cross-Validation.
@@ -208,8 +208,8 @@ An object of class \link{FittedGridSearchCV}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-GridSearchCV-new"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearchCV-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{GridSearchCV} object.
 \subsection{Usage}{
@@ -287,8 +287,8 @@ An object of class \link{GridSearch}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-GridSearchCV-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearchCV-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

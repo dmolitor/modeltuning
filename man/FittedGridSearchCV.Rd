@@ -41,13 +41,13 @@ predictions for each model in \verb{$models}.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{FittedGridSearchCV$new()}}
-\item \href{#method-clone}{\code{FittedGridSearchCV$clone()}}
+\item \href{#method-FittedGridSearchCV-new}{\code{FittedGridSearchCV$new()}}
+\item \href{#method-FittedGridSearchCV-clone}{\code{FittedGridSearchCV$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-FittedGridSearchCV-new"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedGridSearchCV-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{FittedGridSearchCV} object.
 \subsection{Usage}{
@@ -88,8 +88,8 @@ An object of class \link{FittedGridSearchCV}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-FittedGridSearchCV-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedGridSearchCV-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

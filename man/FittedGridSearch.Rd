@@ -38,13 +38,13 @@ every fold.}
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{FittedGridSearch$new()}}
-\item \href{#method-clone}{\code{FittedGridSearch$clone()}}
+\item \href{#method-FittedGridSearch-new}{\code{FittedGridSearch$new()}}
+\item \href{#method-FittedGridSearch-clone}{\code{FittedGridSearch$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-FittedGridSearch-new"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedGridSearch-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{FittedGridSearch} object.
 \subsection{Usage}{
@@ -75,8 +75,8 @@ An object of class \link{FittedGridSearch}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-FittedGridSearch-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedGridSearch-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

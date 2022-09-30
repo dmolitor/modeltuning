@@ -76,14 +76,14 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-fit}{\code{CV$fit()}}
-\item \href{#method-new}{\code{CV$new()}}
-\item \href{#method-clone}{\code{CV$clone()}}
+\item \href{#method-CV-fit}{\code{CV$fit()}}
+\item \href{#method-CV-new}{\code{CV$new()}}
+\item \href{#method-CV-clone}{\code{CV$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-fit"></a>}}
-\if{latex}{\out{\hypertarget{method-fit}{}}}
+\if{html}{\out{<a id="method-CV-fit"></a>}}
+\if{latex}{\out{\hypertarget{method-CV-fit}{}}}
 \subsection{Method \code{fit()}}{
 \code{fit} performs cross validation with user-specified parameters.
 \subsection{Usage}{
@@ -177,8 +177,8 @@ An object of class \link{FittedCV}.
 
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-CV-new"></a>}}
+\if{latex}{\out{\hypertarget{method-CV-new}{}}}
 \subsection{Method \code{new()}}{
 Create a new \link{CV} object.
 \subsection{Usage}{
@@ -246,8 +246,8 @@ An object of class \link{CV}.
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-CV-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-CV-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{
