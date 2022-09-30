@@ -53,4 +53,5 @@ inst/doc
 /Meta/
 
 # renv
-renv/
+# renv/
+.DS_Store
