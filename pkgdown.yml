@@ -3,7 +3,7 @@ pkgdown: 2.0.6
 pkgdown_sha: ~
 articles:
   scaling-with-aws: scaling-with-aws.html
-last_built: 2022-09-30T17:17Z
+last_built: 2022-10-01T23:57Z
 urls:
   reference: http://www.dmolitor.com/modelselection/reference
   article: http://www.dmolitor.com/modelselection/articles

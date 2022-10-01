@@ -108,13 +108,13 @@
 <span></span>
 <span><span class="co"># Quick overview of the dataset</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
-<span><span class="co">#   Sepal.Length    Sepal.Width     Petal.Length    Petal.Width     </span></span>
-<span><span class="co">#  Min.   :4.299   Min.   :1.999   Min.   :0.998   Min.   :0.09803  </span></span>
-<span><span class="co">#  1st Qu.:5.101   1st Qu.:2.799   1st Qu.:1.599   1st Qu.:0.29994  </span></span>
-<span><span class="co">#  Median :5.799   Median :3.001   Median :4.350   Median :1.30094  </span></span>
-<span><span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.758   Mean   :1.19929  </span></span>
-<span><span class="co">#  3rd Qu.:6.401   3rd Qu.:3.301   3rd Qu.:5.100   3rd Qu.:1.80076  </span></span>
-<span><span class="co">#  Max.   :7.902   Max.   :4.402   Max.   :6.902   Max.   :2.50187</span></span></code></pre></div>
+<span><span class="co">#   Sepal.Length    Sepal.Width     Petal.Length     Petal.Width     </span></span>
+<span><span class="co">#  Min.   :4.298   Min.   :1.998   Min.   :0.9985   Min.   :0.09802  </span></span>
+<span><span class="co">#  1st Qu.:5.101   1st Qu.:2.799   1st Qu.:1.5983   1st Qu.:0.29976  </span></span>
+<span><span class="co">#  Median :5.799   Median :3.001   Median :4.3499   Median :1.30106  </span></span>
+<span><span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.7579   Mean   :1.19930  </span></span>
+<span><span class="co">#  3rd Qu.:6.400   3rd Qu.:3.302   3rd Qu.:5.1004   3rd Qu.:1.80091  </span></span>
+<span><span class="co">#  Max.   :7.902   Max.   :4.402   Max.   :6.9018   Max.   :2.50191</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-specification">Grid Search Specification<a class="anchor" aria-label="anchor" href="#grid-search-specification"></a>
@@ -276,9 +276,9 @@
 <span>  <span class="st">"%\nF-Measure:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">metrics</span><span class="op">$</span><span class="va">f_measure</span><span class="op">[[</span><span class="va">best_idx</span><span class="op">]</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  <span class="st">"%\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">metrics</span><span class="op">$</span><span class="va">auc</span><span class="op">[[</span><span class="va">best_idx</span><span class="op">]</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#  Accuracy: 98.53 %</span></span>
-<span><span class="co"># F-Measure: 98.91 %</span></span>
-<span><span class="co">#       AUC: 0.9992</span></span>
+<span><span class="co">#  Accuracy: 98.47 %</span></span>
+<span><span class="co"># F-Measure: 98.86 %</span></span>
+<span><span class="co">#       AUC: 0.9991</span></span>
 <span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">iris_grid_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span></span>
