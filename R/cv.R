@@ -447,7 +447,7 @@ CV <- R6Class(
     response = function(data_list) {
       if (!is.null(data_list[["formula"]])) {
         lhs <- as_string(data_list[["formula"]][[2]])
-        response_var <- data_list[["data"]][, lhs]
+        response_var <- data_list[["data"]][, lhs, drop = TRUE]
       } else {
         response_var <- data_list[["y"]]
       }
