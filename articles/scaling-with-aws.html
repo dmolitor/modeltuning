@@ -58,7 +58,8 @@
 
 
 
-<script src="scaling-with-aws_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
+
+<div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Scaling with AWS</h1>
             
@@ -69,7 +70,12 @@
 
     
     
-<p>This vignette will walk through an example of scaling a <code>modelselection</code> analysis with AWS via the <a href="https://github.com/paws-r/paws" class="external-link">Paws SDK</a>. The following analysis depends on AWS credentials passed via environment variables. To see a detailed outline of the different ways to set AWS credentials, check out <a href="https://github.com/paws-r/paws/blob/main/docs/credentials.md" class="external-link">this how-to document</a>.</p>
+<p>This vignette will walk through an example of scaling a
+<code>modelselection</code> analysis with AWS via the <a href="https://github.com/paws-r/paws" class="external-link">Paws SDK</a>. The following
+analysis depends on AWS credentials passed via environment variables. To
+see a detailed outline of the different ways to set AWS credentials,
+check out <a href="https://github.com/paws-r/paws/blob/main/docs/credentials.md" class="external-link">this
+how-to document</a>.</p>
 <div class="section level2">
 <h2 id="requisite-packages">Requisite Packages<a class="anchor" aria-label="anchor" href="#requisite-packages"></a>
 </h2>
@@ -88,8 +94,11 @@
 <div class="section level3">
 <h3 id="data-prep">Data Prep<a class="anchor" aria-label="anchor" href="#data-prep"></a>
 </h3>
-<p>We’ll be training a classification model on the <code>iris</code> data-set to predict whether a flower’s species is virginica or not.</p>
-<p>First, let’s generate a bunch of synthetic data observations by adding random noise to the original <code>iris</code> features and combining it into one big dataframe.</p>
+<p>We’ll be training a classification model on the <code>iris</code>
+data-set to predict whether a flower’s species is virginica or not.</p>
+<p>First, let’s generate a bunch of synthetic data observations by
+adding random noise to the original <code>iris</code> features and
+combining it into one big dataframe.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_new</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span></span>
 <span>  what <span class="op">=</span> <span class="va">rbind</span>,</span>
@@ -109,17 +118,22 @@
 <span><span class="co"># Quick overview of the dataset</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">[</span>, <span class="fl">1</span><span class="op">:</span><span class="fl">4</span><span class="op">]</span><span class="op">)</span></span>
 <span><span class="co">#   Sepal.Length    Sepal.Width     Petal.Length     Petal.Width     </span></span>
-<span><span class="co">#  Min.   :4.298   Min.   :1.998   Min.   :0.9991   Min.   :0.09801  </span></span>
-<span><span class="co">#  1st Qu.:5.100   1st Qu.:2.799   1st Qu.:1.5983   1st Qu.:0.29998  </span></span>
-<span><span class="co">#  Median :5.799   Median :3.001   Median :4.3499   Median :1.30131  </span></span>
-<span><span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.7580   Mean   :1.19930  </span></span>
-<span><span class="co">#  3rd Qu.:6.400   3rd Qu.:3.302   3rd Qu.:5.1008   3rd Qu.:1.80086  </span></span>
-<span><span class="co">#  Max.   :7.902   Max.   :4.402   Max.   :6.9020   Max.   :2.50181</span></span></code></pre></div>
+<span><span class="co">#  Min.   :4.298   Min.   :1.998   Min.   :0.9983   Min.   :0.09813  </span></span>
+<span><span class="co">#  1st Qu.:5.100   1st Qu.:2.799   1st Qu.:1.5984   1st Qu.:0.30002  </span></span>
+<span><span class="co">#  Median :5.799   Median :3.001   Median :4.3499   Median :1.30099  </span></span>
+<span><span class="co">#  Mean   :5.843   Mean   :3.057   Mean   :3.7581   Mean   :1.19929  </span></span>
+<span><span class="co">#  3rd Qu.:6.401   3rd Qu.:3.301   3rd Qu.:5.1001   3rd Qu.:1.80063  </span></span>
+<span><span class="co">#  Max.   :7.902   Max.   :4.402   Max.   :6.9016   Max.   :2.50188</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-specification">Grid Search Specification<a class="anchor" aria-label="anchor" href="#grid-search-specification"></a>
 </h3>
-<p>Now that we’ve got the data prepped, let’s specify our predictive modeling approach. For this analysis I’m going to train a Support Vector classifier using the <code>e1071</code> package, and I’m going to use Grid Search in combination with 5-fold Cross-Validation to find the optimal values for the <code>cost</code> and <code>kernel</code> hyper-parameters.</p>
+<p>Now that we’ve got the data prepped, let’s specify our predictive
+modeling approach. For this analysis I’m going to train a Support Vector
+classifier using the <code>e1071</code> package, and I’m going to use
+Grid Search in combination with 5-fold Cross-Validation to find the
+optimal values for the <code>cost</code> and <code>kernel</code>
+hyper-parameters.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">svm</span>,</span>
@@ -151,7 +165,9 @@
 <span>  <span class="op">)</span>,</span>
 <span>  optimize_score <span class="op">=</span> <span class="st">"max"</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Now that we’ve specified our Grid Search schema let’s check out the hyper-parameter grid and see how many models we’re going to estimate.</p>
+<p>Now that we’ve specified our Grid Search schema let’s check out the
+hyper-parameter grid and see how many models we’re going to
+estimate.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat</a></span><span class="op">(</span><span class="st">"We will estimate"</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris_grid</span><span class="op">$</span><span class="va">tune_params</span><span class="op">)</span>, <span class="st">"SVM models\n"</span><span class="op">)</span></span>
 <span><span class="co"># We will estimate 18 SVM models</span></span></code></pre></div>
@@ -160,11 +176,18 @@
 <div class="section level2">
 <h2 id="launch-aws-resources">Launch AWS Resources<a class="anchor" aria-label="anchor" href="#launch-aws-resources"></a>
 </h2>
-<p>To speed up the estimation of our models, let’s create a remote cluster of 6 worker nodes to estimate the models in parallel.</p>
+<p>To speed up the estimation of our models, let’s create a remote
+cluster of 6 worker nodes to estimate the models in parallel.</p>
 <div class="section level3">
 <h3 id="launch-ec2-instances">Launch EC2 Instances<a class="anchor" aria-label="anchor" href="#launch-ec2-instances"></a>
 </h3>
-<p>First, we will launch 6 instances using a custom AMI that contains R 4.1.3 and a bunch of essential R packages. While this AMI is not available as a community AMI there are definitely good AMIs out there that have a comprehensive set of R packages and corresponding tools installed. <strong>Note:</strong> which parameters you need to specify when launching EC2 instances may vary greatly depending on your account’s security configurations.</p>
+<p>First, we will launch 6 instances using a custom AMI that contains R
+4.1.3 and a bunch of essential R packages. While this AMI is not
+available as a community AMI there are definitely good AMIs out there
+that have a comprehensive set of R packages and corresponding tools
+installed. <strong>Note:</strong> which parameters you need to specify
+when launching EC2 instances may vary greatly depending on your
+account’s security configurations.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ec2_client</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/paws/man/ec2.html" class="external-link">ec2</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
@@ -190,7 +213,10 @@
 <span>    <span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Now that we’ve launched the instances we need to wait until they all respond as <code>"running"</code> before we try to do anything (We also need to wait for ~ 1 minute for the instances to initialize or they’ll reject our SSH login attempts).</p>
+<p>Now that we’ve launched the instances we need to wait until they all
+respond as <code>"running"</code> before we try to do anything (We also
+need to wait for ~ 1 minute for the instances to initialize or they’ll
+reject our SSH login attempts).</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Chalk up a quick function to return instance IDs from our request</span></span>
 <span><span class="va">instance_ids</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">response</span><span class="op">)</span> <span class="op">{</span></span>
@@ -219,7 +245,8 @@
 <div class="section level3">
 <h3 id="create-cluster">Create Cluster<a class="anchor" aria-label="anchor" href="#create-cluster"></a>
 </h3>
-<p>Now, in order to set up our compute cluster we need to get the IP addresses from these instances.</p>
+<p>Now, in order to set up our compute cluster we need to get the IP
+addresses from these instances.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Get public IPs</span></span>
 <span><span class="va">inst_public_ips</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">vapply</a></span><span class="op">(</span></span>
@@ -230,7 +257,8 @@
 <span>  <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="va">i</span><span class="op">$</span><span class="va">PublicIpAddress</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">character</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
-<p>Finally, we can create a compute cluster on these worker nodes via SSH.</p>
+<p>Finally, we can create a compute cluster on these worker nodes via
+SSH.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://parallelly.futureverse.org/reference/makeClusterPSOCK.html" class="external-link">makeClusterPSOCK</a></span><span class="op">(</span></span>
 <span>  worker <span class="op">=</span> <span class="va">inst_public_ips</span>,</span>
@@ -246,7 +274,15 @@
 <div class="section level2">
 <h2 id="estimate-models">Estimate Models<a class="anchor" aria-label="anchor" href="#estimate-models"></a>
 </h2>
-<p>Now that we’ve created our compute cluster, we can use the <code>future</code> package to specify our parallelization plan. Since <code>modelselection</code> is built on top of the <code>future</code> framework, it will automatically parallelize the model estimation across our 6-worker cluster. The following parallelization <strong>topology</strong> basically is telling <code>future</code> to parallelize the grid-search models across the compute cluster, and to parallelize each model’s cross-validation across the cores of the instance it is being evaluated on.</p>
+<p>Now that we’ve created our compute cluster, we can use the
+<code>future</code> package to specify our parallelization plan. Since
+<code>modelselection</code> is built on top of the <code>future</code>
+framework, it will automatically parallelize the model estimation across
+our 6-worker cluster. The following parallelization
+<strong>topology</strong> basically is telling <code>future</code> to
+parallelize the grid-search models across the compute cluster, and to
+parallelize each model’s cross-validation across the cores of the
+instance it is being evaluated on.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
@@ -276,9 +312,9 @@
 <span>  <span class="st">"%\nF-Measure:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">metrics</span><span class="op">$</span><span class="va">f_measure</span><span class="op">[[</span><span class="va">best_idx</span><span class="op">]</span><span class="op">]</span>, <span class="fl">2</span><span class="op">)</span>,</span>
 <span>  <span class="st">"%\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">metrics</span><span class="op">$</span><span class="va">auc</span><span class="op">[[</span><span class="va">best_idx</span><span class="op">]</span><span class="op">]</span>, <span class="fl">4</span><span class="op">)</span>, <span class="st">"\n"</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#  Accuracy: 98.6 %</span></span>
-<span><span class="co"># F-Measure: 98.95 %</span></span>
-<span><span class="co">#       AUC: 0.999</span></span>
+<span><span class="co">#  Accuracy: 98.13 %</span></span>
+<span><span class="co"># F-Measure: 98.57 %</span></span>
+<span><span class="co">#       AUC: 0.9992</span></span>
 <span></span>
 <span><span class="va">params</span> <span class="op">&lt;-</span> <span class="va">iris_grid_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span></span>
@@ -293,7 +329,10 @@
 <div class="section level2">
 <h2 id="kill-aws-resources">Kill AWS Resources<a class="anchor" aria-label="anchor" href="#kill-aws-resources"></a>
 </h2>
-<p>Now that we’ve completed our mini-analysis let’s make sure to kill all our AWS resources. Since all we’ve done is launch EC2 instances, all this consists of is making sure that the instances are all shut down.</p>
+<p>Now that we’ve completed our mini-analysis let’s make sure to kill
+all our AWS resources. Since all we’ve done is launch EC2 instances, all
+this consists of is making sure that the instances are all shut
+down.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">ec2_client</span><span class="op">$</span><span class="fu">stop_instances</span><span class="op">(</span></span>
 <span>  InstanceIds <span class="op">=</span> <span class="fu">instance_ids</span><span class="op">(</span><span class="va">instance_req</span><span class="op">)</span></span>
