@@ -9,14 +9,13 @@
 [![pkgdown](https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg)](https://github.com/dmolitor/modelselection/actions)
 <!-- badges: end -->
 
-The goal of `modelselection` is to provide common model selection and
-tuning utilities in an intuitive manner. Specifically, I want something
-that is lightweight (so not `mlr3`) and doesn’t force you to adopt a
-whole new modeling paradigm (so not `tidymodels`). Also, I want the
+The goal of `modelselection` is to provide a few common model selection and
+tuning utilities in an intuitive manner. I want something that doesn’t require me
+to adopt a whole new modeling paradigm. Also, I want the
 provided functionality to be very type agnostic and be able to work with
 data frames, standard dense matrices, and `Matrix` sparse matrices.
 Finally, I want it to be easily distributable (It’s built on top of the
-`future.apply` package) and I want to have full control over it 😉.
+`future.apply` package).
 
 ## Installation
 
