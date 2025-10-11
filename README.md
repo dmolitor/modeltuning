@@ -5,7 +5,8 @@
 
 <!-- badges: start -->
 
-[![pkgdown](https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg)](https://github.com/dmolitor/modelselection/actions)
+[![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
+
 [![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -40,7 +41,7 @@ illustrate the basic functionality of modelselection.
 
 First we’ll train a binary classification Decision Tree model to predict
 whether the flowers in `iris` are of Species `virginica` and we’ll
-specify a 3-fold Cross-Validation scheme with stratification by Species
+specify a 3-fold cross validation scheme with stratification by Species
 to estimate our model’s true error rate.
 
 First, let’s split our data into a train and test set.
@@ -58,12 +59,12 @@ iris_train <- iris_new[1:100, ]
 iris_test <- iris_new[101:150, ]
 ```
 
-Now, let’s specify and fit a 3-fold cross-validation scheme and
+Now, let’s specify and fit a 3-fold cross validation scheme and
 calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our
 hold-out set evaluation metrics.
 
 ``` r
-# Specify Cross Validation schema
+# Specify cross validation schema
 iris_cv <- CV$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -86,7 +87,7 @@ iris_cv <- CV$new(
   )
 )
 
-# Fit Cross Validated model
+# Fit cross validated model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 ```
 
@@ -98,9 +99,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 94.08% 
-#>  Accuracy: 92.33% 
-#>       AUC: 0.9226
+#> F-Measure: 96.3% 
+#>  Accuracy: 95% 
+#>       AUC: 0.9413
 ```
 
 ### Grid Search
@@ -157,18 +158,18 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.956
+#> Optimal ROC AUC: 0.8976
 ```
 
-### Grid Search with Cross Validation
+### Grid Search with cross validation
 
 Finally, `modelselection` supports model-tuning with Grid Search using
-Cross Validation to estimate each model’s true error rate instead of a
-hold-out validation set. We’ll use Cross Validation to tune the same
+cross validation to estimate each model’s true error rate instead of a
+hold-out validation set. We’ll use cross validation to tune the same
 parameters as above.
 
 ``` r
-# Specify Grid Search schema with Cross Validation
+# Specify Grid Search schema with cross validation
 iris_grid_cv <- GridSearchCV$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -217,9 +218,9 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 15
-#>   - maxdepth: 24 
-#> Optimal ROC AUC: 0.9579
+#>   - minsplit: 20
+#>   - maxdepth: 30 
+#> Optimal ROC AUC: 0.9546
 ```
 
 ### Parallelization
@@ -238,7 +239,15 @@ plan(multisession, workers = 5)
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 
 # Model performance metrics
-iric_cv_fitted$mean_metrics
+iris_cv_fitted$mean_metrics
+#> $f_meas
+#> [1] 0.9594565
+#> 
+#> $accuracy
+#> [1] 0.9449721
+#> 
+#> $auc
+#> [1] 0.9395301
 ```
 
 And voila!

@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
 # modelselection
 
 <!-- badges: start -->
-[![pkgdown](https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg)](https://github.com/dmolitor/modelselection/actions)
+[![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
+
 [![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -42,7 +43,7 @@ These are simple examples that use the built-in `iris` data-set to illustrate th
 
 ### Cross Validation
 
-First we'll train a binary classification Decision Tree model to predict whether the flowers in `iris` are of Species `virginica` and we'll specify a 3-fold Cross-Validation scheme with stratification by Species to estimate our model's true error rate.
+First we'll train a binary classification Decision Tree model to predict whether the flowers in `iris` are of Species `virginica` and we'll specify a 3-fold cross validation scheme with stratification by Species to estimate our model's true error rate.
 
 First, let's split our data into a train and test set.
 ```{r Data Prep, echo = TRUE, results = "hide"}
@@ -58,10 +59,10 @@ iris_train <- iris_new[1:100, ]
 iris_test <- iris_new[101:150, ]
 ```
 
-Now, let's specify and fit a 3-fold cross-validation scheme and calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our hold-out set evaluation metrics.
+Now, let's specify and fit a 3-fold cross validation scheme and calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our hold-out set evaluation metrics.
 
 ```{r Cross Validation}
-# Specify Cross Validation schema
+# Specify cross validation schema
 iris_cv <- CV$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -84,7 +85,7 @@ iris_cv <- CV$new(
   )
 )
 
-# Fit Cross Validated model
+# Fit cross validated model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 ```
 
@@ -145,11 +146,11 @@ cat(
 )
 ```
 
-### Grid Search with Cross Validation
+### Grid Search with cross validation
 
-Finally, `modelselection` supports model-tuning with Grid Search using Cross Validation to estimate each model's true error rate instead of a hold-out validation set. We'll use Cross Validation to tune the same parameters as above.
-```{r Grid Search with Cross Validation}
-# Specify Grid Search schema with Cross Validation
+Finally, `modelselection` supports model-tuning with Grid Search using cross validation to estimate each model's true error rate instead of a hold-out validation set. We'll use cross validation to tune the same parameters as above.
+```{r Grid Search with cross validation}
+# Specify Grid Search schema with cross validation
 iris_grid_cv <- GridSearchCV$new(
   learner = rpart,
   learner_args = list(method = "class"),
@@ -201,14 +202,14 @@ cat(
 ### Parallelization
 
 As noted above, modelselection is built on top of the `future` package and can utilize any parallelization method supported by the [`future`](https://future.futureverse.org/) package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local parallelization.
-```{r Parallelization, eval = FALSE}
+```{r Parallelization, eval = TRUE}
 plan(multisession, workers = 5)
 
 # Fit Cross Validated model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 
 # Model performance metrics
-iric_cv_fitted$mean_metrics
+iris_cv_fitted$mean_metrics
 ```
 
 And voila!
