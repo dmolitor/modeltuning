@@ -1,3 +1,29 @@
+#' Generate cross-validation fold indices
+#'
+#' Splits row indices of a data frame or matrix into \code{k} folds for cross-validation.
+#'
+#' @param data A data frame or matrix.
+#' @param v Integer. Number of folds. Defaults to 5.
+#' @param seed Optional integer. Random seed for reproducibility.
+#'
+#' @return A list of length \code{v}, where each element is a vector of row indices for that fold.
+#'
+#' @examples
+#' folds <- cv_split(mtcars, v = 5, seed = 123)
+#' str(folds)
+#'
+#' @export
+cv_split <- function(data, v = 5, seed = NULL) {
+  if (!is.null(seed)) {
+    old_rng <- .Random.seed
+    on.exit({ .Random.seed <<- old_rng }, add = TRUE)
+    set.seed(seed)
+  }
+  n <- nrow(data)
+  fold_ids <- sample(rep(1:v, length.out = n))
+  unname(split(seq_len(n), fold_ids))
+}
+
 get_namespace_name <- function(fn) {
   tryCatch(
     unname(getNamespaceName(environment(fn))),
