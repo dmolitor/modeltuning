@@ -6,7 +6,6 @@
 <!-- badges: start -->
 
 [![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
-
 [![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
@@ -99,9 +98,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 96.3% 
+#> F-Measure: 96.27% 
 #>  Accuracy: 95% 
-#>       AUC: 0.9413
+#>       AUC: 0.9391
 ```
 
 ### Grid Search
@@ -158,7 +157,7 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.8976
+#> Optimal ROC AUC: 0.9417
 ```
 
 ### Grid Search with cross validation
@@ -218,9 +217,9 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 20
-#>   - maxdepth: 30 
-#> Optimal ROC AUC: 0.9546
+#>   - minsplit: 25
+#>   - maxdepth: 24 
+#> Optimal ROC AUC: 0.9618
 ```
 
 ### Parallelization
@@ -241,13 +240,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9594565
+#> [1] 0.9574074
 #> 
 #> $accuracy
-#> [1] 0.9449721
+#> [1] 0.939997
 #> 
 #> $auc
-#> [1] 0.9395301
+#> [1] 0.9278063
 ```
 
 And voila!
