@@ -5,31 +5,36 @@
 
 <!-- badges: start -->
 
-[![R-CMD-check](https://github.com/dmolitor/modelselection/workflows/R-CMD-check/badge.svg)](https://github.com/dmolitor/modelselection/actions)
 [![pkgdown](https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg)](https://github.com/dmolitor/modelselection/actions)
+[![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of `modelselection` is to provide a few common model selection and
-tuning utilities in an intuitive manner. I want something that doesn’t require me
-to adopt a whole new modeling paradigm. Also, I want the
-provided functionality to be very type agnostic and be able to work with
-data frames, standard dense matrices, and `Matrix` sparse matrices.
-Finally, I want it to be easily distributable (It’s built on top of the
-`future.apply` package).
+The goal of modelselection is to provide common model selection and
+tuning utilities in an intuitive manner. Additionally, modelselection
+aims to be:
+
+- Fairly lightweight and not force you to learn an entirely new modeling
+  paradigm
+- Model/type agnostic and work easily with most R modeling packages and
+  various data types including data frames, standard dense matrices, and
+  `Matrix` sparse matrices
+- Easily parallelizable; modelselection is built on top of the
+  [`future`](https://future.futureverse.org/) package and is compatible
+  with any of the (many!) available parallelization backends.
 
 ## Installation
 
 You can install the development version of `modelselection` with:
 
 ``` r
-# install.packages("devtools")
-devtools::install_github("dmolitor/modelselection")
+# install.packages("pak")
+pak::pkg_install("dmolitor/modelselection")
 ```
 
 ## Usage
 
 These are simple examples that use the built-in `iris` data-set to
-illustrate the basic functionality of `modelselection`.
+illustrate the basic functionality of modelselection.
 
 ### Cross Validation
 
@@ -46,8 +51,6 @@ library(modelselection)
 library(rpart)
 library(rsample)
 library(yardstick)
-#> For binary classification, the first factor level is assumed to be the event.
-#> Use the argument `event_level = "second"` to alter this as needed.
 
 iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
 iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -64,8 +67,8 @@ hold-out set evaluation metrics.
 iris_cv <- CV$new(
   learner = rpart,
   learner_args = list(method = "class"),
-  splitter = vfold_cv, 
-  splitter_args = list(v = 3, strata = "Species"),
+  splitter = cv_split,
+  splitter_args = list(v = 3),
   scorer = list(
     "f_meas" = f_meas_vec,
     "accuracy" = accuracy_vec,
@@ -95,9 +98,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 96.04% 
-#>  Accuracy: 94.67% 
-#>       AUC: 0.9352
+#> F-Measure: 94.08% 
+#>  Accuracy: 92.33% 
+#>       AUC: 0.9226
 ```
 
 ### Grid Search
@@ -154,7 +157,7 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9253
+#> Optimal ROC AUC: 0.956
 ```
 
 ### Grid Search with Cross Validation
@@ -173,7 +176,7 @@ iris_grid_cv <- GridSearchCV$new(
     minsplit = seq(10, 30, by = 5),
     maxdepth = seq(20, 30, by = 2)
   ),
-  splitter = vfold_cv,
+  splitter = cv_split,
   splitter_args = list(v = 3),
   scorer = list(
     accuracy = accuracy_vec,
@@ -214,26 +217,28 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 20
-#>   - maxdepth: 30 
-#> Optimal ROC AUC: 0.9722
+#>   - minsplit: 15
+#>   - maxdepth: 24 
+#> Optimal ROC AUC: 0.9579
 ```
 
 ### Parallelization
 
-As noted above, `modelselection` is built on top of the `future.apply`
-package and can utilize any parallelization method supported by the
+As noted above, modelselection is built on top of the `future` package
+and can utilize any parallelization method supported by the
 [`future`](https://future.futureverse.org/) package when fitting
 cross-validated models or tuning models with grid search. The code below
 evaluates the same cross-validated binary classification model using
-local multi-core parallelization.
+local parallelization.
 
 ``` r
-# Initialize multi-core parallel strategy
-plan(multisession)
+plan(multisession, workers = 5)
 
 # Fit Cross Validated model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
+
+# Model performance metrics
+iric_cv_fitted$mean_metrics
 ```
 
 And voila!
