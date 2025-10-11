@@ -13,6 +13,7 @@
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Model Selection and Tuning Utilities">
 <meta name="description" content="Provides common model selection and tuning utilities in an intuitive and extremely flexible manner.">
 <meta property="og:description" content="Provides common model selection and tuning utilities in an intuitive and extremely flexible manner.">
+<meta property="og:image" content="https://www.dmolitor.com/modelselection/logo.png">
 </head>
 <body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
@@ -51,8 +52,10 @@
 </nav><div class="container template-home">
 <div class="row">
   <main id="main" class="col-md-9"><div class="section level1">
-<div class="page-header"><h1 id="modelselection">modelselection<a class="anchor" aria-label="anchor" href="#modelselection"></a>
-</h1></div>
+<div class="page-header">
+<img src="logo.png" class="logo" alt=""><h1 id="modelselection-">modelselection <a class="anchor" aria-label="anchor" href="#modelselection-"></a>
+</h1>
+</div>
 <!-- badges: start -->
 
 <p>The goal of modelselection is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modelselection aims to be:</p>
@@ -123,9 +126,9 @@
 <span>  <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; F-Measure: 96.27% </span></span>
-<span><span class="co">#&gt;  Accuracy: 95% </span></span>
-<span><span class="co">#&gt;       AUC: 0.9391</span></span></code></pre></div>
+<span><span class="co">#&gt; F-Measure: 95.26% </span></span>
+<span><span class="co">#&gt;  Accuracy: 93.67% </span></span>
+<span><span class="co">#&gt;       AUC: 0.9315</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -175,7 +178,7 @@
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 10</span></span>
 <span><span class="co">#&gt;   - maxdepth: 20 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9417</span></span></code></pre></div>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9288</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-with-cross-validation">Grid Search with cross validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
@@ -229,8 +232,8 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 25</span></span>
-<span><span class="co">#&gt;   - maxdepth: 24 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9618</span></span></code></pre></div>
+<span><span class="co">#&gt;   - maxdepth: 20 </span></span>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9543</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -245,13 +248,13 @@
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9574074</span></span>
+<span><span class="co">#&gt; [1] 0.9424149</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.939997</span></span>
+<span><span class="co">#&gt; [1] 0.925147</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9278063</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9292773</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>
