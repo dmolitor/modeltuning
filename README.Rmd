@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# modelselection <img src='man/figures/logo-no-bg.png' align="right" height="140"/>
+# modelselection <img src='man/figures/logo-no-bg.png' align="right" height="180"/>
 
 <!-- badges: start -->
 [![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
@@ -21,7 +21,6 @@ knitr::opts_chunk$set(
 <!-- badges: end -->
 
 The goal of modelselection is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modelselection aims to be:
-
 - Fairly lightweight and not force you to learn an entirely new modeling paradigm
 - Model/type agnostic and work easily with most R modeling packages and various data types including data frames, standard dense matrices, and `Matrix` sparse matrices
 - Easily parallelizable; modelselection is built on top of the [`future`](https://future.futureverse.org/) package and is compatible with any of the (many!) available parallelization backends.
