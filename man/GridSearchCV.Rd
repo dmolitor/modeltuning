@@ -15,14 +15,16 @@ metrics.
 ## Method `GridSearchCV$fit`
 ## ------------------------------------------------
 
-if (require(rpart) && require(rsample) && require(yardstick)) {
-
+if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
   iris_validate <- iris_new[101:150, ]
 
-  ### Basic Example
+  # Create a sampling function that returns CV folds
+  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
+
+  ### Decision Tree example
 
   iris_grid_cv <- GridSearchCV$new(
     learner = rpart::rpart,
@@ -31,11 +33,10 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
       minsplit = seq(10, 30, by = 5),
       maxdepth = seq(20, 30, by = 2)
     ),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
-    scorer = list(accuracy = yardstick::accuracy_vec),
+    splitter = sampling_fn,
+    scorer = list("accuracy" = yardstick::accuracy_vec),
     optimize_score = "max",
-    prediction_args = list(accuracy = list(type = "class"))
+    prediction_args = list("accuracy" = list(type = "class"))
   )
   iris_grid_cv_fitted <- iris_grid_cv$fit(
     formula = Species ~ .,
@@ -51,26 +52,59 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
       minsplit = seq(10, 30, by = 5),
       maxdepth = seq(20, 30, by = 2)
     ),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
+    splitter = sampling_fn,
     scorer = list(
-      accuracy = yardstick::accuracy_vec,
-      auc = yardstick::roc_auc_vec
+      "accuracy" = yardstick::accuracy_vec,
+      "auc" = yardstick::roc_auc_vec
     ),
     optimize_score = "max",
     prediction_args = list(
-      accuracy = list(type = "class"),
-      auc = list(type = "prob")
+      "accuracy" = list(type = "class"),
+      "auc" = list(type = "prob")
     ),
     convert_predictions = list(
-      accuracy = NULL,
-      auc = function(i) i[, "FALSE"]
+      "accuracy" = NULL,
+      "auc" = function(i) i[, "FALSE"]
     )
   )
   iris_grid_cv_fitted <- iris_grid_cv$fit(
     formula = Species ~ .,
-    data = iris_train
+    data = iris_train,
   )
+
+  # Grab the best model
+  iris_grid_cv_fitted$best_model
+
+  # Grab the best hyper-parameters
+  iris_grid_cv_fitted$best_params
+
+  # Grab the best model performance metrics
+  iris_grid_cv_fitted$best_metric
+
+  ### Matrix interface example - SVM
+
+  mtcars_train <- mtcars[1:25, ]
+  mtcars_eval <- mtcars[26:nrow(mtcars), ]
+
+  mtcars_grid_cv <- GridSearchCV$new(
+    learner = e1071::svm,
+    tune_params = list(
+      "degree" = 2:4,
+      "kernel" = c("linear", "polynomial")
+    ),
+    splitter = sampling_fn,
+    learner_args = list(scale = TRUE),
+    scorer = list(
+      "rmse" = yardstick::rmse_vec,
+      "mae" = yardstick::mae_vec
+    ),
+    optimize_score = "min"
+  )
+  mtcars_grid_cv_fitted <- mtcars_grid_cv$fit(
+    x = mtcars_train[, -1],
+    y = mtcars_train$mpg
+  )
+
 }
 }
 \section{Public fields}{
@@ -144,14 +178,16 @@ An object of class \link{FittedGridSearchCV}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(rpart) && require(rsample) && require(yardstick)) {
-
+\preformatted{if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
   iris_validate <- iris_new[101:150, ]
 
-  ### Basic Example
+  # Create a sampling function that returns CV folds
+  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
+
+  ### Decision Tree example
 
   iris_grid_cv <- GridSearchCV$new(
     learner = rpart::rpart,
@@ -160,11 +196,10 @@ An object of class \link{FittedGridSearchCV}.
       minsplit = seq(10, 30, by = 5),
       maxdepth = seq(20, 30, by = 2)
     ),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
-    scorer = list(accuracy = yardstick::accuracy_vec),
+    splitter = sampling_fn,
+    scorer = list("accuracy" = yardstick::accuracy_vec),
     optimize_score = "max",
-    prediction_args = list(accuracy = list(type = "class"))
+    prediction_args = list("accuracy" = list(type = "class"))
   )
   iris_grid_cv_fitted <- iris_grid_cv$fit(
     formula = Species ~ .,
@@ -180,26 +215,59 @@ An object of class \link{FittedGridSearchCV}.
       minsplit = seq(10, 30, by = 5),
       maxdepth = seq(20, 30, by = 2)
     ),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
+    splitter = sampling_fn,
     scorer = list(
-      accuracy = yardstick::accuracy_vec,
-      auc = yardstick::roc_auc_vec
+      "accuracy" = yardstick::accuracy_vec,
+      "auc" = yardstick::roc_auc_vec
     ),
     optimize_score = "max",
     prediction_args = list(
-      accuracy = list(type = "class"),
-      auc = list(type = "prob")
+      "accuracy" = list(type = "class"),
+      "auc" = list(type = "prob")
     ),
     convert_predictions = list(
-      accuracy = NULL,
-      auc = function(i) i[, "FALSE"]
+      "accuracy" = NULL,
+      "auc" = function(i) i[, "FALSE"]
     )
   )
   iris_grid_cv_fitted <- iris_grid_cv$fit(
     formula = Species ~ .,
-    data = iris_train
+    data = iris_train,
   )
+
+  # Grab the best model
+  iris_grid_cv_fitted$best_model
+
+  # Grab the best hyper-parameters
+  iris_grid_cv_fitted$best_params
+
+  # Grab the best model performance metrics
+  iris_grid_cv_fitted$best_metric
+
+  ### Matrix interface example - SVM
+
+  mtcars_train <- mtcars[1:25, ]
+  mtcars_eval <- mtcars[26:nrow(mtcars), ]
+
+  mtcars_grid_cv <- GridSearchCV$new(
+    learner = e1071::svm,
+    tune_params = list(
+      "degree" = 2:4,
+      "kernel" = c("linear", "polynomial")
+    ),
+    splitter = sampling_fn,
+    learner_args = list(scale = TRUE),
+    scorer = list(
+      "rmse" = yardstick::rmse_vec,
+      "mae" = yardstick::mae_vec
+    ),
+    optimize_score = "min"
+  )
+  mtcars_grid_cv_fitted <- mtcars_grid_cv$fit(
+    x = mtcars_train[, -1],
+    y = mtcars_train$mpg
+  )
+
 }
 }
 \if{html}{\out{</div>}}

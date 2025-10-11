@@ -68,6 +68,9 @@ the `e1071` package, and I'm going to use Grid Search in combination with
 5-fold Cross-Validation to find the optimal values for the `cost` and `kernel`
 hyper-parameters.
 ```{r Grid Search}
+# Create a splitter function that will return CV folds
+splitter_fn <- function(data) lapply(vfold_cv(data, v = 5)$splits, \(y) y$in_id)
+
 iris_grid <- GridSearchCV$new(
   learner = svm,
   tune_params = list(
@@ -79,8 +82,7 @@ iris_grid <- GridSearchCV$new(
     type = "C-classification",
     probability = TRUE
   ),
-  splitter = vfold_cv,
-  splitter_args = list(v = 5),
+  splitter = splitter_fn,
   scorer = list(
     accuracy = accuracy_vec,
     f_measure = f_meas_vec,
@@ -111,7 +113,7 @@ To speed up the estimation of our models, let's create a remote cluster of 6
 worker nodes to estimate the models in parallel.
 
 ## Launch EC2 Instances
-First, we will launch 6 instances using a custom AMI that contains R 4.1.3 and
+First, we will launch 6 instances using a custom AMI that contains R and
 a bunch of essential R packages. While this AMI is not available as a community
 AMI there are definitely good AMIs out there that have a comprehensive set of R
 packages and corresponding tools installed. **Note:** which parameters you need 

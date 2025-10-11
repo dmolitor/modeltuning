@@ -14,21 +14,20 @@ among other essential parameters.
 ## Method `CV$fit`
 ## ------------------------------------------------
 
-if (require(rpart) && require(rsample) && require(yardstick)) {
-
+if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
 
-  ### Basic Example
+  # Create a sampling function that returns CV folds
+  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
+
+  ### Decision Tree Example
 
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
-    scorer = list(
-      "accuracy" = yardstick::accuracy_vec
-    ),
+    splitter = sampling_fn,
+    scorer = list("accuracy" = yardstick::accuracy_vec),
     prediction_args = list(type = "class")
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
@@ -38,8 +37,7 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
+    splitter = sampling_fn,
     scorer = list(
       "f_meas" = yardstick::f_meas_vec,
       "accuracy" = yardstick::accuracy_vec,
@@ -60,6 +58,41 @@ if (require(rpart) && require(rsample) && require(yardstick)) {
     )
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
+
+  # Print the mean performance metrics across CV folds
+  iris_cv_fitted$mean_metrics
+
+  # Grab the final model fitted on the full dataset
+  iris_cv_fitted$model
+
+  ### OLS Example
+
+  mtcars_cv <- CV$new(
+    learner = lm,
+    splitter = sampling_fn,
+    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+  )
+
+  mtcars_cv_fitted <- mtcars_cv$fit(
+    formula = mpg ~ .,
+    data = mtcars
+  )
+
+  ### Matrix interface example - SVM
+
+  mtcars_x <- model.matrix(mpg ~ . - 1, mtcars)
+  mtcars_y <- mtcars$mpg
+
+  mtcars_cv <- CV$new(
+    learner = e1071::svm,
+    learner_args = list(scale = TRUE, kernel = "polynomial", cross = 0),
+    splitter = sampling_fn,
+    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+  )
+  mtcars_cv_fitted <- mtcars_cv$fit(
+    x = mtcars_x,
+    y = mtcars_y
+  )
 }
 }
 \section{Public fields}{
@@ -123,21 +156,20 @@ An object of class \link{FittedCV}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(rpart) && require(rsample) && require(yardstick)) {
-
+\preformatted{if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
 
-  ### Basic Example
+  # Create a sampling function that returns CV folds
+  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
+
+  ### Decision Tree Example
 
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
-    scorer = list(
-      "accuracy" = yardstick::accuracy_vec
-    ),
+    splitter = sampling_fn,
+    scorer = list("accuracy" = yardstick::accuracy_vec),
     prediction_args = list(type = "class")
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
@@ -147,8 +179,7 @@ An object of class \link{FittedCV}.
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = rsample::vfold_cv,
-    splitter_args = list(v = 3),
+    splitter = sampling_fn,
     scorer = list(
       "f_meas" = yardstick::f_meas_vec,
       "accuracy" = yardstick::accuracy_vec,
@@ -169,6 +200,41 @@ An object of class \link{FittedCV}.
     )
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
+
+  # Print the mean performance metrics across CV folds
+  iris_cv_fitted$mean_metrics
+
+  # Grab the final model fitted on the full dataset
+  iris_cv_fitted$model
+
+  ### OLS Example
+
+  mtcars_cv <- CV$new(
+    learner = lm,
+    splitter = sampling_fn,
+    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+  )
+
+  mtcars_cv_fitted <- mtcars_cv$fit(
+    formula = mpg ~ .,
+    data = mtcars
+  )
+
+  ### Matrix interface example - SVM
+
+  mtcars_x <- model.matrix(mpg ~ . - 1, mtcars)
+  mtcars_y <- mtcars$mpg
+
+  mtcars_cv <- CV$new(
+    learner = e1071::svm,
+    learner_args = list(scale = TRUE, kernel = "polynomial", cross = 0),
+    splitter = sampling_fn,
+    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+  )
+  mtcars_cv_fitted <- mtcars_cv$fit(
+    x = mtcars_x,
+    y = mtcars_y
+  )
 }
 }
 \if{html}{\out{</div>}}
@@ -212,7 +278,7 @@ the data observations that are included in that fold.}
 
 \item{\code{scorer}}{A named list of metric functions to evaluate model
 performance on each cross validation fold. Any provided metric function
-must have \code{truth} and \code{estimate} arguments, for true outcome values and
+must have \code{truth} and \code{estimate} arguments for true outcome values and
 predicted outcome values respectively, and must return a single numeric
 metric value.}
 
