@@ -13,7 +13,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# modelselection
+# modelselection <img src='man/figures/logo-no-bg.png' align="right" height="140"/>
 
 <!-- badges: start -->
 [![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
