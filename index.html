@@ -55,7 +55,6 @@
 </h1></div>
 <!-- badges: start -->
 
-<p><a href="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <!-- badges: end --></p>
 <p>The goal of modelselection is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modelselection aims to be:</p>
 <ul>
 <li>Fairly lightweight and not force you to learn an entirely new modeling paradigm</li>
@@ -124,9 +123,9 @@
 <span>  <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; F-Measure: 96.3% </span></span>
+<span><span class="co">#&gt; F-Measure: 96.27% </span></span>
 <span><span class="co">#&gt;  Accuracy: 95% </span></span>
-<span><span class="co">#&gt;       AUC: 0.9413</span></span></code></pre></div>
+<span><span class="co">#&gt;       AUC: 0.9391</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -176,7 +175,7 @@
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 10</span></span>
 <span><span class="co">#&gt;   - maxdepth: 20 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.8976</span></span></code></pre></div>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9417</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-with-cross-validation">Grid Search with cross validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
@@ -229,9 +228,9 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
-<span><span class="co">#&gt;   - minsplit: 20</span></span>
-<span><span class="co">#&gt;   - maxdepth: 30 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9546</span></span></code></pre></div>
+<span><span class="co">#&gt;   - minsplit: 25</span></span>
+<span><span class="co">#&gt;   - maxdepth: 24 </span></span>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9618</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -246,13 +245,13 @@
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9594565</span></span>
+<span><span class="co">#&gt; [1] 0.9574074</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9449721</span></span>
+<span><span class="co">#&gt; [1] 0.939997</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9395301</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9278063</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>
@@ -284,6 +283,7 @@
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
 <li><a href="https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown.yaml"></a></li>
+<li><a href="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
 </ul>
 </div>
 
