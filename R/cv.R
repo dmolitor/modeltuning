@@ -268,7 +268,7 @@ CV <- R6Class(
             "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
           ))
         }
-        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && is_formula(formula)) {
+        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && rlang::is_formula(formula)) {
           abort(c(
             "Malformed formula:",
             "i" = "Please specify `formula` as a valid, two-sided formula"

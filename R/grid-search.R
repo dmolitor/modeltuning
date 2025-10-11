@@ -285,7 +285,7 @@ GridSearch <- R6Class(
             )
           )
         }
-        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && is_formula(formula)) {
+        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && rlang::is_formula(formula)) {
           abort(
             c(
               "Malformed formula:",
