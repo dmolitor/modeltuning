@@ -55,6 +55,7 @@
 </h1></div>
 <!-- badges: start -->
 
+<p><a href="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a> <!-- badges: end --></p>
 <p>The goal of modelselection is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modelselection aims to be:</p>
 <ul>
 <li>Fairly lightweight and not force you to learn an entirely new modeling paradigm</li>
@@ -76,7 +77,7 @@
 <div class="section level3">
 <h3 id="cross-validation">Cross Validation<a class="anchor" aria-label="anchor" href="#cross-validation"></a>
 </h3>
-<p>First we’ll train a binary classification Decision Tree model to predict whether the flowers in <code>iris</code> are of Species <code>virginica</code> and we’ll specify a 3-fold Cross-Validation scheme with stratification by Species to estimate our model’s true error rate.</p>
+<p>First we’ll train a binary classification Decision Tree model to predict whether the flowers in <code>iris</code> are of Species <code>virginica</code> and we’ll specify a 3-fold cross validation scheme with stratification by Species to estimate our model’s true error rate.</p>
 <p>First, let’s split our data into a train and test set.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
@@ -89,9 +90,9 @@
 <span><span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">==</span> <span class="st">"virginica"</span><span class="op">)</span></span>
 <span><span class="va">iris_train</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, <span class="op">]</span></span>
 <span><span class="va">iris_test</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">150</span>, <span class="op">]</span></span></code></pre></div>
-<p>Now, let’s specify and fit a 3-fold cross-validation scheme and calculate the <strong>F Measure</strong>, <strong>Accuracy</strong>, and <strong>ROC AUC</strong> as our hold-out set evaluation metrics.</p>
+<p>Now, let’s specify and fit a 3-fold cross validation scheme and calculate the <strong>F Measure</strong>, <strong>Accuracy</strong>, and <strong>ROC AUC</strong> as our hold-out set evaluation metrics.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Specify Cross Validation schema</span></span>
+<code class="sourceCode R"><span><span class="co"># Specify cross validation schema</span></span>
 <span><span class="va">iris_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/CV.html">CV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
 <span>  learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
@@ -114,7 +115,7 @@
 <span>  <span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
-<span><span class="co"># Fit Cross Validated model</span></span>
+<span><span class="co"># Fit cross validated model</span></span>
 <span><span class="va">iris_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris_new</span><span class="op">)</span></span></code></pre></div>
 <p>Now, let’s check our evaluation metrics averaged across folds.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -123,9 +124,9 @@
 <span>  <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; F-Measure: 94.08% </span></span>
-<span><span class="co">#&gt;  Accuracy: 92.33% </span></span>
-<span><span class="co">#&gt;       AUC: 0.9226</span></span></code></pre></div>
+<span><span class="co">#&gt; F-Measure: 96.3% </span></span>
+<span><span class="co">#&gt;  Accuracy: 95% </span></span>
+<span><span class="co">#&gt;       AUC: 0.9413</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -175,14 +176,14 @@
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 10</span></span>
 <span><span class="co">#&gt;   - maxdepth: 20 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.956</span></span></code></pre></div>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.8976</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="grid-search-with-cross-validation">Grid Search with Cross Validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
+<h3 id="grid-search-with-cross-validation">Grid Search with cross validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
 </h3>
-<p>Finally, <code>modelselection</code> supports model-tuning with Grid Search using Cross Validation to estimate each model’s true error rate instead of a hold-out validation set. We’ll use Cross Validation to tune the same parameters as above.</p>
+<p>Finally, <code>modelselection</code> supports model-tuning with Grid Search using cross validation to estimate each model’s true error rate instead of a hold-out validation set. We’ll use cross validation to tune the same parameters as above.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Specify Grid Search schema with Cross Validation</span></span>
+<code class="sourceCode R"><span><span class="co"># Specify Grid Search schema with cross validation</span></span>
 <span><span class="va">iris_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
 <span>  learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
@@ -228,9 +229,9 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
-<span><span class="co">#&gt;   - minsplit: 15</span></span>
-<span><span class="co">#&gt;   - maxdepth: 24 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9579</span></span></code></pre></div>
+<span><span class="co">#&gt;   - minsplit: 20</span></span>
+<span><span class="co">#&gt;   - maxdepth: 30 </span></span>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9546</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -243,7 +244,15 @@
 <span><span class="va">iris_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris_train</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Model performance metrics</span></span>
-<span><span class="va">iric_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span></code></pre></div>
+<span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
+<span><span class="co">#&gt; $f_meas</span></span>
+<span><span class="co">#&gt; [1] 0.9594565</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $accuracy</span></span>
+<span><span class="co">#&gt; [1] 0.9449721</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; $auc</span></span>
+<span><span class="co">#&gt; [1] 0.9395301</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>
@@ -274,8 +283,7 @@
 <div class="dev-status">
 <h2 data-toc-skip>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://github.com/dmolitor/modelselection/actions" class="external-link"><img src="https://github.com/dmolitor/modelselection/workflows/pkgdown/badge.svg" alt="pkgdown"></a></li>
-<li><a href="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown.yaml"></a></li>
 </ul>
 </div>
 
