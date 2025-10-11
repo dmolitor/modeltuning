@@ -1,90 +1,3 @@
-#' Fitted Models with Cross Validation across a Tuning Grid of Hyper-parameters
-#'
-#' @description
-#' `FittedGridSearchCV` is an object containing fitted predictive models across
-#' a tuning grid of hyper-parameters returned by `GridSearchCV$fit()` as well as
-#' relevant model information such as the best performing model, best
-#' hyper-parameters, etc.
-#'
-#' @export
-FittedGridSearchCV <- R6Class(
-  classname = "FittedGridSearchCV",
-  public = list(
-    #' @field best_idx An integer specifying the index of `$models` that
-    #'   contains the best-performing model.
-    best_idx = NULL,
-    #' @field best_metric The average performance metric of the best model
-    #'   across cross-validation folds.
-    best_metric = NULL,
-    #' @field best_model The best performing predictive model.
-    best_model = NULL,
-    #' @field best_params A named list of the hyper-parameters that result in
-    #'   the optimal predictive model.
-    best_params = NULL,
-    #' @field folds A list of length `$models` where each element contains a
-    #'   list of the cross-validation indices for each fold.
-    folds = NULL,
-    #' @field tune_params A [data.frame] of the full hyper-parameter grid.
-    tune_params = NULL,
-    #' @description
-    #' Create a new [FittedGridSearchCV] object.
-    #'
-    #' @param tune_params Data.frame of the full hyper-parameter grid.
-    #' @param models List of predictive models at every value of `$tune_params`.
-    #' @param folds List of cross-validation indices at every value of
-    #'   `$tune_params`.
-    #' @param metrics List of cross-validation performance metrics for
-    #'   every model in `$models`.
-    #' @param predictions A list containing the predicted values on the
-    #'   cross-validation folds for every model in `$models`.
-    #' @param optimize_score Either "max" or "min" indicating whether or not the
-    #'   specified performance metric was maximized or minimized to find the
-    #'   optimal predictive model.
-    #'
-    #' @return An object of class [FittedGridSearchCV].
-    initialize = function(tune_params,
-                          models,
-                          folds,
-                          metrics,
-                          predictions,
-                          optimize_score) {
-      self$tune_params <- tune_params
-      self$models <- models
-      self$folds <- folds
-      self$predictions <- predictions
-      metrics <- unlist(metrics)
-      metrics <- setNames(
-        lapply(
-          unique(names(metrics)),
-          function(i) unname(metrics[names(metrics) == i])
-        ),
-        unique(names(metrics))
-      )
-      self$metrics <- metrics
-      eval_metrics <- metrics[[length(metrics)]]
-      self$best_idx <- eval_tidy(
-        call2(
-          paste0("which.", optimize_score),
-          eval_metrics
-        )
-      )
-      self$best_metric <- eval_metrics[[self$best_idx]]
-      best_params <- as.list(tune_params[self$best_idx, , drop = FALSE])
-      best_params <- lapply(best_params, function(.x) .x)
-      self$best_params <- best_params
-      self$best_model <- models[[self$best_idx]]
-    },
-    #' @field models List of predictive models at every value of `$tune_params`.
-    models = NULL,
-    #' @field metrics Numeric list; Cross-validation performance metrics for
-    #'   every model in `$models`.
-    metrics = NULL,
-    #' @field predictions A list containing the cross-validation fold
-    #'   predictions for each model in `$models`.
-    predictions = NULL
-  )
-)
-
 #' Tune Predictive Model Hyper-parameters with Grid Search and Cross-Validation
 #'
 #' @description
@@ -97,6 +10,7 @@ FittedGridSearchCV <- R6Class(
 GridSearchCV <- R6Class(
   classname = "GridSearchCV",
   public = list(
+
     #' @description
     #' `fit` tunes user-specified model hyper-parameters via Grid Search and
     #' Cross-Validation.
@@ -120,14 +34,16 @@ GridSearchCV <- R6Class(
     #'   the hyper-parameter grid.
     #' @return An object of class [FittedGridSearchCV].
     #' @examples
-    #' if (require(rpart) && require(rsample) && require(yardstick)) {
-    #'
+    #' if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
     #'   iris_train <- iris_new[1:100, ]
     #'   iris_validate <- iris_new[101:150, ]
+    #' 
+    #'   # Create a sampling function that returns CV folds
+    #'   sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
     #'
-    #'   ### Basic Example
+    #'   ### Decision Tree example
     #'
     #'   iris_grid_cv <- GridSearchCV$new(
     #'     learner = rpart::rpart,
@@ -136,11 +52,10 @@ GridSearchCV <- R6Class(
     #'       minsplit = seq(10, 30, by = 5),
     #'       maxdepth = seq(20, 30, by = 2)
     #'     ),
-    #'     splitter = rsample::vfold_cv,
-    #'     splitter_args = list(v = 3),
-    #'     scorer = list(accuracy = yardstick::accuracy_vec),
+    #'     splitter = sampling_fn,
+    #'     scorer = list("accuracy" = yardstick::accuracy_vec),
     #'     optimize_score = "max",
-    #'     prediction_args = list(accuracy = list(type = "class"))
+    #'     prediction_args = list("accuracy" = list(type = "class"))
     #'   )
     #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
     #'     formula = Species ~ .,
@@ -156,26 +71,59 @@ GridSearchCV <- R6Class(
     #'       minsplit = seq(10, 30, by = 5),
     #'       maxdepth = seq(20, 30, by = 2)
     #'     ),
-    #'     splitter = rsample::vfold_cv,
-    #'     splitter_args = list(v = 3),
+    #'     splitter = sampling_fn,
     #'     scorer = list(
-    #'       accuracy = yardstick::accuracy_vec,
-    #'       auc = yardstick::roc_auc_vec
+    #'       "accuracy" = yardstick::accuracy_vec,
+    #'       "auc" = yardstick::roc_auc_vec
     #'     ),
     #'     optimize_score = "max",
     #'     prediction_args = list(
-    #'       accuracy = list(type = "class"),
-    #'       auc = list(type = "prob")
+    #'       "accuracy" = list(type = "class"),
+    #'       "auc" = list(type = "prob")
     #'     ),
     #'     convert_predictions = list(
-    #'       accuracy = NULL,
-    #'       auc = function(i) i[, "FALSE"]
+    #'       "accuracy" = NULL,
+    #'       "auc" = function(i) i[, "FALSE"]
     #'     )
     #'   )
     #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
     #'     formula = Species ~ .,
-    #'     data = iris_train
+    #'     data = iris_train,
     #'   )
+    #'
+    #'   # Grab the best model
+    #'   iris_grid_cv_fitted$best_model
+    #'
+    #'   # Grab the best hyper-parameters
+    #'   iris_grid_cv_fitted$best_params
+    #'
+    #'   # Grab the best model performance metrics
+    #'   iris_grid_cv_fitted$best_metric
+    #'
+    #'   ### Matrix interface example - SVM
+    #'
+    #'   mtcars_train <- mtcars[1:25, ]
+    #'   mtcars_eval <- mtcars[26:nrow(mtcars), ]
+    #'
+    #'   mtcars_grid_cv <- GridSearchCV$new(
+    #'     learner = e1071::svm,
+    #'     tune_params = list(
+    #'       "degree" = 2:4,
+    #'       "kernel" = c("linear", "polynomial")
+    #'     ),
+    #'     splitter = sampling_fn,
+    #'     learner_args = list(scale = TRUE),
+    #'     scorer = list(
+    #'       "rmse" = yardstick::rmse_vec,
+    #'       "mae" = yardstick::mae_vec
+    #'     ),
+    #'     optimize_score = "min"
+    #'   )
+    #'   mtcars_grid_cv_fitted <- mtcars_grid_cv$fit(
+    #'     x = mtcars_train[, -1],
+    #'     y = mtcars_train$mpg
+    #'   )
+    #'
     #' }
     fit = function(formula = NULL,
                    data = NULL,
@@ -199,6 +147,7 @@ GridSearchCV <- R6Class(
         optimize_score = private$optimize_score
       )
     },
+
     #' @description
     #' Create a new [GridSearchCV] object.
     #'
@@ -254,21 +203,12 @@ GridSearchCV <- R6Class(
                           scorer_args = NULL,
                           prediction_args = NULL,
                           convert_predictions = NULL) {
+      # Argument validation
       if (is.null(enexpr(learner))){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`learner` must be specified"
-          )
-        )
+        abort(c( "Missing argument:", "x" = "`learner` must be specified"))
       }
       if (is.null(tune_params)) {
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`tune_params` must be specified"
-          )
-        )
+        abort(c("Missing argument:", "x" = "`tune_params` must be specified"))
       }
       if (is.null(names(tune_params)) || any(vapply(names(tune_params), function(i) i == "", NA))) {
         abort(
@@ -278,122 +218,20 @@ GridSearchCV <- R6Class(
           )
         )
       }
-      if (is.null(splitter)){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`splitter` must be specified"
-          )
-        )
-      }
-      if (is.null(scorer)){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`scorer` must be specified"
-          )
-        )
-      }
+      validate_scorer(scorer, scorer_args, prediction_args)
+      validate_splitter(splitter)
+
+      # Initialize attributes and methods
       self$learner <- enexpr(learner)
-      private$future_packages <- append(
-        private$future_packages,
-        get_namespace_name(learner)
-      )
       private$learner_args <- learner_args
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
         enexpr(splitter)
       }
-      private$future_packages <- append(
-        private$future_packages,
-        get_namespace_name(splitter)
-      )
       private$splitter_args <- splitter_args
-      if (is.null(names(scorer)) || any(vapply(names(scorer), function(i) i == "", NA))) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = "Each element of `scorer` must have a name"
-          )
-        )
-      }
-      if (!identical(names(scorer), names(scorer_args)) && !is.null(scorer_args) && length(scorer_args) != 1) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = paste0(
-              "The following elements in `scorer` are missing in `scorer_args`: ",
-              if (length(setdiff(names(scorer), names(scorer_args))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer), names(scorer_args))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer), names(scorer_args)),
-                  collapse = ", "
-                )
-              }
-            ),
-            "x" = paste0(
-              "The following elements in `scorer_args` are missing in `scorer`: ",
-              if (length(setdiff(names(scorer_args), names(scorer))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer_args), names(scorer))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer_args), names(scorer)),
-                  collapse = ", "
-                )
-              }
-            )
-          )
-        )
-      }
-      if (!identical(names(scorer), names(prediction_args)) && !is.null(prediction_args) && length(prediction_args) != 1) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = paste0(
-              "The following elements in `scorer` are missing in `prediction_args`: ",
-              if (length(setdiff(names(scorer), names(prediction_args))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer), names(prediction_args))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer), names(prediction_args)),
-                  collapse = ", "
-                )
-              }
-            ),
-            "x" = paste0(
-              "The following elements in `scorer_args` are missing in `scorer`: ",
-              if (length(setdiff(names(prediction_args), names(scorer))) > 5) {
-                paste0(
-                  c(setdiff(names(prediction_args), names(scorer))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(prediction_args), names(scorer)),
-                  collapse = ", "
-                )
-              }
-            )
-          )
-        )
-      }
       self$scorer <- scorer
       private$scorer_args <- scorer_args
-      private$future_packages <- append(
-        private$future_packages,
-        unname(lapply(scorer, get_namespace_name))
-      )
       private$prediction_args <- if (is.null(prediction_args)) {
         list(NULL)
       } else {
@@ -401,35 +239,52 @@ GridSearchCV <- R6Class(
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
-        !(is.list(convert_predictions) || is.atomic(convert_predictions))
+        !rlang::is_list(convert_predictions)
       ) {
-        private$future_packages <- append(
-          private$future_packages,
-          get_namespace_name(convert_predictions)
-        )
+        if (!is.function(convert_predictions)) abort("`convert_predictions` should be a function")
         list(convert_predictions)
       } else {
-        private$future_packages <- append(
-          private$future_packages,
-          unname(lapply(convert_predictions, get_namespace_name))
-        )
         convert_predictions
       }
       self$tune_params <- expand.grid(tune_params, stringsAsFactors = FALSE)
       private$optimize_score <- match.arg(optimize_score)
+
+      # Collect packages required for future parallelization
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(splitter)
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(learner)
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(private$convert_predictions, get_namespace_name))
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(scorer, get_namespace_name))
+      )
       private$future_packages <- sort(unlist(private$future_packages))
     },
+
     #' @field learner Predictive modeling function.
     learner = NULL,
+
     #' @field scorer List of performance metric functions.
     scorer = NULL,
+
     #' @field splitter Function that splits data into cross validation folds.
     splitter = NULL,
+
     #' @field tune_params Data.frame of full hyper-parameter grid created from
     #'   `$tune_params`
     tune_params = NULL
+
   ),
   private = list(
+
     # Validate data inputs
     check_data_input = function(formula = NULL, data = NULL, x = NULL, y = NULL) {
       if (all(vapply(list(formula, data, x, y), is.null, NA))) {
@@ -469,8 +324,10 @@ GridSearchCV <- R6Class(
       }
       list(x = x, y = y)
     },
+
     # Convert predicted values into acceptable scoring format
     convert_predictions = NULL,
+
     # Fit CV models across hyper-parameter grid
     fit_grid = function(input) {
       pb <- progressor(along = 1:nrow(self$tune_params))
@@ -511,17 +368,121 @@ GridSearchCV <- R6Class(
       )
       model_contents
     },
+
     # Get all packages required to evaluate futures
     future_packages = c("future.apply", "progressr", "R6", "rlang"),
+
     # Arguments to pass to learner function
     learner_args = NULL,
+
     # How to optimize CV score
     optimize_score = NULL,
+
     # Arguments to pass to prediction method
     prediction_args = NULL,
+
     # Arguments to pass to scorer function
     scorer_args = NULL,
+
     # Arguments to pass to splitter function
     splitter_args = NULL
+  )
+)
+
+#' Fitted Models with Cross Validation across a Tuning Grid of Hyper-parameters
+#'
+#' @description
+#' `FittedGridSearchCV` is an object containing fitted predictive models across
+#' a tuning grid of hyper-parameters returned by `GridSearchCV$fit()` as well as
+#' relevant model information such as the best performing model, best
+#' hyper-parameters, etc.
+#'
+#' @export
+FittedGridSearchCV <- R6Class(
+  classname = "FittedGridSearchCV",
+  public = list(
+    
+    #' @field best_idx An integer specifying the index of `$models` that
+    #'   contains the best-performing model.
+    best_idx = NULL,
+
+    #' @field best_metric The average performance metric of the best model
+    #'   across cross-validation folds.
+    best_metric = NULL,
+
+    #' @field best_model The best performing predictive model.
+    best_model = NULL,
+
+    #' @field best_params A named list of the hyper-parameters that result in
+    #'   the optimal predictive model.
+    best_params = NULL,
+
+    #' @field folds A list of length `$models` where each element contains a
+    #'   list of the cross-validation indices for each fold.
+    folds = NULL,
+
+    #' @field tune_params A [data.frame] of the full hyper-parameter grid.
+    tune_params = NULL,
+
+    #' @description
+    #' Create a new [FittedGridSearchCV] object.
+    #'
+    #' @param tune_params Data.frame of the full hyper-parameter grid.
+    #' @param models List of predictive models at every value of `$tune_params`.
+    #' @param folds List of cross-validation indices at every value of
+    #'   `$tune_params`.
+    #' @param metrics List of cross-validation performance metrics for
+    #'   every model in `$models`.
+    #' @param predictions A list containing the predicted values on the
+    #'   cross-validation folds for every model in `$models`.
+    #' @param optimize_score Either "max" or "min" indicating whether or not the
+    #'   specified performance metric was maximized or minimized to find the
+    #'   optimal predictive model.
+    #'
+    #' @return An object of class [FittedGridSearchCV].
+    initialize = function(tune_params,
+                          models,
+                          folds,
+                          metrics,
+                          predictions,
+                          optimize_score) {
+      self$tune_params <- tune_params
+      self$models <- models
+      self$folds <- folds
+      self$predictions <- predictions
+      metrics <- unlist(metrics)
+      metrics <- setNames(
+        lapply(
+          unique(names(metrics)),
+          function(i) unlist(unname(metrics[names(metrics) == i]))
+        ),
+        unique(names(metrics))
+      )
+      self$metrics <- metrics
+      eval_metrics <- metrics[[length(metrics)]]
+      self$best_idx <- eval_tidy(
+        call2(
+          paste0("which.", optimize_score),
+          eval_metrics
+        )
+      )
+      self$best_metric <- eval_metrics[[self$best_idx]]
+      best_params <- as.list(tune_params[self$best_idx, , drop = FALSE])
+      best_params <- lapply(best_params, function(.x) .x)
+      self$best_params <- best_params
+      self$best_model <- models[[self$best_idx]]
+    },
+
+    #' @field models List of predictive models at every value of `$tune_params`.
+    models = NULL,
+
+    #' @field metrics Numeric list; Cross-validation performance metrics for
+    #'   every model in `$models`.
+    metrics = NULL,
+
+    #' @field predictions A list containing the cross-validation fold
+    #'   predictions for each model in `$models`.
+    predictions = NULL
+
   )
 )

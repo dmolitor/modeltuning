@@ -9,6 +9,7 @@
 CV <- R6Class(
   classname = "CV",
   public = list(
+
     #' @description
     #' `fit` performs cross validation with user-specified parameters.
     #'
@@ -31,21 +32,20 @@ CV <- R6Class(
     #'   cross validation folds.
     #' @return An object of class [FittedCV].
     #' @examples
-    #' if (require(rpart) && require(rsample) && require(yardstick)) {
-    #'
+    #' if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
     #'
-    #'   ### Basic Example
+    #'   # Create a sampling function that returns CV folds
+    #'   sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
+    #'
+    #'   ### Decision Tree Example
     #'
     #'   iris_cv <- CV$new(
     #'     learner = rpart::rpart,
     #'     learner_args = list(method = "class"),
-    #'     splitter = rsample::vfold_cv,
-    #'     splitter_args = list(v = 3),
-    #'     scorer = list(
-    #'       "accuracy" = yardstick::accuracy_vec
-    #'     ),
+    #'     splitter = sampling_fn,
+    #'     scorer = list("accuracy" = yardstick::accuracy_vec),
     #'     prediction_args = list(type = "class")
     #'   )
     #'   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
@@ -55,8 +55,7 @@ CV <- R6Class(
     #'   iris_cv <- CV$new(
     #'     learner = rpart::rpart,
     #'     learner_args = list(method = "class"),
-    #'     splitter = rsample::vfold_cv,
-    #'     splitter_args = list(v = 3),
+    #'     splitter = sampling_fn,
     #'     scorer = list(
     #'       "f_meas" = yardstick::f_meas_vec,
     #'       "accuracy" = yardstick::accuracy_vec,
@@ -77,6 +76,41 @@ CV <- R6Class(
     #'     )
     #'   )
     #'   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
+    #'
+    #'   # Print the mean performance metrics across CV folds
+    #'   iris_cv_fitted$mean_metrics
+    #'
+    #'   # Grab the final model fitted on the full dataset
+    #'   iris_cv_fitted$model
+    #'
+    #'   ### OLS Example
+    #'
+    #'   mtcars_cv <- CV$new(
+    #'     learner = lm,
+    #'     splitter = sampling_fn,
+    #'     scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+    #'   )
+    #'
+    #'   mtcars_cv_fitted <- mtcars_cv$fit(
+    #'     formula = mpg ~ .,
+    #'     data = mtcars
+    #'   )
+    #'
+    #'   ### Matrix interface example - SVM
+    #'
+    #'   mtcars_x <- model.matrix(mpg ~ . - 1, mtcars)
+    #'   mtcars_y <- mtcars$mpg
+    #'
+    #'   mtcars_cv <- CV$new(
+    #'     learner = e1071::svm,
+    #'     learner_args = list(scale = TRUE, kernel = "polynomial", cross = 0),
+    #'     splitter = sampling_fn,
+    #'     scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+    #'   )
+    #'   mtcars_cv_fitted <- mtcars_cv$fit(
+    #'     x = mtcars_x,
+    #'     y = mtcars_y
+    #'   )
     #' }
     fit = function(formula = NULL, data = NULL, x = NULL, y = NULL, progress = FALSE) {
       input <- private$check_data_input(formula, data, x, y)
@@ -99,6 +133,7 @@ CV <- R6Class(
         predictions = model_output$preds
       )
     },
+
     #' @description
     #' Create a new [CV] object.
     #'
@@ -115,7 +150,7 @@ CV <- R6Class(
     #'   the data observations that are included in that fold.
     #' @param scorer A named list of metric functions to evaluate model
     #'   performance on each cross validation fold. Any provided metric function
-    #'   must have `truth` and `estimate` arguments, for true outcome values and
+    #'   must have `truth` and `estimate` arguments for true outcome values and
     #'   predicted outcome values respectively, and must return a single numeric
     #'   metric value.
     #' @param learner_args A named list of additional arguments to pass to
@@ -146,131 +181,29 @@ CV <- R6Class(
                           scorer_args = NULL,
                           prediction_args = NULL,
                           convert_predictions = NULL) {
+      
+      # Argument checking
       if (is.null(enexpr(learner))){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`learner` must be specified"
-          )
-        )
+        abort(c("Missing argument:", "x" = "`learner` must be specified"))
       }
       if (is.null(splitter)){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`splitter` must be specified"
-          )
-        )
+        abort(c("Missing argument:", "x" = "`splitter` must be specified"))
       }
-      if (is.null(scorer)){
-        abort(
-          c(
-            "Missing argument:",
-            "x" = "`scorer` must be specified"
-          )
-        )
-      }
+      validate_scorer(scorer, scorer_args, prediction_args)
+      validate_splitter(splitter)
+
+      # Initialize attributes
       self$learner <- enexpr(learner)
-      private$future_packages <- append(
-        private$future_packages,
-        get_namespace_name(eval(self$learner))
-      )
       private$learner_args <- learner_args
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
         call2(enexpr(splitter), !!!splitter_args)
       }
-      private$future_packages <- append(
-        private$future_packages,
-        get_namespace_name(splitter)
-      )
-      if (is.null(names(scorer)) || any(vapply(names(scorer), function(i) i == "", NA))) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = "Each element of `scorer` must have a name"
-          )
-        )
-      }
-      if (!identical(names(scorer), names(scorer_args)) && !is.null(scorer_args) && length(scorer_args) != 1) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = paste0(
-              "The following elements in `scorer` are missing in `scorer_args`: ",
-              if (length(setdiff(names(scorer), names(scorer_args))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer), names(scorer_args))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer), names(scorer_args)),
-                  collapse = ", "
-                )
-              }
-            ),
-            "x" = paste0(
-              "The following elements in `scorer_args` are missing in `scorer`: ",
-              if (length(setdiff(names(scorer_args), names(scorer))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer_args), names(scorer))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer_args), names(scorer)),
-                  collapse = ", "
-                )
-              }
-            )
-          )
-        )
-      }
-      if (!identical(names(scorer), names(prediction_args)) && !is.null(prediction_args) && length(prediction_args) != 1) {
-        abort(
-          c(
-            "Missing attribute names:",
-            "x" = paste0(
-              "The following elements in `scorer` are missing in `prediction_args`: ",
-              if (length(setdiff(names(scorer), names(prediction_args))) > 5) {
-                paste0(
-                  c(setdiff(names(scorer), names(prediction_args))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(scorer), names(prediction_args)),
-                  collapse = ", "
-                )
-              }
-            ),
-            "x" = paste0(
-              "The following elements in `scorer_args` are missing in `scorer`: ",
-              if (length(setdiff(names(prediction_args), names(scorer))) > 5) {
-                paste0(
-                  c(setdiff(names(prediction_args), names(scorer))[1:5], "..."),
-                  collapse = ", "
-                )
-              } else {
-                paste0(
-                  setdiff(names(prediction_args), names(scorer)),
-                  collapse = ", "
-                )
-              }
-            )
-          )
-        )
-      }
       self$scorer <- Map(
         f = function(.x, .y) call2(.x, !!!.y),
         scorer,
         if (is.null(scorer_args)) list(NULL) else scorer_args
-      )
-      private$future_packages <- append(
-        private$future_packages,
-        unname(lapply(scorer, get_namespace_name))
       )
       private$prediction_args <- if (is.null(prediction_args)) {
         list(NULL)
@@ -279,71 +212,81 @@ CV <- R6Class(
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
-        !(is.list(convert_predictions) || is.atomic(convert_predictions))
+        !rlang::is_list(convert_predictions)
       ) {
-        private$future_packages <- append(
-          private$future_packages,
-          get_namespace_name(convert_predictions)
-        )
+        if (!is.function(convert_predictions)) abort("`convert_predictions` should be a function")
         list(convert_predictions)
       } else {
-        private$future_packages <- append(
-          private$future_packages,
-          unname(lapply(convert_predictions, get_namespace_name))
-        )
         convert_predictions
       }
+
+      # Append packages needed for future to process in parallel
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(eval(self$learner))
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        get_namespace_name(splitter)
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(scorer, get_namespace_name))
+      )
+      private$future_packages <- append(
+        private$future_packages,
+        unname(lapply(private$convert_predictions, get_namespace_name))
+      )
       private$future_packages <- sort(unlist(private$future_packages))
     },
+
     #' @field learner Predictive modeling function.
     learner = NULL,
+
     #' @field scorer List of performance metric functions.
     scorer = NULL,
+
     #' @field splitter Function that splits data into cross validation folds.
     splitter = NULL
+
   ),
   private = list(
+
     # Validate data inputs
-    check_data_input = function(formula = NULL, data = NULL, x = NULL, y = NULL) {
+    check_data_input = check_data_input <- function(formula = NULL, data = NULL, x = NULL, y = NULL) {
       if (all(vapply(list(formula, data, x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "x" = "No data elements were provided",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+        abort(c(
+          "Missing data elements:",
+          "x" = "No data elements were provided",
+          "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
+        ))
       }
       if (any(vapply(list(x, y), is.null, NA))) {
         if (is.null(formula)) {
-          abort(
-            c(
-              "Missing data elements:",
-              "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-            )
-          )
+          abort(c(
+            "Missing data elements:",
+            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
+          ))
         }
         if (!(length(formula) == 3 && length(formula[[2]]) == 1) && is_formula(formula)) {
-          abort(
-            c(
-              "Malformed formula:",
-              "i" = "Please specify `formula` as a valid, two-sided formula"
-            )
-          )
+          abort(c(
+            "Malformed formula:",
+            "i" = "Please specify `formula` as a valid, two-sided formula"
+          ))
         }
         return(list(formula = formula, data = data))
       } else if (any(vapply(list(x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+        abort(c(
+          "Missing data elements:",
+          "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
+        ))
       }
       list(x = x, y = y)
     },
+
     # Convert predicted values into acceptable scoring format
     convert_predictions = NULL,
+
     # Fit cross-validated model
     fit_folds = function(cv_index, input, response_var, n_obs) {
       pb <- progressor(along = 1:(length(cv_index) + 1))
@@ -358,17 +301,30 @@ CV <- R6Class(
             idx = idx
           )
           if ("x" %in% names(data_in)) {
+            # If the user provides `x` and `y`, assume modeling 
+            # function has `x` and `y` arguments
             data_out <- data_in[["x_out"]]
             data_in <- data_in[c("x", "y")]
-          } else {
+          } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
+            # If the user provides `formula` and `data` arguments
+            # check to make sure these exist in the function arguments
             data_out <- data_in[["data_out"]]
             data_in <- data_in[c("formula", "data")]
+          } else {
+            # Otherwise pass in the formula and data as the first and second
+            # arguments respectively, as this is most common R modeling design
+            data_out <- data_in[["data_out"]]
+            data_in_temp <- data_in[c("formula", "data")]
+            data_in <- list(data_in_temp[["formula"]], data_in_temp[["data"]])
           }
           fit <- eval_tidy(call2(self$learner, !!!data_in, !!!private$learner_args))
           if (nrow(data_out) == 0) {
+            # When training model on full data-set generate no fitted values
+            # or model evaluation metrics
             preds <- list(NULL)
             metrics <- list(NULL)
           } else {
+            # Generate fitted values on hold-out set
             preds <- lapply(
               private$prediction_args,
               function(.x) {
@@ -382,6 +338,7 @@ CV <- R6Class(
                 )
               }
             )
+            # Generate model metrics on hold-out set
             metrics <- Map(
               f = function(.x, .y, .z) {
                 if (!is.null(.y)) {
@@ -431,18 +388,22 @@ CV <- R6Class(
       metrics <- setNames(
         lapply(
           unique(names(metrics)),
-          function(i) unname(metrics[names(metrics) == i])
+          function(i) unlist(unname(metrics[names(metrics) == i]))
         ),
         unique(names(metrics))
       )
       list(model = model, preds = preds, metrics = metrics)
     },
+
     # Get all packages required to evaluate futures
     future_packages = c("future.apply", "progressr", "R6", "rlang"),
+
     # Arguments to pass to learner function
     learner_args = NULL,
+
     # Arguments to pass to prediction method
     prediction_args = NULL,
+
     # Extracts response variable
     response = function(data_list) {
       if (!is.null(data_list[["formula"]])) {
@@ -451,13 +412,13 @@ CV <- R6Class(
       } else {
         response_var <- data_list[["y"]]
       }
-      if (is.factor(response_var)) {
-        return(response_var)
-      } else if (all(response_var %in% c(0, 1)) || is.logical(response_var)) {
-        return(factor(response_var))
-      }
-      response_var
+      # NOTE: Currently this is modifying the underlying outcome variable.
+      # Again, I think this is probably dangerous! We should assume that
+      # the user has correctly encoded the response variable and not
+      # do anything weird to it. Again noting, in case I need to revert.
+      return(response_var)
     },
+
     # Splitter for input data (either a function or a list with fold indices)
     split_data = function(data_list, splitter) {
       if (is.list(splitter)) {
@@ -469,8 +430,12 @@ CV <- R6Class(
         call_modify(splitter, data = data_list[["data"]])
       }
       data_splits <- eval_tidy(split_call)
-      lapply(data_splits$splits, function(i) i$in_id)
+      # NOTE: I think this will ONLY work with rsample split objects. 
+      # This is wrong! splitter should return a list which is directly
+      # returned to the user. Noting in case I need to revert.
+      return(data_splits)
     },
+
     # Subsets data for cross-validation folds
     subset_data = function(formula, data, x, y, idx) {
       if (is.null(data)) {
@@ -491,6 +456,7 @@ CV <- R6Class(
         )
       }
     }
+
   )
 )
 
