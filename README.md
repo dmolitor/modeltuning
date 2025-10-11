@@ -11,13 +11,16 @@
 
 The goal of modelselection is to provide common model selection and
 tuning utilities in an intuitive manner. Additionally, modelselection
-aims to be: - Fairly lightweight and not force you to learn an entirely
-new modeling paradigm - Model/type agnostic and work easily with most R
-modeling packages and various data types including data frames, standard
-dense matrices, and `Matrix` sparse matrices - Easily parallelizable;
-modelselection is built on top of the
-[`future`](https://future.futureverse.org/) package and is compatible
-with any of the (many!) available parallelization backends.
+aims to be:
+
+- Fairly lightweight and not force you to learn an entirely new modeling
+  paradigm
+- Model/type agnostic and work easily with most R modeling packages and
+  various data types including data frames, standard dense matrices, and
+  `Matrix` sparse matrices
+- Easily parallelizable; modelselection is built on top of the
+  [`future`](https://future.futureverse.org/) package and is compatible
+  with any of the (many!) available parallelization backends.
 
 ## Installation
 
@@ -95,9 +98,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 96.17% 
-#>  Accuracy: 95% 
-#>       AUC: 0.9476
+#> F-Measure: 95.46% 
+#>  Accuracy: 94% 
+#>       AUC: 0.9233
 ```
 
 ### Grid Search
@@ -154,7 +157,7 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9559
+#> Optimal ROC AUC: 0.9283
 ```
 
 ### Grid Search with cross validation
@@ -214,9 +217,9 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 10
-#>   - maxdepth: 24 
-#> Optimal ROC AUC: 0.9505
+#>   - minsplit: 25
+#>   - maxdepth: 22 
+#> Optimal ROC AUC: 0.9627
 ```
 
 ### Parallelization
@@ -237,13 +240,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.950714
+#> [1] 0.9420237
 #> 
 #> $accuracy
-#> [1] 0.9348711
+#> [1] 0.9194934
 #> 
 #> $auc
-#> [1] 0.9224321
+#> [1] 0.9039477
 ```
 
 And voila!
