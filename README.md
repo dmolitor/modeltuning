@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# modeltuning <img src='man/figures/logo-no-bg.png' align="right" height="160"/>
+# modeltuning <img src='man/figures/logo-no-bg.png' align="right" height="140"/>
 
 <!-- badges: start -->
 
@@ -97,9 +97,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 95.95% 
-#>  Accuracy: 94.67% 
-#>       AUC: 0.9463
+#> F-Measure: 95.51% 
+#>  Accuracy: 94% 
+#>       AUC: 0.9337
 ```
 
 ### Grid Search
@@ -156,7 +156,7 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9265
+#> Optimal ROC AUC: 0.9688
 ```
 
 ### Grid Search with cross validation
@@ -217,8 +217,8 @@ cat(
 )
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
-#>   - maxdepth: 26 
-#> Optimal ROC AUC: 0.9781
+#>   - maxdepth: 22 
+#> Optimal ROC AUC: 0.9555
 ```
 
 ### Parallelization
@@ -239,13 +239,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9487179
+#> [1] 0.9568418
 #> 
 #> $accuracy
-#> [1] 0.9350219
+#> [1] 0.9448967
 #> 
 #> $auc
-#> [1] 0.9393737
+#> [1] 0.944454
 ```
 
 And voila!
