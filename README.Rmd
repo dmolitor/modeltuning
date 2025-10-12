@@ -13,32 +13,32 @@ knitr::opts_chunk$set(
 )
 ```
 
-# modelselection <img src='man/figures/logo-no-bg.png' align="right" height="160"/>
+# modeltuning <img src='man/figures/logo-no-bg.png' align="right" height="160"/>
 
 <!-- badges: start -->
-[![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
-[![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
+[![pkgdown.yaml](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml)
+[![R-CMD-check](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of modelselection is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modelselection aims to be:
+The goal of modeltuning is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modeltuning aims to be:
 
 - Fairly lightweight and not force you to learn an entirely new modeling paradigm
 - Model/type agnostic and work easily with most R modeling packages and various data types including data frames, standard dense matrices, and `Matrix` sparse matrices
-- Easily parallelizable; modelselection is built on top of the [`future`](https://future.futureverse.org/) package and is compatible with any of the (many!) available parallelization backends.
+- Easily parallelizable; modeltuning is built on top of the [`future`](https://future.futureverse.org/) package and is compatible with any of the (many!) available parallelization backends.
 
 
 ## Installation
 
-You can install the development version of `modelselection` with:
+You can install the development version of `modeltuning` with:
 
 ``` r
 # install.packages("pak")
-pak::pkg_install("dmolitor/modelselection")
+pak::pkg_install("dmolitor/modeltuning")
 ```
 
 ## Usage
 
-These are simple examples that use the built-in `iris` data-set to illustrate the basic functionality of modelselection. 
+These are simple examples that use the built-in `iris` data-set to illustrate the basic functionality of modeltuning. 
 
 ### Cross Validation
 
@@ -47,7 +47,7 @@ First we'll train a binary classification Decision Tree model to predict whether
 First, let's split our data into a train and test set.
 ```{r Data Prep, echo = TRUE, results = "hide"}
 library(future)
-library(modelselection)
+library(modeltuning)
 library(rpart)
 library(rsample)
 library(yardstick)
@@ -147,7 +147,7 @@ cat(
 
 ### Grid Search with cross validation
 
-Finally, `modelselection` supports model-tuning with Grid Search using cross validation to estimate each model's true error rate instead of a hold-out validation set. We'll use cross validation to tune the same parameters as above.
+Finally, `modeltuning` supports model-tuning with Grid Search using cross validation to estimate each model's true error rate instead of a hold-out validation set. We'll use cross validation to tune the same parameters as above.
 ```{r Grid Search with cross validation}
 # Specify Grid Search schema with cross validation
 iris_grid_cv <- GridSearchCV$new(
@@ -200,7 +200,7 @@ cat(
 
 ### Parallelization
 
-As noted above, modelselection is built on top of the `future` package and can utilize any parallelization method supported by the [`future`](https://future.futureverse.org/) package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local parallelization.
+As noted above, modeltuning is built on top of the `future` package and can utilize any parallelization method supported by the [`future`](https://future.futureverse.org/) package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local parallelization.
 ```{r Parallelization, eval = TRUE}
 plan(multisession, workers = 5)
 

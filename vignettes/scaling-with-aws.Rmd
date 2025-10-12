@@ -16,7 +16,7 @@ knitr::opts_chunk$set(comment = "#",
                       message = FALSE)
 ```
 
-This vignette will walk through an example of scaling a `modelselection`
+This vignette will walk through an example of scaling a `modeltuning`
 analysis with AWS via the [Paws SDK](https://github.com/paws-r/paws). The
 following analysis depends on AWS credentials passed via environment variables.
 To see a detailed outline of the different ways to set AWS credentials, check
@@ -26,7 +26,7 @@ out [this how-to document](https://github.com/paws-r/paws/blob/main/docs/credent
 ```{r Requisite Packages}
 library(e1071)
 library(future)
-library(modelselection) # devtools::install_github("dmolitor/modelselection")
+library(modeltuning) # devtools::install_github("dmolitor/modeltuning")
 library(parallelly)
 library(paws)
 library(rsample)
@@ -206,7 +206,7 @@ cl <- makeClusterPSOCK(
 # Estimate Models
 
 Now that we've created our compute cluster, we can use the `future` package
-to specify our parallelization plan. Since `modelselection` is built on top of 
+to specify our parallelization plan. Since `modeltuning` is built on top of 
 the `future` framework, it will automatically parallelize the model estimation
 across our 6-worker cluster. The following parallelization __topology__
 basically is telling `future` to parallelize the grid-search models across the

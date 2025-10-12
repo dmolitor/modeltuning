@@ -1,4 +1,4 @@
-Package: modelselection
+Package: modeltuning
 Title: Model Selection and Tuning Utilities
 Version: 0.1.0
 Authors@R: 
@@ -10,7 +10,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.3
 Depends:
-    R (>= 3.5.0)
+    R (>= 4.1.0)
 Imports:
     future.apply,
     progressr,
@@ -26,5 +26,5 @@ Suggests:
     yardstick,
     knitr,
     rmarkdown
-URL: https://www.dmolitor.com/modelselection/
+URL: https://www.dmolitor.com/modeltuning/
 VignetteBuilder: knitr

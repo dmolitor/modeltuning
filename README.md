@@ -1,40 +1,39 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# modelselection <img src='man/figures/logo-no-bg.png' align="right" height="160"/>
+# modeltuning <img src='man/figures/logo-no-bg.png' align="right" height="160"/>
 
 <!-- badges: start -->
 
-[![pkgdown.yaml](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/pkgdown.yaml)
-[![R-CMD-check](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modelselection/actions/workflows/R-CMD-check.yaml)
+[![pkgdown.yaml](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml)
+[![R-CMD-check](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-The goal of modelselection is to provide common model selection and
-tuning utilities in an intuitive manner. Additionally, modelselection
-aims to be:
+The goal of modeltuning is to provide common model selection and tuning
+utilities in an intuitive manner. Additionally, modeltuning aims to be:
 
 - Fairly lightweight and not force you to learn an entirely new modeling
   paradigm
 - Model/type agnostic and work easily with most R modeling packages and
   various data types including data frames, standard dense matrices, and
   `Matrix` sparse matrices
-- Easily parallelizable; modelselection is built on top of the
+- Easily parallelizable; modeltuning is built on top of the
   [`future`](https://future.futureverse.org/) package and is compatible
   with any of the (many!) available parallelization backends.
 
 ## Installation
 
-You can install the development version of `modelselection` with:
+You can install the development version of `modeltuning` with:
 
 ``` r
 # install.packages("pak")
-pak::pkg_install("dmolitor/modelselection")
+pak::pkg_install("dmolitor/modeltuning")
 ```
 
 ## Usage
 
 These are simple examples that use the built-in `iris` data-set to
-illustrate the basic functionality of modelselection.
+illustrate the basic functionality of modeltuning.
 
 ### Cross Validation
 
@@ -47,7 +46,7 @@ First, let’s split our data into a train and test set.
 
 ``` r
 library(future)
-library(modelselection)
+library(modeltuning)
 library(rpart)
 library(rsample)
 library(yardstick)
@@ -98,9 +97,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 95.46% 
-#>  Accuracy: 94% 
-#>       AUC: 0.9233
+#> F-Measure: 95.97% 
+#>  Accuracy: 94.67% 
+#>       AUC: 0.9435
 ```
 
 ### Grid Search
@@ -157,12 +156,12 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9283
+#> Optimal ROC AUC: 0.9545
 ```
 
 ### Grid Search with cross validation
 
-Finally, `modelselection` supports model-tuning with Grid Search using
+Finally, `modeltuning` supports model-tuning with Grid Search using
 cross validation to estimate each model’s true error rate instead of a
 hold-out validation set. We’ll use cross validation to tune the same
 parameters as above.
@@ -217,15 +216,15 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 25
-#>   - maxdepth: 22 
-#> Optimal ROC AUC: 0.9627
+#>   - minsplit: 15
+#>   - maxdepth: 28 
+#> Optimal ROC AUC: 0.9494
 ```
 
 ### Parallelization
 
-As noted above, modelselection is built on top of the `future` package
-and can utilize any parallelization method supported by the
+As noted above, modeltuning is built on top of the `future` package and
+can utilize any parallelization method supported by the
 [`future`](https://future.futureverse.org/) package when fitting
 cross-validated models or tuning models with grid search. The code below
 evaluates the same cross-validated binary classification model using
@@ -240,13 +239,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9420237
+#> [1] 0.9632626
 #> 
 #> $accuracy
-#> [1] 0.9194934
+#> [1] 0.9499472
 #> 
 #> $auc
-#> [1] 0.9039477
+#> [1] 0.9388356
 ```
 
 And voila!

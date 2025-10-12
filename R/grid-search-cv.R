@@ -34,6 +34,7 @@ GridSearchCV <- R6Class(
     #'   the hyper-parameter grid.
     #' @return An object of class [FittedGridSearchCV].
     #' @examples
+    #' \dontrun{
     #' if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -124,6 +125,7 @@ GridSearchCV <- R6Class(
     #'     y = mtcars_train$mpg
     #'   )
     #'
+    #' }
     #' }
     fit = function(formula = NULL,
                    data = NULL,

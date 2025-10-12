@@ -15,6 +15,7 @@ metrics.
 ## Method `GridSearchCV$fit`
 ## ------------------------------------------------
 
+\dontrun{
 if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -107,6 +108,7 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
 
 }
 }
+}
 \section{Public fields}{
 \if{html}{\out{<div class="r6-fields">}}
 \describe{
@@ -178,7 +180,8 @@ An object of class \link{FittedGridSearchCV}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+\preformatted{\dontrun{
+if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
@@ -268,6 +271,7 @@ An object of class \link{FittedGridSearchCV}.
     y = mtcars_train$mpg
   )
 
+}
 }
 }
 \if{html}{\out{</div>}}
