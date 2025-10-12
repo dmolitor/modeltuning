@@ -126,9 +126,9 @@
 <span>  <span class="st">"\n Accuracy:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="fl">100</span> <span class="op">*</span> <span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">accuracy</span>, <span class="fl">2</span><span class="op">)</span>, <span class="st">"%"</span><span class="op">)</span>,</span>
 <span>  <span class="st">"\n      AUC:"</span>, <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">round</a></span><span class="op">(</span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span><span class="op">$</span><span class="va">auc</span>, <span class="fl">4</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
-<span><span class="co">#&gt; F-Measure: 95.95% </span></span>
-<span><span class="co">#&gt;  Accuracy: 94.67% </span></span>
-<span><span class="co">#&gt;       AUC: 0.9463</span></span></code></pre></div>
+<span><span class="co">#&gt; F-Measure: 95.51% </span></span>
+<span><span class="co">#&gt;  Accuracy: 94% </span></span>
+<span><span class="co">#&gt;       AUC: 0.9337</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -178,7 +178,7 @@
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 10</span></span>
 <span><span class="co">#&gt;   - maxdepth: 20 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9265</span></span></code></pre></div>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9688</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search-with-cross-validation">Grid Search with cross validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
@@ -232,8 +232,8 @@
 <span><span class="op">)</span></span>
 <span><span class="co">#&gt; Optimal Hyper-parameters:</span></span>
 <span><span class="co">#&gt;   - minsplit: 10</span></span>
-<span><span class="co">#&gt;   - maxdepth: 26 </span></span>
-<span><span class="co">#&gt; Optimal ROC AUC: 0.9781</span></span></code></pre></div>
+<span><span class="co">#&gt;   - maxdepth: 22 </span></span>
+<span><span class="co">#&gt; Optimal ROC AUC: 0.9555</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -248,13 +248,13 @@
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9487179</span></span>
+<span><span class="co">#&gt; [1] 0.9568418</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9350219</span></span>
+<span><span class="co">#&gt; [1] 0.9448967</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9393737</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.944454</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>

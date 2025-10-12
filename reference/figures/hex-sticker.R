@@ -29,6 +29,12 @@ s <- sticker(
   h_color = "#A9A9A9"
 ) + ggplot2::theme(plot.margin = ggplot2::margin(b=0, l=0, unit="lines"))
 
-ggplot2::ggsave(plot = s, filename = here::here("man", "figures", "logo.png"))
+ggplot2::ggsave(
+  plot = s,
+  filename = here::here("man", "figures", "logo.png"),
+  width = 43.9,
+  height = 50.8,
+  units = "mm"
+)
 
 # Remove the background at remove.bg
