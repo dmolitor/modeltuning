@@ -97,9 +97,9 @@ cat(
   "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
   "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
 )
-#> F-Measure: 95.97% 
+#> F-Measure: 95.95% 
 #>  Accuracy: 94.67% 
-#>       AUC: 0.9435
+#>       AUC: 0.9463
 ```
 
 ### Grid Search
@@ -156,7 +156,7 @@ cat(
 #> Optimal Hyper-parameters:
 #>   - minsplit: 10
 #>   - maxdepth: 20 
-#> Optimal ROC AUC: 0.9545
+#> Optimal ROC AUC: 0.9265
 ```
 
 ### Grid Search with cross validation
@@ -216,9 +216,9 @@ cat(
   round(iris_grid_cv_fitted$best_metric, 4)
 )
 #> Optimal Hyper-parameters:
-#>   - minsplit: 15
-#>   - maxdepth: 28 
-#> Optimal ROC AUC: 0.9494
+#>   - minsplit: 10
+#>   - maxdepth: 26 
+#> Optimal ROC AUC: 0.9781
 ```
 
 ### Parallelization
@@ -239,13 +239,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9632626
+#> [1] 0.9487179
 #> 
 #> $accuracy
-#> [1] 0.9499472
+#> [1] 0.9350219
 #> 
 #> $auc
-#> [1] 0.9388356
+#> [1] 0.9393737
 ```
 
 And voila!
