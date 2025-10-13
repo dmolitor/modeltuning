@@ -1,0 +1,186 @@
+---
+title: "Basic usage"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Basic usage}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(comment = "#",
+                      collapse = TRUE,
+                      eval = TRUE,
+                      echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE)
+```
+
+The goal of this vignette is to walk through `modeltuning` usage in
+detail. We'll be training a classification model on the `iris` data-set to predict
+whether a flower's species is Virginica or not.
+
+# Load Packages
+```{r Load Packages}
+library(e1071)
+library(modeltuning) # devtools::install_github("dmolitor/modeltuning")
+library(yardstick)
+```
+
+## Data Prep
+
+First, let's generate a bunch of synthetic data observations by adding random 
+noise to the original `iris` features and combining it into one big dataframe.
+```{r Iris Big}
+iris_new <- do.call(
+  what = rbind,
+  args = replicate(n = 10, iris, simplify = FALSE)
+) |>
+  transform(
+    Sepal.Length = jitter(Sepal.Length, 0.1),
+    Sepal.Width = jitter(Sepal.Width, 0.1),
+    Petal.Length = jitter(Petal.Length, 0.1),
+    Petal.Width = jitter(Petal.Width, 0.1),
+    Species = factor(Species == "virginica")
+  )
+
+# Shuffle the data-set
+iris_new <- iris_new[sample(1:nrow(iris_new), nrow(iris_new)), ]
+
+# Quick overview of the dataset
+summary(iris_new[, 1:4])
+```
+
+## Function arguments
+
+### Common arguments
+
+The following modeling approach holds for the `CV`, `GridSearch` and `GridSearchCV`
+classes, which are all very slight variations of each other. Common arguments are as follows:
+
+- `learner`: This is where you pass your predictive modeling function; in our case
+a Support Vector Machine, so `e1071::svm` from the e1071 package.
+- `scorer`: This is a named list of metric functions that will evaluate the model's
+predictive performance. Each metric function should have two arguments, `truth` and
+`estimate` that intake the true outcome values and the predicted outcome values. It
+should output a scalar numeric score. The [yardstick](https://yardstick.tidymodels.org/)
+package provides a wide array of these metric functions that should cover most 
+common cases. E.g. for the RMSE of a regression, `scorer = list(rmse = yarstick::rmse_vec)`.
+- `learner_args`: This is a named list of function arguments that get passed
+directly to the `learner` function. For example, the `e1071::svm` function
+takes a `type` argument specifying whether it is a regression or classification 
+task. You could specify a classification task as `learner_args = list(type = "classification")`.
+- `scorer_args`: This is a named list of function arguments to pass to the 
+scorer functions in `scorer`. This list should have one element per element in
+ `scorer`. E.g. if `scorer = list(rmse = rmse_vec, mae = mae_vec)` then `scorer_args = list(rmse = list(...), mae = list(...))`.
+- `prediction_args`: This is similar to `learner_args`. It's a named list of
+function arguments passed to the `predict` method. E.g. our SVM learner has a
+predict argument called `probability` whether to predict outcome classes or
+class probabilities. Specify class probabilities as
+`prediction_args = list(probability = TRUE)`. Similar to `scorer_args`, this
+list should have one element per element in `scorer`.
+- `convert_predictions`: A named list of functions to transform the output of
+`predict(...)` into a vector of predictions. By default, the model's predicted values may not
+always be a vector. E.g. `predict(svm_model, probability = TRUE)` returns a
+matrix with class probabilities for both classes, while
+`predict(svm_model, probability = FALSE)` returns a vector. For calculating
+model accuracy you need class predictions, while ROC AUC requires class 
+probabilities. Suppose that `scorer = list(accuracy = accuracy_vec, auc = roc_auc_vec)`. To ensure that accuracy gets class predictions and ROC AUC
+gets class probabilities, you can provide the corresponding prediction arguments
+`prediction_args = list(accuracy = NULL, auc = list(probability = TRUE))` and then
+convert those predictions into a vector `convert_predictions = list(accuracy = NULL, auc = function(.x) attr(.x, "probabilities")[, "FALSE"])`.
+
+## Cross validation arguments
+
+The following arguments are specific to the `CV` cross validation class.
+
+- `splitter`: This should be a function that intakes the training dataset and
+returns a list of cross validation indices. `modeltuning` provides a very simple
+function, `cv_split()` that will do the most simple version of this.
+- `splitter_args`: A named list of function arguments to pass to `splitter`. E.g.
+`cv_split()` has the argument `v` which specifies how many cross validation folds.
+For 3 folds, set `splitter_args = list(v = 3)`.
+
+## Grid search arguments
+
+The following arguments are specific to the `GridSearch` grid search class.
+
+- `evaluation_data`: This must be a list containing validation data, e.g.
+`list(x = x_eval, y = y_eval)`.
+- `optimize_score`: One of `"max"` or `"min"`. Whether to maximize or minimize
+the metric defined in `scorer` to find the optimal grid search parameters. **Note**:
+if you specify multiple metric functions in `scorer`, modeltune will use the _last_
+metric function to find the optimal parameters.
+
+## Examples
+
+We'll show simple examples of each of `CV`, `GridSearch` and `GridSearchCV`.
+
+### CV
+
+```{r CV}
+iris_cv <- CV$new(
+  learner = svm,
+  learner_args = list(type = "C-classification", probability = TRUE),
+  splitter = cv_split,
+  splitter_args = list(v = 3),
+  scorer = list(roc_auc = roc_auc_vec), 
+  prediction_args = list(roc_auc = list(probability = TRUE)),
+  convert_predictions = list(roc_auc = function(.x) attr(.x, "probabilities")[, "FALSE"])
+)
+
+# Fit cross validated model
+iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
+
+iris_cv_fitted$mean_metrics
+```
+
+### GridSearch
+
+```{r GridSearch}
+iris_new_train <- iris_new[1:1000, ]
+iris_new_eval <- iris_new[1000:nrow(iris_new), ]
+
+iris_grid <- GridSearch$new(
+  learner = svm,
+  tune_params = list(
+    cost = c(0.01, 0.1, 0.5, 1, 3, 6),
+    kernel = c("polynomial", "radial", "sigmoid")
+  ),
+  learner_args = list(type = "C-classification", probability = TRUE),
+  evaluation_data = list(x = iris_new_eval[, -5], y = iris_new_eval[, 5]),
+  scorer = list(roc_auc = roc_auc_vec), 
+  prediction_args = list(roc_auc = list(probability = TRUE)),
+  convert_predictions = list(roc_auc = function(.x) attr(.x, "probabilities")[, "FALSE"]),
+  optimize_score = "max"
+)
+
+# Fit cross validated model
+iris_grid_fitted <- iris_grid$fit(formula = Species ~ ., data = iris_new)
+
+iris_grid_fitted$best_params
+```
+
+### GridSearchCV
+
+```{r Grid Search with CV}
+iris_grid <- GridSearchCV$new(
+  learner = svm,
+  tune_params = list(
+    cost = c(0.01, 0.1, 0.5, 1, 3, 6),
+    kernel = c("polynomial", "radial", "sigmoid")
+  ),
+  learner_args = list(type = "C-classification", probability = TRUE),
+  splitter = cv_split,
+  splitter_args = list(v = 3),
+  scorer = list(roc_auc = roc_auc_vec), 
+  prediction_args = list(roc_auc = list(probability = TRUE)),
+  convert_predictions = list(roc_auc = function(.x) attr(.x, "probabilities")[, "FALSE"]),
+  optimize_score = "max"
+)
+
+# Fit cross validated model
+iris_grid_fitted <- iris_grid$fit(formula = Species ~ ., data = iris_new)
+
+iris_grid_fitted$best_params
+```

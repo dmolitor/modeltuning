@@ -463,7 +463,9 @@ FittedGridSearch <- R6Class(
         )
       )
       self$best_metric <- eval_metrics[[self$best_idx]]
-      self$best_params <- as.list(tune_params[self$best_idx, , drop = FALSE])
+      best_params <- as.list(tune_params[self$best_idx, , drop = FALSE])
+      best_params <- lapply(best_params, function(.x) .x)
+      self$best_params <- best_params
       self$best_model <- models[[self$best_idx]]
     },
     #' @field models List of predictive models at every value of `$tune_params`.
