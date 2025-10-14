@@ -32,7 +32,7 @@ GridSearch <- R6Class(
     #'   cross validation folds.
     #' @return An object of class [FittedGridSearch].
     #' @examples
-    #' if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+    #' if (require(e1071) && require(rpart) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
     #'   iris_train <- iris_new[1:100, ]
@@ -48,9 +48,9 @@ GridSearch <- R6Class(
     #'       maxdepth = seq(20, 30, by = 2)
     #'     ),
     #'     evaluation_data = list(x = iris_validate[, 1:4], y = iris_validate$Species),
-    #'     scorer = list("accuracy" = yardstick::accuracy_vec),
+    #'     scorer = list(accuracy = yardstick::accuracy_vec),
     #'     optimize_score = "max",
-    #'     prediction_args = list("accuracy" = list(type = "class"))
+    #'     prediction_args = list(accuracy = list(type = "class"))
     #'   )
     #'   iris_grid_fitted <- iris_grid$fit(
     #'     formula = Species ~ .,
@@ -68,17 +68,17 @@ GridSearch <- R6Class(
     #'     ),
     #'     evaluation_data = list(x = iris_validate, y = iris_validate$Species),
     #'     scorer = list(
-    #'       "accuracy" = yardstick::accuracy_vec,
-    #'       "auc" = yardstick::roc_auc_vec
+    #'       accuracy = yardstick::accuracy_vec,
+    #'       auc = yardstick::roc_auc_vec
     #'     ),
     #'     optimize_score = "max",
     #'     prediction_args = list(
-    #'       "accuracy" = list(type = "class"),
-    #'       "auc" = list(type = "prob")
+    #'       accuracy = list(type = "class"),
+    #'       auc = list(type = "prob")
     #'     ),
     #'     convert_predictions = list(
-    #'       "accuracy" = NULL,
-    #'       "auc" = function(i) i[, "FALSE"]
+    #'       accuracy = NULL,
+    #'       auc = function(i) i[, "FALSE"]
     #'     )
     #'   )
     #'   iris_grid_fitted <- iris_grid$fit(
@@ -103,14 +103,14 @@ GridSearch <- R6Class(
     #'   mtcars_grid <- GridSearch$new(
     #'     learner = e1071::svm,
     #'     tune_params = list(
-    #'       "degree" = 2:4,
-    #'       "kernel" = c("linear", "polynomial")
+    #'       degree = 2:4,
+    #'       kernel = c("linear", "polynomial")
     #'     ),
     #'     evaluation_data = list(x = mtcars_eval[, -1], y = mtcars_eval$mpg),
     #'     learner_args = list(scale = TRUE),
     #'     scorer = list(
-    #'       "rmse" = yardstick::rmse_vec,
-    #'       "mae" = yardstick::mae_vec
+    #'       rmse = yardstick::rmse_vec,
+    #'       mae = yardstick::mae_vec
     #'     ),
     #'     optimize_score = "min"
     #'   )
@@ -211,7 +211,7 @@ GridSearch <- R6Class(
           "i" = "`evaluation_data` must be a named list with elements `x` and `y`"
         ))
       }
-      validate_scorer(scorer, scorer_args, prediction_args)
+      validate_scorer(scorer, scorer_args, prediction_args, convert_predictions)
       
       # Initialize attributes and methods
       self$learner <- enexpr(learner)

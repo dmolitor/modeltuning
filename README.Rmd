@@ -68,19 +68,19 @@ iris_cv <- CV$new(
   splitter = cv_split,
   splitter_args = list(v = 3),
   scorer = list(
-    "f_meas" = f_meas_vec,
-    "accuracy" = accuracy_vec,
-    "auc" = roc_auc_vec
+    f_meas = f_meas_vec,
+    accuracy = accuracy_vec,
+    auc = roc_auc_vec
   ), 
   prediction_args = list(
-    "f_meas" = list(type = "class"),
-    "accuracy" = list(type = "class"), 
-    "auc" = list(type = "prob")
+    f_meas = list(type = "class"),
+    accuracy = list(type = "class"), 
+    auc = list(type = "prob")
   ),
   convert_predictions = list(
-    NULL,
-    NULL,
-    function(.x) .x[, "FALSE"]
+    f_meas = NULL,
+    accuracy = NULL,
+    auc = function(.x) .x[, "FALSE"]
   )
 )
 
@@ -90,11 +90,7 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 
 Now, let's check our evaluation metrics averaged across folds.
 ```{r Check Metrics}
-cat(
-  "F-Measure:", paste0(round(100 * iris_cv_fitted$mean_metrics$f_meas, 2), "%"),
-  "\n Accuracy:", paste0(round(100 * iris_cv_fitted$mean_metrics$accuracy, 2), "%"),
-  "\n      AUC:", paste0(round(iris_cv_fitted$mean_metrics$auc, 4))
-)
+iris_cv_fitted$mean_metrics
 ```
 
 ### Grid Search
@@ -132,17 +128,9 @@ iris_grid_fitted <- iris_grid$fit(
 )
 ```
 
-Let's check out some details on our optimal decision tree model.
+Let's check out the optimal decision tree hyperparameters.
 ```{r Optimal Tree}
-cat(
-  "Optimal Hyper-parameters:\n  -",
-  paste0(
-    paste0(names(iris_grid_fitted$best_params), ": ", iris_grid_fitted$best_params),
-    collapse = "\n  - "
-  ),
-  "\nOptimal ROC AUC:", 
-  round(iris_grid_fitted$best_metric, 4)
-)
+iris_grid_fitted$best_params
 ```
 
 ### Grid Search with cross validation
@@ -181,21 +169,14 @@ iris_grid_cv_fitted <- iris_grid_cv$fit(
 )
 ```
 
-Let's check out some details on our optimal decision tree model.
-```{r Optimal Tree Grid Search CV}
-cat(
-  "Optimal Hyper-parameters:\n  -",
-  paste0(
-    paste0(
-      names(iris_grid_cv_fitted$best_params), 
-      ": ", 
-      iris_grid_cv_fitted$best_params
-    ),
-    collapse = "\n  - "
-  ),
-  "\nOptimal ROC AUC:", 
-  round(iris_grid_cv_fitted$best_metric, 4)
-)
+Let's check out the optimal decision tree hyperparameters
+```{r Optimal Tree CV}
+iris_grid_cv_fitted$best_params
+```
+
+as well as the cross validation ROC AUC for those parameters
+```{r Optimal ROC AUC}
+iris_grid_cv_fitted$best_metric
 ```
 
 ### Parallelization

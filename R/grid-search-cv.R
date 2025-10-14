@@ -35,14 +35,11 @@ GridSearchCV <- R6Class(
     #' @return An object of class [FittedGridSearchCV].
     #' @examples
     #' \dontrun{
-    #' if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+    #' if (require(e1071) && require(rpart) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
     #'   iris_train <- iris_new[1:100, ]
     #'   iris_validate <- iris_new[101:150, ]
-    #' 
-    #'   # Create a sampling function that returns CV folds
-    #'   sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
     #'
     #'   ### Decision Tree example
     #'
@@ -53,10 +50,11 @@ GridSearchCV <- R6Class(
     #'       minsplit = seq(10, 30, by = 5),
     #'       maxdepth = seq(20, 30, by = 2)
     #'     ),
-    #'     splitter = sampling_fn,
-    #'     scorer = list("accuracy" = yardstick::accuracy_vec),
+    #'     splitter = cv_split,
+    #'     splitter_args = list(v = 3),
+    #'     scorer = list(accuracy = yardstick::accuracy_vec),
     #'     optimize_score = "max",
-    #'     prediction_args = list("accuracy" = list(type = "class"))
+    #'     prediction_args = list(accuracy = list(type = "class"))
     #'   )
     #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
     #'     formula = Species ~ .,
@@ -72,19 +70,20 @@ GridSearchCV <- R6Class(
     #'       minsplit = seq(10, 30, by = 5),
     #'       maxdepth = seq(20, 30, by = 2)
     #'     ),
-    #'     splitter = sampling_fn,
+    #'     splitter = cv_split,
+    #'     splitter_args = list(v = 3),
     #'     scorer = list(
-    #'       "accuracy" = yardstick::accuracy_vec,
-    #'       "auc" = yardstick::roc_auc_vec
+    #'       accuracy = yardstick::accuracy_vec,
+    #'       auc = yardstick::roc_auc_vec
     #'     ),
     #'     optimize_score = "max",
     #'     prediction_args = list(
-    #'       "accuracy" = list(type = "class"),
-    #'       "auc" = list(type = "prob")
+    #'       accuracy = list(type = "class"),
+    #'       auc = list(type = "prob")
     #'     ),
     #'     convert_predictions = list(
-    #'       "accuracy" = NULL,
-    #'       "auc" = function(i) i[, "FALSE"]
+    #'       accuracy = NULL,
+    #'       auc = function(i) i[, "FALSE"]
     #'     )
     #'   )
     #'   iris_grid_cv_fitted <- iris_grid_cv$fit(
@@ -109,14 +108,15 @@ GridSearchCV <- R6Class(
     #'   mtcars_grid_cv <- GridSearchCV$new(
     #'     learner = e1071::svm,
     #'     tune_params = list(
-    #'       "degree" = 2:4,
-    #'       "kernel" = c("linear", "polynomial")
+    #'       degree = 2:4,
+    #'       kernel = c("linear", "polynomial")
     #'     ),
-    #'     splitter = sampling_fn,
+    #'     splitter = cv_split,
+    #'     splitter_args = list(v = 3),
     #'     learner_args = list(scale = TRUE),
     #'     scorer = list(
-    #'       "rmse" = yardstick::rmse_vec,
-    #'       "mae" = yardstick::mae_vec
+    #'       rmse = yardstick::rmse_vec,
+    #'       mae = yardstick::mae_vec
     #'     ),
     #'     optimize_score = "min"
     #'   )
@@ -220,7 +220,7 @@ GridSearchCV <- R6Class(
           )
         )
       }
-      validate_scorer(scorer, scorer_args, prediction_args)
+      validate_scorer(scorer, scorer_args, prediction_args, convert_predictions)
       validate_splitter(splitter)
 
       # Initialize attributes and methods

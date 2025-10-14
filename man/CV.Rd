@@ -14,21 +14,18 @@ among other essential parameters.
 ## Method `CV$fit`
 ## ------------------------------------------------
 
-if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
-
-  # Create a sampling function that returns CV folds
-  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
 
   ### Decision Tree Example
 
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = sampling_fn,
-    scorer = list("accuracy" = yardstick::accuracy_vec),
-    prediction_args = list(type = "class")
+    splitter = cv_split,
+    scorer = list(accuracy = yardstick::accuracy_vec),
+    prediction_args = list(accuracy = list(type = "class"))
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 
@@ -37,24 +34,25 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = sampling_fn,
+    splitter = cv_split,
+    splitter_args = list(v = 3),
     scorer = list(
-      "f_meas" = yardstick::f_meas_vec,
-      "accuracy" = yardstick::accuracy_vec,
-      "roc_auc" = yardstick::roc_auc_vec,
-      "pr_auc" = yardstick::pr_auc_vec
+      f_meas = yardstick::f_meas_vec,
+      accuracy = yardstick::accuracy_vec,
+      roc_auc = yardstick::roc_auc_vec,
+      pr_auc = yardstick::pr_auc_vec
     ),
     prediction_args = list(
-      "f_meas" = list(type = "class"),
-      "accuracy" = list(type = "class"),
-      "roc_auc" = list(type = "prob"),
-      "pr_auc" = list(type = "prob")
+      f_meas = list(type = "class"),
+      accuracy = list(type = "class"),
+      roc_auc = list(type = "prob"),
+      pr_auc = list(type = "prob")
     ),
     convert_predictions = list(
-      NULL,
-      NULL,
-      function(i) i[, "FALSE"],
-      function(i) i[, "FALSE"]
+      f_meas = NULL,
+      accuracy = NULL,
+      roc_auc = function(i) i[, "FALSE"],
+      pr_auc = function(i) i[, "FALSE"]
     )
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
@@ -69,7 +67,8 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
 
   mtcars_cv <- CV$new(
     learner = lm,
-    splitter = sampling_fn,
+    splitter = cv_split,
+    splitter_args = list(v = 2),
     scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
   )
 
@@ -86,8 +85,9 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
   mtcars_cv <- CV$new(
     learner = e1071::svm,
     learner_args = list(scale = TRUE, kernel = "polynomial", cross = 0),
-    splitter = sampling_fn,
-    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+    splitter = cv_split,
+    splitter_args = list(v = 3),
+    scorer = list(rmse = yardstick::rmse_vec, mae = yardstick::mae_vec)
   )
   mtcars_cv_fitted <- mtcars_cv$fit(
     x = mtcars_x,
@@ -156,21 +156,18 @@ An object of class \link{FittedCV}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+\preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
-
-  # Create a sampling function that returns CV folds
-  sampling_fn <- function(data) lapply(rsample::vfold_cv(data, v = 3)$splits, \(y) y$in_id)
 
   ### Decision Tree Example
 
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = sampling_fn,
-    scorer = list("accuracy" = yardstick::accuracy_vec),
-    prediction_args = list(type = "class")
+    splitter = cv_split,
+    scorer = list(accuracy = yardstick::accuracy_vec),
+    prediction_args = list(accuracy = list(type = "class"))
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 
@@ -179,24 +176,25 @@ An object of class \link{FittedCV}.
   iris_cv <- CV$new(
     learner = rpart::rpart,
     learner_args = list(method = "class"),
-    splitter = sampling_fn,
+    splitter = cv_split,
+    splitter_args = list(v = 3),
     scorer = list(
-      "f_meas" = yardstick::f_meas_vec,
-      "accuracy" = yardstick::accuracy_vec,
-      "roc_auc" = yardstick::roc_auc_vec,
-      "pr_auc" = yardstick::pr_auc_vec
+      f_meas = yardstick::f_meas_vec,
+      accuracy = yardstick::accuracy_vec,
+      roc_auc = yardstick::roc_auc_vec,
+      pr_auc = yardstick::pr_auc_vec
     ),
     prediction_args = list(
-      "f_meas" = list(type = "class"),
-      "accuracy" = list(type = "class"),
-      "roc_auc" = list(type = "prob"),
-      "pr_auc" = list(type = "prob")
+      f_meas = list(type = "class"),
+      accuracy = list(type = "class"),
+      roc_auc = list(type = "prob"),
+      pr_auc = list(type = "prob")
     ),
     convert_predictions = list(
-      NULL,
-      NULL,
-      function(i) i[, "FALSE"],
-      function(i) i[, "FALSE"]
+      f_meas = NULL,
+      accuracy = NULL,
+      roc_auc = function(i) i[, "FALSE"],
+      pr_auc = function(i) i[, "FALSE"]
     )
   )
   iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
@@ -211,7 +209,8 @@ An object of class \link{FittedCV}.
 
   mtcars_cv <- CV$new(
     learner = lm,
-    splitter = sampling_fn,
+    splitter = cv_split,
+    splitter_args = list(v = 2),
     scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
   )
 
@@ -228,8 +227,9 @@ An object of class \link{FittedCV}.
   mtcars_cv <- CV$new(
     learner = e1071::svm,
     learner_args = list(scale = TRUE, kernel = "polynomial", cross = 0),
-    splitter = sampling_fn,
-    scorer = list("rmse" = yardstick::rmse_vec, "mae" = yardstick::mae_vec)
+    splitter = cv_split,
+    splitter_args = list(v = 3),
+    scorer = list(rmse = yardstick::rmse_vec, mae = yardstick::mae_vec)
   )
   mtcars_cv_fitted <- mtcars_cv$fit(
     x = mtcars_x,

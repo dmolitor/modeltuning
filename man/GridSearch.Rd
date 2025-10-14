@@ -14,7 +14,7 @@ model and performance metrics.
 ## Method `GridSearch$fit`
 ## ------------------------------------------------
 
-if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
@@ -30,9 +30,9 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
       maxdepth = seq(20, 30, by = 2)
     ),
     evaluation_data = list(x = iris_validate[, 1:4], y = iris_validate$Species),
-    scorer = list("accuracy" = yardstick::accuracy_vec),
+    scorer = list(accuracy = yardstick::accuracy_vec),
     optimize_score = "max",
-    prediction_args = list("accuracy" = list(type = "class"))
+    prediction_args = list(accuracy = list(type = "class"))
   )
   iris_grid_fitted <- iris_grid$fit(
     formula = Species ~ .,
@@ -50,17 +50,17 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
     ),
     evaluation_data = list(x = iris_validate, y = iris_validate$Species),
     scorer = list(
-      "accuracy" = yardstick::accuracy_vec,
-      "auc" = yardstick::roc_auc_vec
+      accuracy = yardstick::accuracy_vec,
+      auc = yardstick::roc_auc_vec
     ),
     optimize_score = "max",
     prediction_args = list(
-      "accuracy" = list(type = "class"),
-      "auc" = list(type = "prob")
+      accuracy = list(type = "class"),
+      auc = list(type = "prob")
     ),
     convert_predictions = list(
-      "accuracy" = NULL,
-      "auc" = function(i) i[, "FALSE"]
+      accuracy = NULL,
+      auc = function(i) i[, "FALSE"]
     )
   )
   iris_grid_fitted <- iris_grid$fit(
@@ -85,14 +85,14 @@ if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) 
   mtcars_grid <- GridSearch$new(
     learner = e1071::svm,
     tune_params = list(
-      "degree" = 2:4,
-      "kernel" = c("linear", "polynomial")
+      degree = 2:4,
+      kernel = c("linear", "polynomial")
     ),
     evaluation_data = list(x = mtcars_eval[, -1], y = mtcars_eval$mpg),
     learner_args = list(scale = TRUE),
     scorer = list(
-      "rmse" = yardstick::rmse_vec,
-      "mae" = yardstick::mae_vec
+      rmse = yardstick::rmse_vec,
+      mae = yardstick::mae_vec
     ),
     optimize_score = "min"
   )
@@ -170,7 +170,7 @@ An object of class \link{FittedGridSearch}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(e1071) && require(rpart) && require(rsample) && require(yardstick)) {
+\preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
@@ -186,9 +186,9 @@ An object of class \link{FittedGridSearch}.
       maxdepth = seq(20, 30, by = 2)
     ),
     evaluation_data = list(x = iris_validate[, 1:4], y = iris_validate$Species),
-    scorer = list("accuracy" = yardstick::accuracy_vec),
+    scorer = list(accuracy = yardstick::accuracy_vec),
     optimize_score = "max",
-    prediction_args = list("accuracy" = list(type = "class"))
+    prediction_args = list(accuracy = list(type = "class"))
   )
   iris_grid_fitted <- iris_grid$fit(
     formula = Species ~ .,
@@ -206,17 +206,17 @@ An object of class \link{FittedGridSearch}.
     ),
     evaluation_data = list(x = iris_validate, y = iris_validate$Species),
     scorer = list(
-      "accuracy" = yardstick::accuracy_vec,
-      "auc" = yardstick::roc_auc_vec
+      accuracy = yardstick::accuracy_vec,
+      auc = yardstick::roc_auc_vec
     ),
     optimize_score = "max",
     prediction_args = list(
-      "accuracy" = list(type = "class"),
-      "auc" = list(type = "prob")
+      accuracy = list(type = "class"),
+      auc = list(type = "prob")
     ),
     convert_predictions = list(
-      "accuracy" = NULL,
-      "auc" = function(i) i[, "FALSE"]
+      accuracy = NULL,
+      auc = function(i) i[, "FALSE"]
     )
   )
   iris_grid_fitted <- iris_grid$fit(
@@ -241,14 +241,14 @@ An object of class \link{FittedGridSearch}.
   mtcars_grid <- GridSearch$new(
     learner = e1071::svm,
     tune_params = list(
-      "degree" = 2:4,
-      "kernel" = c("linear", "polynomial")
+      degree = 2:4,
+      kernel = c("linear", "polynomial")
     ),
     evaluation_data = list(x = mtcars_eval[, -1], y = mtcars_eval$mpg),
     learner_args = list(scale = TRUE),
     scorer = list(
-      "rmse" = yardstick::rmse_vec,
-      "mae" = yardstick::mae_vec
+      rmse = yardstick::rmse_vec,
+      mae = yardstick::mae_vec
     ),
     optimize_score = "min"
   )

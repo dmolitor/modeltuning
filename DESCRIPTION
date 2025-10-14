@@ -1,6 +1,6 @@
 Package: modeltuning
 Title: Model Selection and Tuning Utilities
-Version: 0.1.1
+Version: 0.1.2
 Authors@R: 
     person("Daniel", "Molitor", , "molitdj97@gmail.com", role = c("aut", "cre"))
 Description: Provides common model selection and tuning utilities in an 
