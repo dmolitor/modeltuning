@@ -3,6 +3,7 @@ compare_names <- function(...) {
   stopifnot(length(dots) == 2)
   x_name <- names(dots)[[1]]
   y_name <- names(dots)[[2]]
+  if (length(dots[[2]]) == 1 && is.null(dots[[2]][[1]])) return(invisible(NULL))
   if (!identical(names(dots[[1]]), names(dots[[2]])) && !is.null(dots[[2]])) {
     abort(
       c(
@@ -72,7 +73,7 @@ cv_split <- function(data, v = 5, seed = NULL) {
 
 extract_params <- function(params, index) {
   params <- params[index, , drop = FALSE]
-  setNames(lapply(params, function(.x) .x[[1]]), names(params))
+  set_names(lapply(params, function(.x) .x[[1]]), names(params))
 }
 
 get_namespace_name <- function(fn) {
@@ -93,6 +94,11 @@ modelselection_fns <- function() {
     "GridSearchCV",
     "modelselection_fns"
   )
+}
+
+set_names <- function(x, names) {
+  names(x) <- names
+  return(x)
 }
 
 validate_scorer <- function(scorer) {

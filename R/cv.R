@@ -415,7 +415,7 @@ CV <- R6Class(
           function(i) i$metrics
         )
       )
-      metrics <- setNames(
+      metrics <- set_names(
         lapply(
           unique(names(metrics)),
           function(i) unlist(unname(metrics[names(metrics) == i]))
@@ -463,7 +463,7 @@ CV <- R6Class(
         call_modify(splitter, data = data_list[["data"]])
       }
       data_splits <- eval_tidy(split_call)
-      
+
       return(data_splits)
     },
 

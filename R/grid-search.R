@@ -416,7 +416,7 @@ GridSearch <- R6Class(
       models <- lapply(model_contents, function(i) i$model)
       preds <- lapply(model_contents, function(i) i$preds)
       metrics <- unlist(lapply(model_contents, function(i) i$metrics))
-      metrics <- setNames(
+      metrics <- set_names(
         lapply(
           unique(names(metrics)),
           function(i) unlist(unname(metrics[names(metrics) == i]))

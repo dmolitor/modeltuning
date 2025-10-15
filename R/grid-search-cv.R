@@ -472,7 +472,7 @@ FittedGridSearchCV <- R6Class(
       self$folds <- folds
       self$predictions <- predictions
       metrics <- unlist(metrics)
-      metrics <- setNames(
+      metrics <- set_names(
         lapply(
           unique(names(metrics)),
           function(i) unlist(unname(metrics[names(metrics) == i]))
