@@ -332,52 +332,52 @@ GridSearch <- R6Class(
             # function has `x` and `y` arguments
             input <- input[c("x", "y")]
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = input[["x"]])
+            learner_args <- eval_tidy(
+              private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = input[["x"]])
+            )
           } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
             # If the user provides `formula` and `data` arguments
             # check to make sure these exist in the function arguments
             input <- input[c("formula", "data")]
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = input[["data"]])
+            learner_args <- eval_tidy(
+              private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = input[["data"]])
+            )
           } else {
             # Otherwise pass in the formula and data as the first and second
             # arguments respectively, as this is most common R modeling design
             input_temp <- input[c("formula", "data")]
             input <- list(input_temp[["formula"]], input_temp[["data"]])
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = input_temp[["data"]])
+            learner_args <- eval_tidy(
+              private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = input_temp[["data"]])
+            )
           }
           parameters <- extract_params(self$tune_params, index = grid_idx)
-          fit <- eval_tidy(
-            call2(
-              self$learner,
-              !!!input,
-              !!!parameters,
-              !!!learner_args
-            )
-          )
+          fit <- eval_tidy(call2(
+            self$learner,
+            !!!input,
+            !!!parameters,
+            !!!learner_args
+          ))
           # Evaluate prediction arguments with data masking
           prediction_args <- eval_tidy(
             private$prediction_args,
-            data = private$evaluation_data$x
+            env = rlang::env(rlang::caller_env(), .data = private$evaluation_data$x)
           )
           preds <- lapply(
             prediction_args,
             function(.x) {
-              eval_tidy(
-                call2(
-                  expr(predict),
-                  fit,
-                  private$evaluation_data$x,
-                  !!!.x
-                )
-              )
+              eval_tidy(call2(expr(predict), fit, private$evaluation_data$x, !!!.x))
             }
           )
           # Construct scorer functions
           scorer_args <- eval_tidy(
             private$scorer_args,
-            data = private$evaluation_data$x
+            env = rlang::env(rlang::caller_env(), .data = private$evaluation_data$x)
           )
           scorer <- Map(f = function(.x, .y) call2(.x, !!!.y), self$scorer, scorer_args)
           metrics <- Map(

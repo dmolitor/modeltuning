@@ -319,14 +319,20 @@ CV <- R6Class(
             data_out <- data_in[["x_out"]]
             data_in <- data_in[c("x", "y")]
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = data_in[["x"]])
+            learner_args <- eval_tidy(
+              expr = private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = data_in[["x"]])
+            )
           } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
             # If the user provides `formula` and `data` arguments
             # check to make sure these exist in the function arguments
             data_out <- data_in[["data_out"]]
             data_in <- data_in[c("formula", "data")]
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = data_in[["data"]])
+            learner_args <- eval_tidy(
+              private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = data_in[["data"]])
+            )
           } else {
             # Otherwise pass in the formula and data as the first and second
             # arguments respectively, as this is most common R modeling design
@@ -334,7 +340,10 @@ CV <- R6Class(
             data_in_temp <- data_in[c("formula", "data")]
             data_in <- list(data_in_temp[["formula"]], data_in_temp[["data"]])
             # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(private$learner_args, data = data_in_temp[["data"]])
+            learner_args <- eval_tidy(
+              private$learner_args,
+              env = rlang::env(rlang::caller_env(), .data = data_in_temp[["data"]])
+            )
           }
           fit <- eval_tidy(call2(self$learner, !!!data_in, !!!learner_args))
           if (nrow(data_out) == 0) {
@@ -344,23 +353,20 @@ CV <- R6Class(
             metrics <- list(NULL)
           } else {
             # Construct scorer functions
-            scorer_args <- eval_tidy(private$scorer_args, data = data_out)
+            scorer_args <- eval_tidy(
+              private$scorer_args,
+              env = rlang::env(rlang::caller_env(), .data = data_out)
+            )
             scorer <- Map(f = function(.x, .y) call2(.x, !!!.y), self$scorer, scorer_args)
             # Evaluate prediction arguments with data masking
-            prediction_args <- eval_tidy(private$prediction_args, data = data_out)
+            prediction_args <- eval_tidy(
+              private$prediction_args,
+              env = rlang::env(rlang::caller_env(), .data = data_out)
+            )
             # Generate fitted values on hold-out set
             preds <- lapply(
               prediction_args,
-              function(.x) {
-                eval_tidy(
-                  call2(
-                    expr(predict),
-                    fit,
-                    data_out,
-                    !!!.x
-                  )
-                )
-              }
+              function(.x) { eval_tidy(call2(expr(predict), fit, data_out, !!!.x)) }
             )
             # Generate model metrics on hold-out set
             metrics <- Map(
@@ -457,9 +463,7 @@ CV <- R6Class(
         call_modify(splitter, data = data_list[["data"]])
       }
       data_splits <- eval_tidy(split_call)
-      # NOTE: I think this will ONLY work with rsample split objects. 
-      # This is wrong! splitter should return a list which is directly
-      # returned to the user. Noting in case I need to revert.
+      
       return(data_splits)
     },
 
