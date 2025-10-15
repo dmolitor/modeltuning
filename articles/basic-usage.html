@@ -20,7 +20,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">modeltuning</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.2</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -117,43 +117,38 @@ combining it into one big dataframe.</p>
 all very slight variations of each other. Common arguments are as
 follows:</p>
 <ul>
-<li>
-<code>learner</code>: This is where you pass your predictive
+<li><p><code>learner</code>: This is where you pass your predictive
 modeling function; in our case a Support Vector Machine, so
-<code><a href="https://rdrr.io/pkg/e1071/man/svm.html" class="external-link">e1071::svm</a></code> from the e1071 package.</li>
-<li>
-<code>scorer</code>: This is a named list of metric functions that
-will evaluate the model’s predictive performance. Each metric function
-should have two arguments, <code>truth</code> and <code>estimate</code>
-that intake the true outcome values and the predicted outcome values. It
-should output a scalar numeric score. The <a href="https://yardstick.tidymodels.org/" class="external-link">yardstick</a> package provides
-a wide array of these metric functions that should cover most common
-cases. E.g. for the RMSE of a regression,
-<code>scorer = list(rmse = yarstick::rmse_vec)</code>.</li>
-<li>
-<code>learner_args</code>: This is a named list of function
+<code><a href="https://rdrr.io/pkg/e1071/man/svm.html" class="external-link">e1071::svm</a></code> from the e1071 package.</p></li>
+<li><p><code>scorer</code>: This is a named list of metric functions
+that will evaluate the model’s predictive performance. Each metric
+function should have two arguments, <code>truth</code> and
+<code>estimate</code> that intake the true outcome values and the
+predicted outcome values. It should output a scalar numeric score. The
+<a href="https://yardstick.tidymodels.org/" class="external-link">yardstick</a> package
+provides a wide array of these metric functions that should cover most
+common cases. E.g. for the RMSE of a regression,
+<code>scorer = list(rmse = yarstick::rmse_vec)</code>.</p></li>
+<li><p><code>learner_args</code>: This is a named list of function
 arguments that get passed directly to the <code>learner</code> function.
 For example, the <code><a href="https://rdrr.io/pkg/e1071/man/svm.html" class="external-link">e1071::svm</a></code> function takes a
 <code>type</code> argument specifying whether it is a regression or
 classification task. You could specify a classification task as
-<code>learner_args = list(type = "classification")</code>.</li>
-<li>
-<code>scorer_args</code>: This is a named list of function arguments
-to pass to the scorer functions in <code>scorer</code>. This list should
-have one element per element in <code>scorer</code>. E.g. if
+<code>learner_args = list(type = "classification")</code>.</p></li>
+<li><p><code>scorer_args</code>: This is a named list of function
+arguments to pass to the scorer functions in <code>scorer</code>. This
+list should have one element per element in <code>scorer</code>. E.g. if
 <code>scorer = list(rmse = rmse_vec, mae = mae_vec)</code> then
-<code>scorer_args = list(rmse = list(...), mae = list(...))</code>.</li>
-<li>
-<code>prediction_args</code>: This is similar to
+<code>scorer_args = list(rmse = list(...), mae = list(...))</code>.</p></li>
+<li><p><code>prediction_args</code>: This is similar to
 <code>learner_args</code>. It’s a named list of function arguments
 passed to the <code>predict</code> method. E.g. our SVM learner has a
 predict argument called <code>probability</code> whether to predict
 outcome classes or class probabilities. Specify class probabilities as
 <code>prediction_args = list(probability = TRUE)</code>. Similar to
 <code>scorer_args</code>, this list should have one element per element
-in <code>scorer</code>.</li>
-<li>
-<code>convert_predictions</code>: A named list of functions to
+in <code>scorer</code>.</p></li>
+<li><p><code>convert_predictions</code>: A named list of functions to
 transform the output of <code>predict(...)</code> into a vector of
 predictions. By default, the model’s predicted values may not always be
 a vector. E.g. <code>predict(svm_model, probability = TRUE)</code>
@@ -166,7 +161,7 @@ To ensure that accuracy gets class predictions and ROC AUC gets class
 probabilities, you can provide the corresponding prediction arguments
 <code>prediction_args = list(accuracy = NULL, auc = list(probability = TRUE))</code>
 and then convert those predictions into a vector
-<code>convert_predictions = list(accuracy = NULL, auc = function(.x) attr(.x, "probabilities")[, "FALSE"])</code>.</li>
+<code>convert_predictions = list(accuracy = NULL, auc = function(.x) attr(.x, "probabilities")[, "FALSE"])</code>.</p></li>
 </ul>
 </div>
 </div>
@@ -176,17 +171,15 @@ and then convert those predictions into a vector
 <p>The following arguments are specific to the <code>CV</code> cross
 validation class.</p>
 <ul>
-<li>
-<code>splitter</code>: This should be a function that intakes the
+<li><p><code>splitter</code>: This should be a function that intakes the
 training dataset and returns a list of cross validation indices.
 <code>modeltuning</code> provides a very simple function,
 <code><a href="../reference/cv_split.html">cv_split()</a></code> that will do the most simple version of
-this.</li>
-<li>
-<code>splitter_args</code>: A named list of function arguments to
+this.</p></li>
+<li><p><code>splitter_args</code>: A named list of function arguments to
 pass to <code>splitter</code>. E.g. <code><a href="../reference/cv_split.html">cv_split()</a></code> has the
 argument <code>v</code> which specifies how many cross validation folds.
-For 3 folds, set <code>splitter_args = list(v = 3)</code>.</li>
+For 3 folds, set <code>splitter_args = list(v = 3)</code>.</p></li>
 </ul>
 </div>
 <div class="section level3">
@@ -195,16 +188,15 @@ For 3 folds, set <code>splitter_args = list(v = 3)</code>.</li>
 <p>The following arguments are specific to the <code>GridSearch</code>
 grid search class.</p>
 <ul>
-<li>
-<code>evaluation_data</code>: This must be a list containing
-validation data, e.g. <code>list(x = x_eval, y = y_eval)</code>.</li>
-<li>
-<code>optimize_score</code>: One of <code>"max"</code> or
+<li><p><code>evaluation_data</code>: This must be a list containing
+validation data, e.g.
+<code>list(x = x_eval, y = y_eval)</code>.</p></li>
+<li><p><code>optimize_score</code>: One of <code>"max"</code> or
 <code>"min"</code>. Whether to maximize or minimize the metric defined
 in <code>scorer</code> to find the optimal grid search parameters.
 <strong>Note</strong>: if you specify multiple metric functions in
 <code>scorer</code>, modeltune will use the <em>last</em> metric
-function to find the optimal parameters.</li>
+function to find the optimal parameters.</p></li>
 </ul>
 </div>
 <div class="section level3">
