@@ -321,7 +321,11 @@ CV <- R6Class(
             # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               expr = private$learner_args,
-              env = rlang::env(rlang::caller_env(), .data = data_in[["x"]])
+              env = rlang::env(
+                rlang::caller_env(),
+                .data = data_in[["x"]],
+                .index = idx
+              )
             )
           } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
             # If the user provides `formula` and `data` arguments
@@ -331,7 +335,11 @@ CV <- R6Class(
             # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               private$learner_args,
-              env = rlang::env(rlang::caller_env(), .data = data_in[["data"]])
+              env = rlang::env(
+                rlang::caller_env(),
+                .data = data_in[["data"]],
+                .index = idx
+              )
             )
           } else {
             # Otherwise pass in the formula and data as the first and second
@@ -342,7 +350,11 @@ CV <- R6Class(
             # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               private$learner_args,
-              env = rlang::env(rlang::caller_env(), .data = data_in_temp[["data"]])
+              env = rlang::env(
+                rlang::caller_env(),
+                .data = data_in_temp[["data"]],
+                .index = idx
+              )
             )
           }
           fit <- eval_tidy(call2(self$learner, !!!data_in, !!!learner_args))
@@ -355,13 +367,21 @@ CV <- R6Class(
             # Construct scorer functions
             scorer_args <- eval_tidy(
               private$scorer_args,
-              env = rlang::env(rlang::caller_env(), .data = data_out)
+              env = rlang::env(
+                rlang::caller_env(),
+                .data = data_out,
+                .index = -idx
+              )
             )
             scorer <- Map(f = function(.x, .y) call2(.x, !!!.y), self$scorer, scorer_args)
             # Evaluate prediction arguments with data masking
             prediction_args <- eval_tidy(
               private$prediction_args,
-              env = rlang::env(rlang::caller_env(), .data = data_out)
+              env = rlang::env(
+                rlang::caller_env(),
+                .data = data_out,
+                .index = -idx
+              )
             )
             # Generate fitted values on hold-out set
             preds <- lapply(
