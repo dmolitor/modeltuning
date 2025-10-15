@@ -189,26 +189,39 @@ CV <- R6Class(
       if (is.null(splitter)){
         abort(c("Missing argument:", "x" = "`splitter` must be specified"))
       }
-      validate_scorer(scorer, scorer_args, prediction_args, convert_predictions)
+      validate_scorer(scorer)
       validate_splitter(splitter)
+      compare_names(scorer = scorer, convert_predictions = convert_predictions)
+      # Nicely check scorer_args and prediction_args without evaluation happening
+      scorer_args_nse <- if (!is.null(enexpr(scorer_args))) {
+        scorer_args_nse <- lapply(enexpr(scorer_args), function(.x) .x)
+        scorer_args_nse[scorer_args_nse != "list"]
+      }
+      prediction_args_nse <- if (!is.null(enexpr(prediction_args))) {
+        prediction_args_nse <- lapply(enexpr(prediction_args), function(.x) .x)
+        prediction_args_nse[prediction_args_nse != "list"]
+      }
+      compare_names(scorer = scorer, scorer_args = scorer_args_nse)
+      compare_names(scorer = scorer, prediction_args = prediction_args_nse)
 
       # Initialize attributes
       self$learner <- enexpr(learner)
-      private$learner_args <- learner_args
+      private$learner_args <- enexpr(learner_args)
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
         call2(enexpr(splitter), !!!splitter_args)
       }
-      self$scorer <- Map(
-        f = function(.x, .y) call2(.x, !!!.y),
-        scorer,
-        if (is.null(scorer_args)) list(NULL) else scorer_args
-      )
-      private$prediction_args <- if (is.null(prediction_args)) {
-        list(NULL)
+      self$scorer <- scorer
+      private$scorer_args <- if (is.null(enexpr(scorer_args))) {
+        expr(list(NULL))
       } else {
-        prediction_args
+        enexpr(scorer_args)
+      }
+      private$prediction_args <- if (is.null(enexpr(prediction_args))) {
+        expr(list(NULL))
+      } else {
+        enexpr(prediction_args)
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
@@ -238,7 +251,7 @@ CV <- R6Class(
         unname(lapply(private$convert_predictions, get_namespace_name))
       )
       private$future_packages <- sort(unlist(private$future_packages))
-    },
+      },
 
     #' @field learner Predictive modeling function.
     learner = NULL,
@@ -305,28 +318,39 @@ CV <- R6Class(
             # function has `x` and `y` arguments
             data_out <- data_in[["x_out"]]
             data_in <- data_in[c("x", "y")]
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = data_in[["x"]])
           } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
             # If the user provides `formula` and `data` arguments
             # check to make sure these exist in the function arguments
             data_out <- data_in[["data_out"]]
             data_in <- data_in[c("formula", "data")]
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = data_in[["data"]])
           } else {
             # Otherwise pass in the formula and data as the first and second
             # arguments respectively, as this is most common R modeling design
             data_out <- data_in[["data_out"]]
             data_in_temp <- data_in[c("formula", "data")]
             data_in <- list(data_in_temp[["formula"]], data_in_temp[["data"]])
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = data_in_temp[["data"]])
           }
-          fit <- eval_tidy(call2(self$learner, !!!data_in, !!!private$learner_args))
+          fit <- eval_tidy(call2(self$learner, !!!data_in, !!!learner_args))
           if (nrow(data_out) == 0) {
             # When training model on full data-set generate no fitted values
             # or model evaluation metrics
             preds <- list(NULL)
             metrics <- list(NULL)
           } else {
+            # Construct scorer functions
+            scorer_args <- eval_tidy(private$scorer_args, data = data_out)
+            scorer <- Map(f = function(.x, .y) call2(.x, !!!.y), self$scorer, scorer_args)
+            # Evaluate prediction arguments with data masking
+            prediction_args <- eval_tidy(private$prediction_args, data = data_out)
             # Generate fitted values on hold-out set
             preds <- lapply(
-              private$prediction_args,
+              prediction_args,
               function(.x) {
                 eval_tidy(
                   call2(
@@ -362,7 +386,7 @@ CV <- R6Class(
                 truth <- response_var[-idx]
                 eval_tidy(call_modify(.x, truth = truth, estimate = preds))
               },
-              self$scorer,
+              scorer,
               if (is.null(private$convert_predictions)) list(NULL) else private$convert_predictions,
               preds
             )
@@ -418,6 +442,9 @@ CV <- R6Class(
       # do anything weird to it. Again noting, in case I need to revert.
       return(response_var)
     },
+
+    # Arguments to pass to scorer functions
+    scorer_args = NULL,
 
     # Splitter for input data (either a function or a list with fold indices)
     split_data = function(data_list, splitter) {

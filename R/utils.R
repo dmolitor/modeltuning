@@ -70,6 +70,11 @@ cv_split <- function(data, v = 5, seed = NULL) {
   unname(split(seq_len(n), fold_ids))
 }
 
+extract_params <- function(params, index) {
+  params <- params[index, , drop = FALSE]
+  setNames(lapply(params, function(.x) .x[[1]]), names(params))
+}
+
 get_namespace_name <- function(fn) {
   tryCatch(
     unname(getNamespaceName(environment(fn))),
@@ -90,7 +95,7 @@ modelselection_fns <- function() {
   )
 }
 
-validate_scorer <- function(scorer, scorer_args, prediction_args, convert_predictions) {
+validate_scorer <- function(scorer) {
   if (is.null(scorer)){
     abort(c("Missing argument:", "x" = "`scorer` must be specified"))
   }
@@ -103,9 +108,6 @@ validate_scorer <- function(scorer, scorer_args, prediction_args, convert_predic
       abort(c("Improper `scorer` function:", "x" = "`scorer` functions must have `truth` and `estimate` arguments for true outcomes and predicted outcomes."))
     }
   }
-  compare_names(scorer = scorer, scorer_args = scorer_args)
-  compare_names(scorer = scorer, prediction_args = prediction_args)
-  compare_names(scorer = scorer, convert_predictions = convert_predictions)
 }
 
 validate_splitter <- function(splitter) {

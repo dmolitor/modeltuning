@@ -220,12 +220,24 @@ GridSearchCV <- R6Class(
           )
         )
       }
-      validate_scorer(scorer, scorer_args, prediction_args, convert_predictions)
+      validate_scorer(scorer)
       validate_splitter(splitter)
+      compare_names(scorer = scorer, convert_predictions = convert_predictions)
+      # Nicely check scorer_args and prediction_args without evaluation happening
+      scorer_args_nse <- if (!is.null(enexpr(scorer_args))) {
+        scorer_args_nse <- lapply(enexpr(scorer_args), function(.x) .x)
+        scorer_args_nse[scorer_args_nse != "list"]
+      }
+      prediction_args_nse <- if (!is.null(enexpr(prediction_args))) {
+        prediction_args_nse <- lapply(enexpr(prediction_args), function(.x) .x)
+        prediction_args_nse[prediction_args_nse != "list"]
+      }
+      compare_names(scorer = scorer, scorer_args = scorer_args_nse)
+      compare_names(scorer = scorer, prediction_args = prediction_args_nse)
 
       # Initialize attributes and methods
       self$learner <- enexpr(learner)
-      private$learner_args <- learner_args
+      private$learner_args <- enexpr(learner_args)
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
@@ -233,11 +245,15 @@ GridSearchCV <- R6Class(
       }
       private$splitter_args <- splitter_args
       self$scorer <- scorer
-      private$scorer_args <- scorer_args
-      private$prediction_args <- if (is.null(prediction_args)) {
-        list(NULL)
+      private$scorer_args <- if (is.null(enexpr(scorer_args))) {
+        expr(list(NULL))
       } else {
-        prediction_args
+        enexpr(scorer_args)
+      }
+      private$prediction_args <- if (is.null(enexpr(prediction_args))) {
+        expr(list(NULL))
+      } else {
+        enexpr(prediction_args)
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
@@ -336,16 +352,19 @@ GridSearchCV <- R6Class(
       model_contents <- future_lapply(
         1:nrow(self$tune_params),
         function(grid_idx) {
-          parameters <- as.list(self$tune_params[grid_idx, , drop = FALSE])
-          parameters <- append(parameters, private$learner_args)
+          parameters <- extract_params(self$tune_params, index = grid_idx)
+          # Append learner args without evaluating them
+          learner_args <- lapply(private$learner_args, function(.x) .x)
+          learner_args <- learner_args[learner_args != "list"]
+          parameters <- call2(expr(list), !!!append(parameters, learner_args))
           cv_model <- CV$new(
             learner = !!self$learner,
             splitter = self$splitter,
             scorer = self$scorer,
-            learner_args = parameters,
+            learner_args = !!parameters,
             splitter_args = private$splitter_args,
-            scorer_args = private$scorer_args,
-            prediction_args = private$prediction_args,
+            scorer_args = !!private$scorer_args,
+            prediction_args = !!private$prediction_args,
             convert_predictions = private$convert_predictions
           )
           if ("x" %in% names(input)) {

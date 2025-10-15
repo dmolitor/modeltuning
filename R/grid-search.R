@@ -211,23 +211,36 @@ GridSearch <- R6Class(
           "i" = "`evaluation_data` must be a named list with elements `x` and `y`"
         ))
       }
-      validate_scorer(scorer, scorer_args, prediction_args, convert_predictions)
+      validate_scorer(scorer)
+      compare_names(scorer = scorer, convert_predictions = convert_predictions)
+      # Nicely check scorer_args and prediction_args without evaluation happening
+      scorer_args_nse <- if (!is.null(enexpr(scorer_args))) {
+        scorer_args_nse <- lapply(enexpr(scorer_args), function(.x) .x)
+        scorer_args_nse[scorer_args_nse != "list"]
+      }
+      prediction_args_nse <- if (!is.null(enexpr(prediction_args))) {
+        prediction_args_nse <- lapply(enexpr(prediction_args), function(.x) .x)
+        prediction_args_nse[prediction_args_nse != "list"]
+      }
+      compare_names(scorer = scorer, scorer_args = scorer_args_nse)
+      compare_names(scorer = scorer, prediction_args = prediction_args_nse)
       
       # Initialize attributes and methods
       self$learner <- enexpr(learner)
-      private$learner_args <- learner_args
+      private$learner_args <- enexpr(learner_args)
       self$tune_params <- expand.grid(tune_params)
-      self$scorer <- Map(
-        f = function(.x, .y) call2(.x, !!!.y),
-        scorer,
-        if (is.null(scorer_args)) list(NULL) else scorer_args
-      )
+      self$scorer <- scorer
+      private$scorer_args <- if (is.null(enexpr(scorer_args))) {
+        expr(list(NULL))
+      } else {
+        enexpr(scorer_args)
+      }
       private$optimize_score <- match.arg(optimize_score)
       private$evaluation_data <- evaluation_data
-      private$prediction_args <- if (is.null(prediction_args)) {
-        list(NULL)
+      private$prediction_args <- if (is.null(enexpr(prediction_args))) {
+        expr(list(NULL))
       } else {
-        prediction_args
+        enexpr(prediction_args)
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
@@ -318,27 +331,38 @@ GridSearch <- R6Class(
             # If the user provides `x` and `y`, assume modeling 
             # function has `x` and `y` arguments
             input <- input[c("x", "y")]
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = input[["x"]])
           } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
             # If the user provides `formula` and `data` arguments
             # check to make sure these exist in the function arguments
             input <- input[c("formula", "data")]
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = input[["data"]])
           } else {
             # Otherwise pass in the formula and data as the first and second
             # arguments respectively, as this is most common R modeling design
             input_temp <- input[c("formula", "data")]
             input <- list(input_temp[["formula"]], input_temp[["data"]])
+            # Evaluate learner arguments with data masking
+            learner_args <- eval_tidy(private$learner_args, data = input_temp[["data"]])
           }
-          parameters <- as.list(self$tune_params[grid_idx, , drop = FALSE])
+          parameters <- extract_params(self$tune_params, index = grid_idx)
           fit <- eval_tidy(
             call2(
               self$learner,
               !!!input,
               !!!parameters,
-              !!!private$learner_args
+              !!!learner_args
             )
           )
-          preds <- lapply(
+          # Evaluate prediction arguments with data masking
+          prediction_args <- eval_tidy(
             private$prediction_args,
+            data = private$evaluation_data$x
+          )
+          preds <- lapply(
+            prediction_args,
             function(.x) {
               eval_tidy(
                 call2(
@@ -350,6 +374,12 @@ GridSearch <- R6Class(
               )
             }
           )
+          # Construct scorer functions
+          scorer_args <- eval_tidy(
+            private$scorer_args,
+            data = private$evaluation_data$x
+          )
+          scorer <- Map(f = function(.x, .y) call2(.x, !!!.y), self$scorer, scorer_args)
           metrics <- Map(
             f = function(.x, .y, .z) {
               if (!is.null(.y)) {
@@ -372,7 +402,7 @@ GridSearch <- R6Class(
               }
               eval_tidy(call_modify(.x, truth = response_var, estimate = preds))
             },
-            self$scorer,
+            scorer,
             if (is.null(private$convert_predictions)) list(NULL) else private$convert_predictions,
             preds
           )
@@ -402,7 +432,9 @@ GridSearch <- R6Class(
 
     optimize_score = NULL,
 
-    prediction_args = NULL
+    prediction_args = NULL,
+
+    scorer_args = NULL
     
   )
 )
