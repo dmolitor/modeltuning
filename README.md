@@ -57,17 +57,23 @@ iris_train <- iris_new[1:100, ]
 iris_test <- iris_new[101:150, ]
 ```
 
+Next, we’ll define a function to generate cross validation splits.
+
+``` r
+splitter <- function(data, ...) lapply(vfold_cv(data, ...)$splits, \(.x) .x$in_id)
+```
+
 Now, let’s specify and fit a 3-fold cross validation scheme and
-calculate the **F Measure**, **Accuracy**, and **ROC AUC** as our
-hold-out set evaluation metrics.
+calculate the *F-Measure*, *Accuracy*, and *ROC AUC* as our hold-out set
+evaluation metrics.
 
 ``` r
 # Specify cross validation schema
 iris_cv <- CV$new(
   learner = rpart,
   learner_args = list(method = "class"),
-  splitter = cv_split,
-  splitter_args = list(v = 3),
+  splitter = splitter,
+  splitter_args = list(v = 3, strata = Species),
   scorer = list(
     f_meas = f_meas_vec,
     accuracy = accuracy_vec,
@@ -94,13 +100,13 @@ Now, let’s check our evaluation metrics averaged across folds.
 ``` r
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9579995
+#> [1] 0.954157
 #> 
 #> $accuracy
-#> [1] 0.9433333
+#> [1] 0.9399893
 #> 
 #> $auc
-#> [1] 0.9291862
+#> [1] 0.9399695
 ```
 
 ### Grid Search
@@ -147,7 +153,7 @@ Let’s check out the optimal decision tree hyperparameters.
 ``` r
 iris_grid_fitted$best_params
 #> $minsplit
-#> [1] 10
+#> [1] 15
 #> 
 #> $maxdepth
 #> [1] 20
@@ -169,8 +175,8 @@ iris_grid_cv <- GridSearchCV$new(
     minsplit = seq(10, 30, by = 5),
     maxdepth = seq(20, 30, by = 2)
   ),
-  splitter = cv_split,
-  splitter_args = list(v = 3),
+  splitter = splitter,
+  splitter_args = list(v = 3, strata = Species),
   scorer = list(
     accuracy = accuracy_vec,
     auc = roc_auc_vec
@@ -208,7 +214,7 @@ as well as the cross validation ROC AUC for those parameters
 
 ``` r
 iris_grid_cv_fitted$best_metric
-#> [1] 0.9585859
+#> [1] 0.9626623
 ```
 
 ### Parallelization
@@ -221,7 +227,29 @@ evaluates the same cross-validated binary classification model using
 local parallelization.
 
 ``` r
-plan(multisession, workers = 5)
+plan(multisession)
+
+iris_cv <- CV$new(
+  learner = rpart,
+  learner_args = list(method = "class"),
+  splitter = splitter,
+  splitter_args = list(v = 3, strata = Species),
+  scorer = list(
+    f_meas = f_meas_vec,
+    accuracy = accuracy_vec,
+    auc = roc_auc_vec
+  ), 
+  prediction_args = list(
+    f_meas = list(type = "class"),
+    accuracy = list(type = "class"), 
+    auc = list(type = "prob")
+  ),
+  convert_predictions = list(
+    f_meas = NULL,
+    accuracy = NULL,
+    auc = function(.x) .x[, "FALSE"]
+  )
+)
 
 # Fit Cross Validated model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
@@ -229,13 +257,13 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9671811
+#> [1] 0.9515073
 #> 
 #> $accuracy
-#> [1] 0.9549224
+#> [1] 0.9405637
 #> 
 #> $auc
-#> [1] 0.9499565
+#> [1] 0.9406566
 ```
 
 And voila!

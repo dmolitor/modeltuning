@@ -27,12 +27,12 @@ splitter <- function(data, ...) lapply(vfold_cv(data, ...)$splits, \(.x) .x$in_i
 ```
 
 This vignette shows how to use data-masking. In short, how do you dynamically
-specify `learner_args`, `scorer_args`, and `prediction_args` in such a way
+specify `learner_args`, `scorer_args`, `prediction_args`, and `splitter_args` in such a way
 that they are evaluated on the correct subsets of data.
 
-## CV Example
+# CV Example
 
-# Using .data
+## Using .data
 ```{r}
 mtcars_cv <- CV$new(
   learner = glm,
@@ -52,7 +52,7 @@ coef(mtcars_cv_fitted$model)
 coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 ```
 
-# Using .index
+## Using .index
 ```{r}
 mtcars_cv <- CV$new(
   learner = glm,
@@ -72,9 +72,9 @@ coef(mtcars_cv_fitted$model)
 coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 ```
 
-## GridSearch Example
+# GridSearch Example
 
-# Using .data
+## Using .data
 
 ```{r}
 mtcars_train <- mtcars[1:25, ]
@@ -94,7 +94,7 @@ mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
 mtcars_gs_fitted$best_params
 ```
 
-# Should ERROR when .index is used
+## Should ERROR when .index is used
 ```{r, error=TRUE}
 mtcars_gs <- GridSearch$new(
   learner = glm,
@@ -108,7 +108,7 @@ mtcars_gs <- GridSearch$new(
 mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
 ```
 
-# Raw weight vectors
+## Raw weight vectors
 
 ```{r}
 mtcars_gs <- GridSearch$new(
@@ -129,9 +129,9 @@ coef(mtcars_gs_fitted$best_model)
 coef(glm(mpg ~ . - w, data = mtcars_train, weights = mtcars_train$w))
 ```
 
-## GridSearchCV Example
+# GridSearchCV Example
 
-# Using .data
+## Using .data
 
 ```{r}
 mtcars_gs_cv <- GridSearchCV$new(
@@ -139,7 +139,7 @@ mtcars_gs_cv <- GridSearchCV$new(
   tune_params = list(na.action = c(na.omit, na.fail)),
   learner_args = list(weights = .data$w, family = gaussian),
   splitter = splitter,
-  splitter_args = list(v = 2, strata = "cyl"),
+  splitter_args = list(v = 2, strata = cyl),
   scorer = list("rmse" = yardstick::rmse_vec),
   scorer_args = list("rmse" = list(case_weights = .data$w)),
   prediction_args = list("rmse" = list(weights = .data$w))
@@ -153,7 +153,7 @@ coef(mtcars_gs_cv_fitted$best_model)
 coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 ```
 
-# Using .index
+## Using .index
 ```{r}
 mtcars_gs_cv <- GridSearchCV$new(
   learner = glm,
