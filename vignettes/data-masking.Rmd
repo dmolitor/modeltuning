@@ -17,10 +17,13 @@ knitr::opts_chunk$set(comment = "#",
 ```
 
 ```{r}
+library(rsample)
 library(yardstick)
 library(modeltuning)
 
 mtcars$w <- abs(rnorm(nrow(mtcars)))
+
+splitter <- function(data, ...) lapply(vfold_cv(data, ...)$splits, \(.x) .x$in_id)
 ```
 
 This vignette shows how to use data-masking. In short, how do you dynamically
@@ -34,8 +37,8 @@ that they are evaluated on the correct subsets of data.
 mtcars_cv <- CV$new(
   learner = glm,
   learner_args = list(weights = .data$w, family = gaussian),
-  splitter = cv_split,
-  splitter_args = list(v = 2),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = .data$cyl),
   scorer = list("rmse" = yardstick::rmse_vec),
   scorer_args = list("rmse" = list(case_weights = .data$w)),
   prediction_args = list("rmse" = list(weights = .data$w))
@@ -54,8 +57,8 @@ coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 mtcars_cv <- CV$new(
   learner = glm,
   learner_args = list(weights = mtcars$w[.index], family = gaussian),
-  splitter = cv_split,
-  splitter_args = list(v = 2),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = cyl),
   scorer = list("rmse" = yardstick::rmse_vec),
   scorer_args = list("rmse" = list(case_weights = mtcars$w[.index])),
   prediction_args = list("rmse" = list(weights = mtcars$w[.index]))
@@ -135,8 +138,8 @@ mtcars_gs_cv <- GridSearchCV$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
   learner_args = list(weights = .data$w, family = gaussian),
-  splitter = cv_split,
-  splitter_args = list(v = 2),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = "cyl"),
   scorer = list("rmse" = yardstick::rmse_vec),
   scorer_args = list("rmse" = list(case_weights = .data$w)),
   prediction_args = list("rmse" = list(weights = .data$w))
@@ -156,8 +159,8 @@ mtcars_gs_cv <- GridSearchCV$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
   learner_args = list(weights = mtcars$w[.index], family = gaussian),
-  splitter = cv_split,
-  splitter_args = list(v = 2),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = cyl),
   scorer = list("rmse" = yardstick::rmse_vec),
   scorer_args = list("rmse" = list(case_weights = mtcars$w[.index])),
   prediction_args = list("rmse" = list(weights = mtcars$w[.index]))

@@ -181,8 +181,14 @@ CV <- R6Class(
                           scorer_args = NULL,
                           prediction_args = NULL,
                           convert_predictions = NULL) {
-      
       # Argument checking
+      check_list_or_null(
+        learner_args = enexpr(learner_args),
+        splitter_args = enexpr(splitter_args),
+        scorer_args = enexpr(scorer_args),
+        prediction_args = enexpr(prediction_args),
+        convert_predictions = convert_predictions
+      )
       if (is.null(enexpr(learner))){
         abort(c("Missing argument:", "x" = "`learner` must be specified"))
       }
@@ -193,14 +199,8 @@ CV <- R6Class(
       validate_splitter(splitter)
       compare_names(scorer = scorer, convert_predictions = convert_predictions)
       # Nicely check scorer_args and prediction_args without evaluation happening
-      scorer_args_nse <- if (!is.null(enexpr(scorer_args))) {
-        scorer_args_nse <- lapply(enexpr(scorer_args), function(.x) .x)
-        scorer_args_nse[scorer_args_nse != "list"]
-      }
-      prediction_args_nse <- if (!is.null(enexpr(prediction_args))) {
-        prediction_args_nse <- lapply(enexpr(prediction_args), function(.x) .x)
-        prediction_args_nse[prediction_args_nse != "list"]
-      }
+      scorer_args_nse <- expr_to_quoted_list(enexpr(scorer_args))
+      prediction_args_nse <- expr_to_quoted_list(enexpr(prediction_args))
       compare_names(scorer = scorer, scorer_args = scorer_args_nse)
       compare_names(scorer = scorer, prediction_args = prediction_args_nse)
 
@@ -210,7 +210,7 @@ CV <- R6Class(
       self$splitter <- if (is.list(splitter)) {
         splitter
       } else {
-        call2(enexpr(splitter), !!!splitter_args)
+        call2(enexpr(splitter), !!!expr_to_quoted_list(enexpr(splitter_args)))
       }
       self$scorer <- scorer
       private$scorer_args <- if (is.null(enexpr(scorer_args))) {
@@ -477,13 +477,16 @@ CV <- R6Class(
       if (is.list(splitter)) {
         return(splitter)
       }
-      split_call <- if ("x" %in% names(data_list)) {
-        call_modify(splitter, data = data_list[["x"]])
+      if ("x" %in% names(data_list)) {
+        eval_data <- data_list[["x"]]
       } else {
-        call_modify(splitter, data = data_list[["data"]])
+        eval_data <- data_list[["data"]]
       }
-      data_splits <- eval_tidy(split_call)
-
+      split_call <- call_modify(splitter, data = eval_data)
+      data_splits <- eval_tidy(
+        split_call,
+        env = rlang::env(rlang::caller_env(), .data = eval_data)
+      )
       return(data_splits)
     },
 

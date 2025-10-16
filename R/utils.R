@@ -1,3 +1,14 @@
+check_list_or_null <- function(...) {
+  dots <- rlang::list2(...)
+  lapply(
+    names(dots),
+    function(.x) {
+      if (!is_expr_list_or_null(dots[[.x]]))
+        abort(paste0("Invalid argument: ", .x, " must be either NULL or a list"))
+    }
+  )
+}
+
 compare_names <- function(...) {
   dots <- list(...)
   stopifnot(length(dots) == 2)
@@ -71,6 +82,13 @@ cv_split <- function(data, v = 5, seed = NULL) {
   unname(split(seq_len(n), fold_ids))
 }
 
+expr_to_quoted_list <- function(x) {
+  stopifnot(is_expr_list_or_null(x))
+  if (is.null(x)) return(NULL)
+  x <- lapply(x, function(.x) .x)
+  x[x != "list"]
+}
+
 extract_params <- function(params, index) {
   params <- params[index, , drop = FALSE]
   set_names(lapply(params, function(.x) .x[[1]]), names(params))
@@ -81,6 +99,14 @@ get_namespace_name <- function(fn) {
     unname(getNamespaceName(environment(fn))),
     error = function(e) NULL
   )
+}
+
+is_expr_list_or_null <- function(x) {
+  if (is.null(x)) return(TRUE)
+  if (rlang::is_call(x) && rlang::call_name(x) == "list" || rlang::is_list(x)) {
+    return(TRUE)
+  }
+  return(FALSE)
 }
 
 modelselection_fns <- function() {

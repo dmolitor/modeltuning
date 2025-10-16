@@ -206,6 +206,13 @@ GridSearchCV <- R6Class(
                           prediction_args = NULL,
                           convert_predictions = NULL) {
       # Argument validation
+      check_list_or_null(
+        learner_args = enexpr(learner_args),
+        splitter_args = enexpr(splitter_args),
+        scorer_args = enexpr(scorer_args),
+        prediction_args = enexpr(prediction_args),
+        convert_predictions = convert_predictions
+      )
       if (is.null(enexpr(learner))){
         abort(c( "Missing argument:", "x" = "`learner` must be specified"))
       }
@@ -224,14 +231,8 @@ GridSearchCV <- R6Class(
       validate_splitter(splitter)
       compare_names(scorer = scorer, convert_predictions = convert_predictions)
       # Nicely check scorer_args and prediction_args without evaluation happening
-      scorer_args_nse <- if (!is.null(enexpr(scorer_args))) {
-        scorer_args_nse <- lapply(enexpr(scorer_args), function(.x) .x)
-        scorer_args_nse[scorer_args_nse != "list"]
-      }
-      prediction_args_nse <- if (!is.null(enexpr(prediction_args))) {
-        prediction_args_nse <- lapply(enexpr(prediction_args), function(.x) .x)
-        prediction_args_nse[prediction_args_nse != "list"]
-      }
+      scorer_args_nse <- expr_to_quoted_list(enexpr(scorer_args))
+      prediction_args_nse <- expr_to_quoted_list(enexpr(prediction_args))
       compare_names(scorer = scorer, scorer_args = scorer_args_nse)
       compare_names(scorer = scorer, prediction_args = prediction_args_nse)
 
@@ -243,7 +244,7 @@ GridSearchCV <- R6Class(
       } else {
         enexpr(splitter)
       }
-      private$splitter_args <- splitter_args
+      private$splitter_args <- enexpr(splitter_args)
       self$scorer <- scorer
       private$scorer_args <- if (is.null(enexpr(scorer_args))) {
         expr(list(NULL))
@@ -362,7 +363,7 @@ GridSearchCV <- R6Class(
             splitter = self$splitter,
             scorer = self$scorer,
             learner_args = !!parameters,
-            splitter_args = private$splitter_args,
+            splitter_args = !!private$splitter_args,
             scorer_args = !!private$scorer_args,
             prediction_args = !!private$prediction_args,
             convert_predictions = private$convert_predictions
