@@ -76,7 +76,15 @@ among other essential parameters.</p>
 <h3 id="method-fit-">Method <code>fit()</code><a class="anchor" aria-label="anchor" href="#method-fit-"></a></h3>
 <p><code>fit</code> performs cross validation with user-specified parameters.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
-<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CV</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>formula <span class="op">=</span> <span class="cn">NULL</span>, data <span class="op">=</span> <span class="cn">NULL</span>, x <span class="op">=</span> <span class="cn">NULL</span>, y <span class="op">=</span> <span class="cn">NULL</span>, progress <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
+<p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">CV</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span></span>
+<span>  formula <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  response <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  convert_response <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
+<span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
 
 <div class="section">
@@ -100,6 +108,17 @@ data with formula.</p></dd>
 <dt><code>y</code></dt>
 <dd><p>Response vector (dependent variable), alternative interface to
 data with formula.</p></dd>
+
+
+<dt><code>response</code></dt>
+<dd><p>String; In the absence of <code>formula</code> or <code>y</code>, this specifies
+which element of <code>learner_args</code> is the response vector.</p></dd>
+
+
+<dt><code>convert_response</code></dt>
+<dd><p>Function; This should be a single function that
+transforms the response vector. E.g. a function converting a numeric binary
+variable to a factor variable.</p></dd>
 
 
 <dt><code>progress</code></dt>

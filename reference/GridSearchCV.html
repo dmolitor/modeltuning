@@ -90,6 +90,8 @@ Cross-Validation.</p><div class="section">
 <span>  data <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  x <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  response <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  convert_response <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
 </div>
@@ -117,6 +119,17 @@ data with formula.</p></dd>
 data with formula.</p></dd>
 
 
+<dt><code>response</code></dt>
+<dd><p>String; In the absence of <code>formula</code> or <code>y</code>, this specifies
+which element of <code>learner_args</code> is the response vector.</p></dd>
+
+
+<dt><code>convert_response</code></dt>
+<dd><p>Function; This should be a single function that
+transforms the response vector. E.g. a function converting a numeric binary
+variable to a factor variable.</p></dd>
+
+
 <dt><code>progress</code></dt>
 <dd><p>Logical; indicating whether to print progress across
 the hyper-parameter grid.</p></dd>
@@ -138,7 +151,7 @@ function.</p>
 </div>
 <div class="section">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code>\dontrun{
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code>\donttest{
 if (require(e1071) &amp;&amp; require(rpart) &amp;&amp; require(yardstick)) {
   iris_new &lt;- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species &lt;- factor(iris_new$Species == "virginica")
@@ -216,7 +229,7 @@ if (require(e1071) &amp;&amp; require(rpart) &amp;&amp; require(yardstick)) {
       kernel = c("linear", "polynomial")
     ),
     splitter = cv_split,
-    splitter_args = list(v = 3),
+    splitter_args = list(v = 2),
     learner_args = list(scale = TRUE),
     scorer = list(
       rmse = yardstick::rmse_vec,
@@ -359,7 +372,7 @@ with each function in <code>scorer</code>.</p></dd>
 <span class="r-in"><span><span class="co">## Method `GridSearchCV$fit`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span> <span class="co"># \dontrun{</span></span></span>
+<span class="r-in"><span><span class="co"># \donttest{</span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">e1071</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bethatkinson/rpart" class="external-link">rpart</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">iris_new</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span></span>
 <span class="r-in"><span>  <span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">==</span> <span class="st">"virginica"</span><span class="op">)</span></span></span>
@@ -437,7 +450,7 @@ with each function in <code>scorer</code>.</p></dd>
 <span class="r-in"><span>      kernel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"linear"</span>, <span class="st">"polynomial"</span><span class="op">)</span></span></span>
 <span class="r-in"><span>    <span class="op">)</span>,</span></span>
 <span class="r-in"><span>    splitter <span class="op">=</span> <span class="va">cv_split</span>,</span></span>
-<span class="r-in"><span>    splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>    splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>    scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>      rmse <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/rmse.html" class="external-link">rmse_vec</a></span>,</span></span>
@@ -451,7 +464,7 @@ with each function in <code>scorer</code>.</p></dd>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
-<span class="r-in"><span><span class="op">}</span> <span class="co"># }</span></span></span>
+<span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
