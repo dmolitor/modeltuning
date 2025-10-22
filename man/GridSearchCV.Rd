@@ -15,7 +15,7 @@ metrics.
 ## Method `GridSearchCV$fit`
 ## ------------------------------------------------
 
-\dontrun{
+\donttest{
 if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -93,7 +93,7 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
       kernel = c("linear", "polynomial")
     ),
     splitter = cv_split,
-    splitter_args = list(v = 3),
+    splitter_args = list(v = 2),
     learner_args = list(scale = TRUE),
     scorer = list(
       rmse = yardstick::rmse_vec,
@@ -143,6 +143,8 @@ Cross-Validation.
   data = NULL,
   x = NULL,
   y = NULL,
+  response = NULL,
+  convert_response = NULL,
   progress = FALSE
 )}\if{html}{\out{</div>}}
 }
@@ -163,6 +165,13 @@ data with formula.}
 \item{\code{y}}{Response vector (dependent variable), alternative interface to
 data with formula.}
 
+\item{\code{response}}{String; In the absence of \code{formula} or \code{y}, this specifies
+which element of \code{learner_args} is the response vector.}
+
+\item{\code{convert_response}}{Function; This should be a single function that
+transforms the response vector. E.g. a function converting a numeric binary
+variable to a factor variable.}
+
 \item{\code{progress}}{Logical; indicating whether to print progress across
 the hyper-parameter grid.}
 }
@@ -180,7 +189,7 @@ An object of class \link{FittedGridSearchCV}.
 }
 \subsection{Examples}{
 \if{html}{\out{<div class="r example copy">}}
-\preformatted{\dontrun{
+\preformatted{\donttest{
 if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -258,7 +267,7 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
       kernel = c("linear", "polynomial")
     ),
     splitter = cv_split,
-    splitter_args = list(v = 3),
+    splitter_args = list(v = 2),
     learner_args = list(scale = TRUE),
     scorer = list(
       rmse = yardstick::rmse_vec,

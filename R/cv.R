@@ -28,6 +28,11 @@ CV <- R6Class(
     #'   data with formula.
     #' @param y Response vector (dependent variable), alternative interface to
     #'   data with formula.
+    #' @param response String; In the absence of `formula` or `y`, this specifies
+    #'   which element of `learner_args` is the response vector.
+    #' @param convert_response Function; This should be a single function that
+    #'   transforms the response vector. E.g. a function converting a numeric binary
+    #'   variable to a factor variable.
     #' @param progress Logical; indicating whether to print progress across
     #'   cross validation folds.
     #' @return An object of class [FittedCV].
@@ -112,18 +117,23 @@ CV <- R6Class(
     #'     y = mtcars_y
     #'   )
     #' }
-    fit = function(formula = NULL, data = NULL, x = NULL, y = NULL, progress = FALSE) {
-      input <- private$check_data_input(formula, data, x, y)
+    fit = function(formula = NULL,
+                   data = NULL,
+                   x = NULL,
+                   y = NULL,
+                   response = NULL,
+                   convert_response = NULL,
+                   progress = FALSE) {
+      input <- private$check_data_input(formula, data, x, y, response, convert_response)
       n_obs <- if (!is.null(x)) nrow(x) else nrow(data)
       cv_index <- private$split_data(input, self$splitter)
-      response_var <- private$response(input)
       nfolds <- length(cv_index)
       if (progress) {
         with_progress({
-          model_output <- private$fit_folds(cv_index, input, response_var, n_obs)
+          model_output <- private$fit_folds(cv_index, input, n_obs, response, convert_response)
         })
       } else {
-        model_output <- private$fit_folds(cv_index, input, response_var, n_obs)
+        model_output <- private$fit_folds(cv_index, input, n_obs, response, convert_response)
       }
       FittedCV$new(
         folds = cv_index,
@@ -266,58 +276,77 @@ CV <- R6Class(
   private = list(
 
     # Validate data inputs
-    check_data_input = check_data_input <- function(formula = NULL, data = NULL, x = NULL, y = NULL) {
-      if (all(vapply(list(formula, data, x, y), is.null, NA))) {
+    check_data_input = function(formula = NULL,
+                                data = NULL,
+                                x = NULL,
+                                y = NULL,
+                                response = NULL,
+                                convert_response = NULL) {
+      # Make sure the user provides something
+      if (all(vapply(list(formula, data, x, y, response), is.null, NA))) {
         abort(c(
           "Missing data elements:",
           "x" = "No data elements were provided",
-          "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
+          "i" = "Provide `data` (and possibly `formula`), `x` (and possibly `y`, or `response`"
         ))
       }
-      if (any(vapply(list(x, y), is.null, NA))) {
-        if (is.null(formula)) {
-          abort(c(
-            "Missing data elements:",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          ))
-        }
-        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && rlang::is_formula(formula)) {
-          abort(c(
-            "Malformed formula:",
-            "i" = "Please specify `formula` as a valid, two-sided formula"
-          ))
-        }
-        return(list(formula = formula, data = data))
-      } else if (any(vapply(list(x, y), is.null, NA))) {
+      # A response variable must be specified
+      if (is.null(formula) && is.null(y) && is.null(response)) {
+        rlang::abort("One of `formula`, `y`, or `response` must be provided")
+      }
+      # Make sure they provide at least one of x or data
+      if (is.null(data) && is.null(x)) {
         abort(c(
-          "Missing data elements:",
-          "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
+          "Missing elements:",
+          "i" = "One of `data` or `x` should always be provided"
         ))
       }
-      list(x = x, y = y)
+      # Check if they're correctly using the data/formula interface
+      if (!is.null(formula)) {
+        if (is.null(data)) {
+          abort(c(
+            "Missing elements:",
+            "i" = "if `formula` was supplied, `data` should usually be as well"
+          ))
+        }
+      }
+      # Checks for outcome specification
+      if (!is.null(response) && (!is.null(formula) || !is.null(y))) {
+        rlang::abort("If `formula` or `y` are provided `response` should not be")
+      }
+      if (!is.null(response) && !(is.character(response) || is.function(response))) {
+        rlang::abort("`response` must be NULL, a string, or a function")
+      }
+      if (!is.null(convert_response) && !is.function(convert_response)) {
+        rlang::abort("`convert_response` should either be NULL or a function")
+      }
+      # Return any non-null learner args
+      learner_args <- list(x = x, y = y, formula = formula, data = data)
+      is_null <- vapply(learner_args, function(.x) is.null(.x), NA)
+      learner_args <- learner_args[!is_null]
+      learner_args
     },
 
     # Convert predicted values into acceptable scoring format
     convert_predictions = NULL,
 
     # Fit cross-validated model
-    fit_folds = function(cv_index, input, response_var, n_obs) {
+    fit_folds = function(cv_index, input, n_obs, response, convert_response) {
       pb <- progressor(along = 1:(length(cv_index) + 1))
       model_contents <- future_lapply(
         append(cv_index, list(1:n_obs)),
         function(idx) {
-          data_in <- private$subset_data(
+          data <- private$subset_data(
             formula = input$formula,
             data = input$data,
             x = input$x,
             y = input$y,
             idx = idx
           )
+          data_out <- data[["data_out"]]
+          truth <- data[["response_out"]]
+          data_in <- data[!names(data) %in% c("data_out", "response_out")]
           if ("x" %in% names(data_in)) {
-            # If the user provides `x` and `y`, assume modeling 
-            # function has `x` and `y` arguments
-            data_out <- data_in[["x_out"]]
-            data_in <- data_in[c("x", "y")]
             # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               expr = private$learner_args,
@@ -327,11 +356,7 @@ CV <- R6Class(
                 .index = idx
               )
             )
-          } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
-            # If the user provides `formula` and `data` arguments
-            # check to make sure these exist in the function arguments
-            data_out <- data_in[["data_out"]]
-            data_in <- data_in[c("formula", "data")]
+          } else {
             # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               private$learner_args,
@@ -341,21 +366,22 @@ CV <- R6Class(
                 .index = idx
               )
             )
-          } else {
-            # Otherwise pass in the formula and data as the first and second
-            # arguments respectively, as this is most common R modeling design
-            data_out <- data_in[["data_out"]]
-            data_in_temp <- data_in[c("formula", "data")]
-            data_in <- list(data_in_temp[["formula"]], data_in_temp[["data"]])
-            # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(
-              private$learner_args,
-              env = rlang::env(
-                rlang::caller_env(),
-                .data = data_in_temp[["data"]],
-                .index = idx
-              )
-            )
+          }
+          # Get the response (outcome) vector for both the in- and out-of- sample
+          # data. Then apply any post-processing function, if supplied by the user.
+          if (!is.null(response)) {
+            if (is.character(response)) {
+              # Pull out the response vector for the hold-out set
+              truth <- learner_args[[response]][-idx]
+              # Pull out the in-sample response vector
+              learner_args[[response]] <- learner_args[[response]][idx]
+            } else if (is.function(response)) {
+              truth <- response(data_out)
+            }
+          }
+          # Apply any user-supplied post-processing to the out-of-sample outcomes
+          if (!is.null(convert_response) && length(truth) > 0) {
+            truth <- convert_response(truth)
           }
           fit <- eval_tidy(call2(self$learner, !!!data_in, !!!learner_args))
           if (nrow(data_out) == 0) {
@@ -409,7 +435,6 @@ CV <- R6Class(
                   }
                   preds <- .z
                 }
-                truth <- response_var[-idx]
                 eval_tidy(call_modify(.x, truth = truth, estimate = preds))
               },
               scorer,
@@ -420,8 +445,20 @@ CV <- R6Class(
           pb()
           list(model = fit, preds = preds, metrics = metrics)
         },
-        future.globals = structure(TRUE, add = modelselection_fns()),
-        future.packages = private$future_packages,
+        future.globals = structure(
+          TRUE,
+          add = append(
+            modelselection_fns(),
+            c(
+              get_objects_from_env(extract_symbols(self$learner)),
+              get_objects_from_env(extract_symbols(private$learner_args)),
+              get_objects_from_env(extract_symbols(private$scorer_args)),
+              get_objects_from_env(extract_symbols(private$prediction_args)),
+              get_objects_from_env(extract_symbols(self$splitter))
+            )
+          )
+        ),
+        future.packages = unique(append(private$future_packages, attached_pkgs())),
         future.seed = TRUE
       )
       model <- model_contents[[length(model_contents)]]$model
@@ -443,10 +480,10 @@ CV <- R6Class(
         unique(names(metrics))
       )
       list(model = model, preds = preds, metrics = metrics)
-    },
+            },
 
     # Get all packages required to evaluate futures
-    future_packages = c("future.apply", "progressr", "R6", "rlang"),
+    future_packages = c("future.apply", "progressr", "R6", "rlang", "Matrix"),
 
     # Arguments to pass to learner function
     learner_args = NULL,
@@ -459,8 +496,10 @@ CV <- R6Class(
       if (!is.null(data_list[["formula"]])) {
         lhs <- as_string(data_list[["formula"]][[2]])
         response_var <- data_list[["data"]][, lhs, drop = TRUE]
-      } else {
+      } else if (!is.null(data_list[["y"]])) {
         response_var <- data_list[["y"]]
+      } else {
+        response_var <- NULL
       }
       # NOTE: Currently this is modifying the underlying outcome variable.
       # Again, I think this is probably dangerous! We should assume that
@@ -492,23 +531,24 @@ CV <- R6Class(
 
     # Subsets data for cross-validation folds
     subset_data = function(formula, data, x, y, idx) {
-      if (is.null(data)) {
-        return(
-          list(
-            x = x[idx, , drop = FALSE],
-            y = y[idx],
-            x_out = x[-idx, , drop = FALSE]
-          )
-        )
+      response_var <- private$response(list(
+        formula = formula,
+        data = data,
+        x = x,
+        y = y
+      ))
+      model_elts <- list()
+      model_elts$formula <- formula
+      model_elts$data <- data[idx, , drop = FALSE]
+      model_elts$x <- x[idx, , drop = FALSE]
+      model_elts$y <- y[idx]
+      if (is.null(x)) {
+        model_elts$data_out <- data[-idx, , drop = FALSE]
       } else {
-        return(
-          list(
-            formula = formula,
-            data = data[idx, , drop = FALSE],
-            data_out = data[-idx, , drop = FALSE]
-          )
-        )
+        model_elts$data_out <- x[-idx, , drop = FALSE]
       }
+      model_elts$response_out <- response_var[-idx]
+      return(model_elts)
     }
 
   )

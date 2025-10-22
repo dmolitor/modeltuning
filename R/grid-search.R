@@ -227,16 +227,16 @@ GridSearch <- R6Class(
       # Initialize attributes and methods
       self$learner <- enexpr(learner)
       private$learner_args <- enexpr(learner_args)
-      self$tune_params <- expand.grid(tune_params)
+      self$tune_params <- expand.grid(tune_params, stringsAsFactors = FALSE)
       self$scorer <- scorer
-      private$scorer_args <- if (is.null(enexpr(scorer_args))) {
+      private$scorer_args <- if (is.null(rlang::enexpr(scorer_args))) {
         expr(list(NULL))
       } else {
         enexpr(scorer_args)
       }
       private$optimize_score <- match.arg(optimize_score)
       private$evaluation_data <- evaluation_data
-      private$prediction_args <- if (is.null(enexpr(prediction_args))) {
+      private$prediction_args <- if (is.null(rlang::enexpr(prediction_args))) {
         expr(list(NULL))
       } else {
         enexpr(prediction_args)
@@ -279,42 +279,35 @@ GridSearch <- R6Class(
   private = list(
 
     check_data_input = function(formula = NULL, data = NULL, x = NULL, y = NULL) {
+      # Make sure the user provides something
       if (all(vapply(list(formula, data, x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "x" = "No data elements were provided",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+        abort(c(
+          "Missing data elements:",
+          "x" = "No data elements were provided",
+          "i" = "Provide `data` (and possibly `formula`) or `x` (and possibly `y`)"
+        ))
       }
-      if (any(vapply(list(x, y), is.null, NA))) {
-        if (is.null(formula)) {
-          abort(
-            c(
-              "Missing data elements:",
-              "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-            )
-          )
-        }
-        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && rlang::is_formula(formula)) {
-          abort(
-            c(
-              "Malformed formula:",
-              "i" = "Please specify `formula` as a valid, two-sided formula"
-            )
-          )
-        }
-        return(list(formula = formula, data = data))
-      } else if (any(vapply(list(x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+      # Make sure they provide at least one of x or data
+      if (is.null(data) && is.null(x)) {
+        abort(c(
+          "Missing elements:",
+          "i" = "One of `data` or `x` should always be provided"
+        ))
       }
-      list(x = x, y = y)
+      # Check if they're correctly using the data/formula interface
+      if (!is.null(formula)) {
+        if (is.null(data)) {
+          abort(c(
+            "Missing elements:",
+            "i" = "if `formula` was supplied, `data` should usually be as well"
+          ))
+        }
+      }
+      # Return any non-null learner args
+      learner_args <- list(x = x, y = y, formula = formula, data = data)
+      is_null <- vapply(learner_args, function(.x) is.null(.x), NA)
+      learner_args <- learner_args[!is_null]
+      learner_args
     },
 
     convert_predictions = NULL,
@@ -326,42 +319,23 @@ GridSearch <- R6Class(
       model_contents <- future_lapply(
         1:nrow(self$tune_params),
         function(grid_idx) {
+          # Evaluate learner arguments with data masking
           if ("x" %in% names(input)) {
-            # If the user provides `x` and `y`, assume modeling 
-            # function has `x` and `y` arguments
-            input <- input[c("x", "y")]
-            # Evaluate learner arguments with data masking
             learner_args <- eval_tidy(
               private$learner_args,
               env = rlang::env(rlang::caller_env(), .data = input[["x"]])
             )
-          } else if (all(c("formula", "data") %in% names(formals(eval(self$learner))))) {
-            # If the user provides `formula` and `data` arguments
-            # check to make sure these exist in the function arguments
-            input <- input[c("formula", "data")]
-            # Evaluate learner arguments with data masking
+          } else {
             learner_args <- eval_tidy(
               private$learner_args,
               env = rlang::env(rlang::caller_env(), .data = input[["data"]])
             )
-          } else {
-            # Otherwise pass in the formula and data as the first and second
-            # arguments respectively, as this is most common R modeling design
-            input_temp <- input[c("formula", "data")]
-            input <- list(input_temp[["formula"]], input_temp[["data"]])
-            # Evaluate learner arguments with data masking
-            learner_args <- eval_tidy(
-              private$learner_args,
-              env = rlang::env(rlang::caller_env(), .data = input_temp[["data"]])
-            )
           }
           parameters <- extract_params(self$tune_params, index = grid_idx)
-          fit <- eval_tidy(call2(
-            self$learner,
-            !!!input,
-            !!!parameters,
-            !!!learner_args
-          ))
+          fit_call <- call2(self$learner, !!!input, !!!learner_args, !!!parameters)
+          fit <- eval_tidy(
+            fit_call
+          )
           # Evaluate prediction arguments with data masking
           prediction_args <- eval_tidy(
             private$prediction_args,
@@ -408,8 +382,19 @@ GridSearch <- R6Class(
           pb()
           list(model = fit, preds = preds, metrics = metrics)
         },
-        future.globals = structure(TRUE, add = modelselection_fns()),
-        future.packages = private$future_packages,
+        future.globals = structure(
+          TRUE,
+          add = append(
+            modelselection_fns(),
+            c(
+              get_objects_from_env(extract_symbols(self$learner)),
+              get_objects_from_env(extract_symbols(private$learner_args)),
+              get_objects_from_env(extract_symbols(private$scorer_args)),
+              get_objects_from_env(extract_symbols(private$prediction_args))
+            )
+          )
+        ),
+        future.packages = unique(append(private$future_packages, attached_pkgs())),
         future.seed = TRUE
       )
       models <- lapply(model_contents, function(i) i$model)
@@ -425,7 +410,7 @@ GridSearch <- R6Class(
       list(models = models, preds = preds, metrics = metrics)
     },
 
-    future_packages = c("future.apply", "progressr", "R6", "rlang"),
+    future_packages = c("future.apply", "progressr", "R6", "rlang", "Matrix"),
 
     learner_args = NULL,
 

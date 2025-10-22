@@ -12,3 +12,5 @@
 ^Meta$
 ^CRAN-SUBMISSION$
 ^cran-comments\.md$
+^examples$
+^.venv$

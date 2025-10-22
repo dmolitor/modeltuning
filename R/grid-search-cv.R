@@ -30,11 +30,16 @@ GridSearchCV <- R6Class(
     #'   data with formula.
     #' @param y Response vector (dependent variable), alternative interface to
     #'   data with formula.
+    #' @param response String; In the absence of `formula` or `y`, this specifies
+    #'   which element of `learner_args` is the response vector.
+    #' @param convert_response Function; This should be a single function that
+    #'   transforms the response vector. E.g. a function converting a numeric binary
+    #'   variable to a factor variable.
     #' @param progress Logical; indicating whether to print progress across
     #'   the hyper-parameter grid.
     #' @return An object of class [FittedGridSearchCV].
     #' @examples
-    #' \dontrun{
+    #' \donttest{
     #' if (require(e1071) && require(rpart) && require(yardstick)) {
     #'   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
     #'   iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -112,7 +117,7 @@ GridSearchCV <- R6Class(
     #'       kernel = c("linear", "polynomial")
     #'     ),
     #'     splitter = cv_split,
-    #'     splitter_args = list(v = 3),
+    #'     splitter_args = list(v = 2),
     #'     learner_args = list(scale = TRUE),
     #'     scorer = list(
     #'       rmse = yardstick::rmse_vec,
@@ -131,14 +136,16 @@ GridSearchCV <- R6Class(
                    data = NULL,
                    x = NULL,
                    y = NULL,
+                   response = NULL,
+                   convert_response = NULL,
                    progress = FALSE) {
       input <- private$check_data_input(formula, data, x, y)
       if (progress) {
         with_progress({
-          models_output <- private$fit_grid(input = input)
+          models_output <- private$fit_grid(input, response, convert_response)
         })
       } else {
-        models_output <- private$fit_grid(input = input)
+        models_output <- private$fit_grid(input, response, convert_response)
       }
       FittedGridSearchCV$new(
         tune_params = self$tune_params,
@@ -239,22 +246,18 @@ GridSearchCV <- R6Class(
       # Initialize attributes and methods
       self$learner <- enexpr(learner)
       private$learner_args <- enexpr(learner_args)
-      self$splitter <- if (is.list(splitter)) {
-        splitter
-      } else {
-        enexpr(splitter)
-      }
+      self$splitter <- splitter
       private$splitter_args <- enexpr(splitter_args)
       self$scorer <- scorer
       private$scorer_args <- if (is.null(enexpr(scorer_args))) {
-        expr(list(NULL))
+        rlang::expr(list(NULL))
       } else {
-        enexpr(scorer_args)
+        rlang::enexpr(scorer_args)
       }
       private$prediction_args <- if (is.null(enexpr(prediction_args))) {
-        expr(list(NULL))
+        rlang::expr(list(NULL))
       } else {
-        enexpr(prediction_args)
+        rlang::enexpr(prediction_args)
       }
       private$convert_predictions <- if (
         !is.null(convert_predictions) &&
@@ -306,58 +309,50 @@ GridSearchCV <- R6Class(
 
     # Validate data inputs
     check_data_input = function(formula = NULL, data = NULL, x = NULL, y = NULL) {
+      # Make sure the user provides something
       if (all(vapply(list(formula, data, x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "x" = "No data elements were provided",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+        abort(c(
+          "Missing data elements:",
+          "x" = "No data elements were provided",
+          "i" = "Provide `data` (and possibly `formula`) or `x` (and possibly `y`)"
+        ))
       }
-      if (any(vapply(list(x, y), is.null, NA))) {
-        if (is.null(formula)) {
-          abort(
-            c(
-              "Missing data elements:",
-              "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-            )
-          )
-        }
-        if (!(length(formula) == 3 && length(formula[[2]]) == 1) && rlang::is_formula(formula)) {
-          abort(
-            c(
-              "Malformed formula:",
-              "i" = "Please specify `formula` as a valid, two-sided formula"
-            )
-          )
-        }
-        return(list(formula = formula, data = data))
-      } else if (any(vapply(list(x, y), is.null, NA))) {
-        abort(
-          c(
-            "Missing data elements:",
-            "i" = "Either `data` and/or `formula` or `x` and `y` must be supplied"
-          )
-        )
+      # Make sure they provide at least one of x or data
+      if (is.null(data) && is.null(x)) {
+        abort(c(
+          "Missing elements:",
+          "i" = "One of `data` or `x` should always be provided"
+        ))
       }
-      list(x = x, y = y)
+      # Check if they're correctly using the data/formula interface
+      if (!is.null(formula)) {
+        if (is.null(data)) {
+          abort(c(
+            "Missing elements:",
+            "i" = "if `formula` was supplied, `data` should usually be as well"
+          ))
+        }
+      }
+      # Return any non-null learner args
+      learner_args <- list(x = x, y = y, formula = formula, data = data)
+      is_null <- vapply(learner_args, function(.x) is.null(.x), NA)
+      learner_args <- learner_args[!is_null]
+      learner_args
     },
 
     # Convert predicted values into acceptable scoring format
     convert_predictions = NULL,
 
     # Fit CV models across hyper-parameter grid
-    fit_grid = function(input) {
+    fit_grid = function(input, response, convert_response) {
       pb <- progressor(along = 1:nrow(self$tune_params))
       model_contents <- future_lapply(
         1:nrow(self$tune_params),
         function(grid_idx) {
           parameters <- extract_params(self$tune_params, index = grid_idx)
           # Append learner args without evaluating them
-          learner_args <- lapply(private$learner_args, function(.x) .x)
-          learner_args <- learner_args[learner_args != "list"]
-          parameters <- call2(expr(list), !!!append(parameters, learner_args))
+          learner_args <- expr_to_quoted_list(private$learner_args)
+          parameters <- rlang::call2(expr(list), !!!append(parameters, learner_args))
           cv_model <- CV$new(
             learner = !!self$learner,
             splitter = self$splitter,
@@ -368,31 +363,36 @@ GridSearchCV <- R6Class(
             prediction_args = !!private$prediction_args,
             convert_predictions = private$convert_predictions
           )
-          if ("x" %in% names(input)) {
-            cv_model <- cv_model$fit(
-              x = input$x,
-              y = input$y,
-              progress = FALSE
-            )
-          } else {
-            cv_model <- cv_model$fit(
-              formula = input$formula,
-              data = input$data,
-              progress = FALSE
-            )
-          }
+          input$progress <- FALSE
+          input$response <- response
+          input$convert_response <- convert_response
+          cv_model_call <- rlang::call2(expr(cv_model$fit), !!!input)
+          cv_model <- rlang::eval_tidy(cv_model_call)
           pb()
           cv_model
         },
-        future.globals = structure(TRUE, add = modelselection_fns()),
-        future.packages = private$future_packages,
+        future.globals = structure(
+          TRUE,
+          add = append(
+            modelselection_fns(),
+            c(
+              get_objects_from_env(extract_symbols(self$learner)),
+              get_objects_from_env(extract_symbols(private$learner_args)),
+              get_objects_from_env(extract_symbols(private$scorer_args)),
+              get_objects_from_env(extract_symbols(private$prediction_args)),
+              get_objects_from_env(extract_symbols(self$splitter)),
+              get_objects_from_env(extract_symbols(private$splitter_args))
+            )
+          )
+        ),
+        future.packages = unique(append(private$future_packages, attached_pkgs())),
         future.seed = TRUE
       )
       model_contents
     },
 
     # Get all packages required to evaluate futures
-    future_packages = c("future.apply", "progressr", "R6", "rlang"),
+    future_packages = c("future.apply", "progressr", "R6", "rlang", "Matrix"),
 
     # Arguments to pass to learner function
     learner_args = NULL,

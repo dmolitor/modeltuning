@@ -120,7 +120,15 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
 \subsection{Method \code{fit()}}{
 \code{fit} performs cross validation with user-specified parameters.
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CV$fit(formula = NULL, data = NULL, x = NULL, y = NULL, progress = FALSE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{CV$fit(
+  formula = NULL,
+  data = NULL,
+  x = NULL,
+  y = NULL,
+  response = NULL,
+  convert_response = NULL,
+  progress = FALSE
+)}\if{html}{\out{</div>}}
 }
 
 \subsection{Arguments}{
@@ -138,6 +146,13 @@ data with formula.}
 
 \item{\code{y}}{Response vector (dependent variable), alternative interface to
 data with formula.}
+
+\item{\code{response}}{String; In the absence of \code{formula} or \code{y}, this specifies
+which element of \code{learner_args} is the response vector.}
+
+\item{\code{convert_response}}{Function; This should be a single function that
+transforms the response vector. E.g. a function converting a numeric binary
+variable to a factor variable.}
 
 \item{\code{progress}}{Logical; indicating whether to print progress across
 cross validation folds.}

@@ -1,3 +1,7 @@
+attached_pkgs <- function() {
+  sub("^package:", "", grep("^package:", search(), value = TRUE))
+}
+
 check_list_or_null <- function(...) {
   dots <- rlang::list2(...)
   lapply(
@@ -82,6 +86,20 @@ cv_split <- function(data, v = 5, seed = NULL) {
   unname(split(seq_len(n), fold_ids))
 }
 
+extract_symbols <- function(expr) {
+  expr <- rlang::get_expr(expr)
+  recurse <- function(x) {
+    if (rlang::is_symbol(x)) {
+      as.character(x)
+    } else if (is.call(x)) {
+      unlist(lapply(as.list(x), recurse), use.names = FALSE)
+    } else {
+      NULL
+    }
+  }
+  unique(recurse(expr))
+}
+
 expr_to_quoted_list <- function(x) {
   stopifnot(is_expr_list_or_null(x))
   if (is.null(x)) return(NULL)
@@ -101,6 +119,17 @@ get_namespace_name <- function(fn) {
   )
 }
 
+get_objects_from_env <- function(objects, env = rlang::caller_env()) {
+  found <- character()
+  while (!identical(env, rlang::empty_env())) {
+    present <- intersect(objects, ls(env, all.names = TRUE))
+    found <- union(found, present)
+    env <- rlang::env_parent(env)
+  }
+  if (length(found) == 0) return(NULL)
+  unique(unlist(found))
+}
+
 is_expr_list_or_null <- function(x) {
   if (is.null(x)) return(TRUE)
   if (rlang::is_call(x) && rlang::call_name(x) == "list" || rlang::is_list(x)) {
@@ -112,6 +141,7 @@ is_expr_list_or_null <- function(x) {
 modelselection_fns <- function() {
   c(
     "CV",
+    "extract_params",
     "FittedCV",
     "FittedGridSearch",
     "FittedGridSearchCV",
