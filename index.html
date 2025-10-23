@@ -128,13 +128,13 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9547646</span></span>
+<span><span class="co">#&gt; [1] 0.9492091</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.939984</span></span>
+<span><span class="co">#&gt; [1] 0.9333173</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9347519</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9304813</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -221,11 +221,11 @@
 <span><span class="co">#&gt; [1] 10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $maxdepth</span></span>
-<span><span class="co">#&gt; [1] 30</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 28</span></span></code></pre></div>
 <p>as well as the cross validation ROC AUC for those parameters</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span></span>
-<span><span class="co">#&gt; [1] 0.9494811</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9555556</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -242,13 +242,13 @@
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9615669</span></span>
+<span><span class="co">#&gt; [1] 0.9564668</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9500891</span></span>
+<span><span class="co">#&gt; [1] 0.939951</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9386447</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9480072</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>
@@ -286,6 +286,7 @@
 <ul class="list-unstyled">
 <li><a href="https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml" class="external-link"><img src="https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml/badge.svg" alt="pkgdown.yaml"></a></li>
 <li><a href="https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml" class="external-link"><img src="https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml/badge.svg" alt="R-CMD-check"></a></li>
+<li><a href="https://CRAN.R-project.org/package=modeltuning" class="external-link"><img src="https://www.r-pkg.org/badges/version/modeltuning" alt="CRAN status"></a></li>
 </ul>
 </div>
 
