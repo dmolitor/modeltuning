@@ -18,6 +18,7 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 [![pkgdown.yaml](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml)
 [![R-CMD-check](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml)
+[![CRAN status](https://www.r-pkg.org/badges/version/modeltuning)](https://CRAN.R-project.org/package=modeltuning)
 <!-- badges: end -->
 
 The goal of modeltuning is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modeltuning aims to be:

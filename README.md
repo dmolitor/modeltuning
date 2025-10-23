@@ -7,6 +7,8 @@
 
 [![pkgdown.yaml](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/pkgdown.yaml)
 [![R-CMD-check](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/dmolitor/modeltuning/actions/workflows/R-CMD-check.yaml)
+[![CRAN
+status](https://www.r-pkg.org/badges/version/modeltuning)](https://CRAN.R-project.org/package=modeltuning)
 <!-- badges: end -->
 
 The goal of modeltuning is to provide common model selection and tuning
@@ -100,13 +102,13 @@ Now, let’s check our evaluation metrics averaged across folds.
 ``` r
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9547646
+#> [1] 0.9492091
 #> 
 #> $accuracy
-#> [1] 0.939984
+#> [1] 0.9333173
 #> 
 #> $auc
-#> [1] 0.9347519
+#> [1] 0.9304813
 ```
 
 ### Grid Search
@@ -207,14 +209,14 @@ iris_grid_cv_fitted$best_params
 #> [1] 10
 #> 
 #> $maxdepth
-#> [1] 30
+#> [1] 28
 ```
 
 as well as the cross validation ROC AUC for those parameters
 
 ``` r
 iris_grid_cv_fitted$best_metric
-#> [1] 0.9494811
+#> [1] 0.9555556
 ```
 
 ### Parallelization
@@ -237,13 +239,13 @@ plan(sequential)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9615669
+#> [1] 0.9564668
 #> 
 #> $accuracy
-#> [1] 0.9500891
+#> [1] 0.939951
 #> 
 #> $auc
-#> [1] 0.9386447
+#> [1] 0.9480072
 ```
 
 And voila!
