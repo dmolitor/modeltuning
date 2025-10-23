@@ -11,8 +11,8 @@
 <script src="deps/bootstrap-5.3.1/bootstrap.bundle.min.js"></script><link href="deps/font-awesome-6.5.2/css/all.min.css" rel="stylesheet">
 <link href="deps/font-awesome-6.5.2/css/v4-shims.min.css" rel="stylesheet">
 <script src="deps/headroom-0.11.0/headroom.min.js"></script><script src="deps/headroom-0.11.0/jQuery.headroom.min.js"></script><script src="deps/bootstrap-toc-1.0.1/bootstrap-toc.min.js"></script><script src="deps/clipboard.js-2.0.11/clipboard.min.js"></script><script src="deps/search-1.0.0/autocomplete.jquery.min.js"></script><script src="deps/search-1.0.0/fuse.min.js"></script><script src="deps/search-1.0.0/mark.min.js"></script><!-- pkgdown --><script src="pkgdown.js"></script><meta property="og:title" content="Model Selection and Tuning Utilities">
-<meta name="description" content="Provides common model selection and tuning utilities in an intuitive and extremely flexible manner.">
-<meta property="og:description" content="Provides common model selection and tuning utilities in an intuitive and extremely flexible manner.">
+<meta name="description" content="Provides a lightweight framework for model selection and hyperparameter tuning in R. The package offers intuitive tools for grid search, cross-validation, and combined grid search with cross-validation that work seamlessly with virtually any modeling package. Designed for flexibility and ease of use, it standardizes tuning workflows while remaining fully compatible with a wide range of model interfaces and estimation functions.">
+<meta property="og:description" content="Provides a lightweight framework for model selection and hyperparameter tuning in R. The package offers intuitive tools for grid search, cross-validation, and combined grid search with cross-validation that work seamlessly with virtually any modeling package. Designed for flexibility and ease of use, it standardizes tuning workflows while remaining fully compatible with a wide range of model interfaces and estimation functions.">
 <meta property="og:image" content="https://www.dmolitor.com/modelselection/logo.png">
 </head>
 <body>
@@ -128,13 +128,13 @@
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.954157</span></span>
+<span><span class="co">#&gt; [1] 0.9547646</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9399893</span></span>
+<span><span class="co">#&gt; [1] 0.939984</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9399695</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9347519</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
@@ -174,7 +174,7 @@
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span><span class="co">#&gt; $minsplit</span></span>
-<span><span class="co">#&gt; [1] 15</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $maxdepth</span></span>
 <span><span class="co">#&gt; [1] 20</span></span></code></pre></div>
@@ -218,14 +218,14 @@
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span><span class="co">#&gt; $minsplit</span></span>
-<span><span class="co">#&gt; [1] 25</span></span>
+<span><span class="co">#&gt; [1] 10</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $maxdepth</span></span>
-<span><span class="co">#&gt; [1] 24</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 30</span></span></code></pre></div>
 <p>as well as the cross validation ROC AUC for those parameters</p>
 <div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span></span>
-<span><span class="co">#&gt; [1] 0.9626623</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9494811</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
@@ -234,43 +234,28 @@
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">iris_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/CV.html">CV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
-<span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
-<span>  learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
-<span>  splitter <span class="op">=</span> <span class="va">splitter</span>,</span>
-<span>  splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">3</span>, strata <span class="op">=</span> <span class="va">Species</span><span class="op">)</span>,</span>
-<span>  scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    f_meas <span class="op">=</span> <span class="va">f_meas_vec</span>,</span>
-<span>    accuracy <span class="op">=</span> <span class="va">accuracy_vec</span>,</span>
-<span>    auc <span class="op">=</span> <span class="va">roc_auc_vec</span></span>
-<span>  <span class="op">)</span>, </span>
-<span>  prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    f_meas <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
-<span>    accuracy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>, </span>
-<span>    auc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
-<span>  <span class="op">)</span>,</span>
-<span>  convert_predictions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
-<span>    f_meas <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    accuracy <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>    auc <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="va">.x</span><span class="op">[</span>, <span class="st">"FALSE"</span><span class="op">]</span></span>
-<span>  <span class="op">)</span></span>
-<span><span class="op">)</span></span>
-<span></span>
-<span><span class="co"># Fit Cross Validated model</span></span>
+<span><span class="co"># Fit cross validation model</span></span>
 <span><span class="va">iris_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris_train</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">sequential</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9515073</span></span>
+<span><span class="co">#&gt; [1] 0.9615669</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9405637</span></span>
+<span><span class="co">#&gt; [1] 0.9500891</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9406566</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9386447</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
+</div>
+<div class="section level2">
+<h2 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a>
+</h2>
+<p>For a bunch of worked examples with common ML frameworks, check out the <code>/examples</code> directory!</p>
 </div>
 </div>
   </main><aside class="col-md-3"><div class="license">

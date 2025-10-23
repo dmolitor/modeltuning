@@ -64,6 +64,34 @@
 
     
     
+<p>This vignette demonstrates how to use data-masking to dynamically
+specify <code>learner_args</code>, <code>scorer_args</code>,
+<code>prediction_args</code>, and <code>splitter_args</code> so that
+each is evaluated on the appropriate subset of data. The modeltuning
+package provides two special verbs for use inside these argument lists:
+<code>.data</code> and <code>.index</code>.</p>
+<ul>
+<li><p><code>.data</code>: Accesses the data available at the time the
+model is fit. For example, if the training data includes a column
+<code>w</code> of observation-level weights and you’re performing
+cross-validation, using <code>.data$w</code> within
+<code>learner_args</code> ensures that the correct subset of weights is
+used for each fold.</p></li>
+<li><p><code>.index</code>: Accesses the indices of the current subset
+of data. In the same example, using <code>.data$w[.index]</code> inside
+<code>learner_args</code> also guarantees that only the relevant subset
+of weights is used for each fold.</p></li>
+</ul>
+<p>The following sections provide worked examples illustrating the use
+of <code>.data</code> and <code>.index</code> in the CV, GridSearch, and
+GridSearchCV classes.</p>
+<div class="section level2">
+<h2 id="cv-example">CV Example<a class="anchor" aria-label="anchor" href="#cv-example"></a>
+</h2>
+<p>Below we show how to supply observation-level weights in
+cross-validation using both <code>.data</code> and <code>.index</code>.
+We’ll use the <code>mtcars</code> dataset and create a new column
+<code>w</code> of random weights.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://rsample.tidymodels.org" class="external-link">rsample</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span></span>
@@ -72,16 +100,16 @@
 <span><span class="va">mtcars</span><span class="op">$</span><span class="va">w</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">rnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">splitter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link">vfold_cv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">splits</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="va">.x</span><span class="op">$</span><span class="va">in_id</span><span class="op">)</span></span></code></pre></div>
-<p>This vignette shows how to use data-masking. In short, how do you
-dynamically specify <code>learner_args</code>, <code>scorer_args</code>,
-<code>prediction_args</code>, and <code>splitter_args</code> in such a
-way that they are evaluated on the correct subsets of data.</p>
-<div class="section level2">
-<h2 id="cv-example">CV Example<a class="anchor" aria-label="anchor" href="#cv-example"></a>
-</h2>
 <div class="section level3">
 <h3 id="using--data">Using .data<a class="anchor" aria-label="anchor" href="#using--data"></a>
 </h3>
+<p>First, we show how to use <code>.data</code> to supply the weights
+via <code>learner_args</code>. We can also supply the weights for the
+out-of-sample predictions via <code>prediction_args</code> and
+<code>scorer_args</code>. Finally, note that we can also supply dynamic
+arguments to the <code>splitter</code> function via
+<code>splitter_args</code>. Here we demonstrate by stratifying the folds
+by <code>cyl</code>.</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/CV.html">CV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
@@ -99,6 +127,8 @@ way that they are evaluated on the correct subsets of data.</p>
 <span><span class="co"># -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 </span></span>
 <span><span class="co">#         qsec           vs           am         gear         carb </span></span>
 <span><span class="co">#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363</span></span></code></pre></div>
+<p>We demonstrate that the fully fitted model is identical to using
+<code>glm</code> directly with the full dataset and weights.</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">w</span>, data <span class="op">=</span> <span class="va">mtcars</span>, weights <span class="op">=</span> <span class="va">mtcars</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#  (Intercept)          cyl         disp           hp         drat           wt </span></span>
@@ -109,6 +139,11 @@ way that they are evaluated on the correct subsets of data.</p>
 <div class="section level3">
 <h3 id="using--index">Using .index<a class="anchor" aria-label="anchor" href="#using--index"></a>
 </h3>
+<p>Next, we demonstrate that we can achieve the same result using
+<code>.index</code> instead of <code>.data</code>. Instead of accessing
+the underlying data with <code>.data</code>, we instead subset the raw
+weights vector with the indices of the current subset using
+<code>.index</code>.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/CV.html">CV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
@@ -126,6 +161,8 @@ way that they are evaluated on the correct subsets of data.</p>
 <span><span class="co"># -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 </span></span>
 <span><span class="co">#         qsec           vs           am         gear         carb </span></span>
 <span><span class="co">#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363</span></span></code></pre></div>
+<p>We again demonstrate that the fully fitted model is identical to
+using <code>glm</code> directly with the full dataset and weights.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">w</span>, data <span class="op">=</span> <span class="va">mtcars</span>, weights <span class="op">=</span> <span class="va">mtcars</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#  (Intercept)          cyl         disp           hp         drat           wt </span></span>
@@ -137,6 +174,12 @@ way that they are evaluated on the correct subsets of data.</p>
 <div class="section level2">
 <h2 id="gridsearch-example">GridSearch Example<a class="anchor" aria-label="anchor" href="#gridsearch-example"></a>
 </h2>
+<p>While this is less essential for grid search, since the training and
+evaluation datasets are fixed, we can still use the <code>.data</code>
+verb to dynamically access attributes of the in-sample and evalutaion
+datasets. However, since there is no sub-sampling, the
+<code>.index</code> verb is not defined and will result in an error. We
+demonstrate both below.</p>
 <div class="section level3">
 <h3 id="using--data-1">Using .data<a class="anchor" aria-label="anchor" href="#using--data-1"></a>
 </h3>
@@ -148,7 +191,7 @@ way that they are evaluated on the correct subsets of data.</p>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
 <span>  tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>na.action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">na.omit</span>, <span class="va">na.fail</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>weights <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">w</span>, family <span class="op">=</span> <span class="va">gaussian</span><span class="op">)</span>,</span>
-<span>  evaluation_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars_eval</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>, y <span class="op">=</span> <span class="va">mtcars_eval</span><span class="op">[</span>, <span class="fl">1</span><span class="op">]</span><span class="op">)</span>,</span>
+<span>  evaluation_data <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">mtcars_eval</span>, y <span class="op">=</span> <span class="va">mtcars_eval</span><span class="op">$</span><span class="va">mpg</span><span class="op">)</span>,</span>
 <span>  scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"rmse"</span> <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/rmse.html" class="external-link">rmse_vec</a></span><span class="op">)</span>,</span>
 <span>  scorer_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"rmse"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>case_weights <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span>,</span>
 <span>  prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"rmse"</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>weights <span class="op">=</span> <span class="va">.data</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span></span>
@@ -160,11 +203,11 @@ way that they are evaluated on the correct subsets of data.</p>
 <span><span class="co"># $na.action[[1]]</span></span>
 <span><span class="co"># function (object, ...) </span></span>
 <span><span class="co"># UseMethod("na.omit")</span></span>
-<span><span class="co"># &lt;bytecode: 0x561abef86358&gt;</span></span>
+<span><span class="co"># &lt;bytecode: 0x5560cbdbb358&gt;</span></span>
 <span><span class="co"># &lt;environment: namespace:stats&gt;</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="should-error-when--index-is-used">Should ERROR when .index is used<a class="anchor" aria-label="anchor" href="#should-error-when--index-is-used"></a>
+<h3 id="will-error-when--index-is-used">Will ERROR when .index is used<a class="anchor" aria-label="anchor" href="#will-error-when--index-is-used"></a>
 </h3>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_gs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearch.html">GridSearch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -182,6 +225,8 @@ way that they are evaluated on the correct subsets of data.</p>
 <div class="section level3">
 <h3 id="raw-weight-vectors">Raw weight vectors<a class="anchor" aria-label="anchor" href="#raw-weight-vectors"></a>
 </h3>
+<p>As discussed above, since the training and evaluation datasets are
+fixed, we can also just supply the raw weight vectors directly.</p>
 <div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_gs</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearch.html">GridSearch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
@@ -201,23 +246,20 @@ way that they are evaluated on the correct subsets of data.</p>
 <span><span class="co">#  -4.323591254   2.098625048  -1.189431926   2.665482820   1.315329076 </span></span>
 <span><span class="co">#          carb </span></span>
 <span><span class="co">#  -0.880945258</span></span></code></pre></div>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">w</span>, data <span class="op">=</span> <span class="va">mtcars_train</span>, weights <span class="op">=</span> <span class="va">mtcars_train</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#   (Intercept)           cyl          disp            hp          drat </span></span>
-<span><span class="co"># -38.707155465   1.511529167   0.019242023  -0.006235128   5.283209175 </span></span>
-<span><span class="co">#            wt          qsec            vs            am          gear </span></span>
-<span><span class="co">#  -4.323591254   2.098625048  -1.189431926   2.665482820   1.315329076 </span></span>
-<span><span class="co">#          carb </span></span>
-<span><span class="co">#  -0.880945258</span></span></code></pre></div>
 </div>
 </div>
 <div class="section level2">
 <h2 id="gridsearchcv-example">GridSearchCV Example<a class="anchor" aria-label="anchor" href="#gridsearchcv-example"></a>
 </h2>
+<p>Finally, we combine both these ideas in <code>GridSearchCV</code>,
+which performs grid search with cross-validation for error estimation.
+Here, as with <code>CV</code>, both <code>.data</code> and
+<code>.index</code> can be used to dynamically access the correct
+subsets of data.</p>
 <div class="section level3">
 <h3 id="using--data-2">Using .data<a class="anchor" aria-label="anchor" href="#using--data-2"></a>
 </h3>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_gs_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
 <span>  tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>na.action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">na.omit</span>, <span class="va">na.fail</span><span class="op">)</span><span class="op">)</span>,</span>
@@ -235,17 +277,11 @@ way that they are evaluated on the correct subsets of data.</p>
 <span><span class="co"># -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 </span></span>
 <span><span class="co">#         qsec           vs           am         gear         carb </span></span>
 <span><span class="co">#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363</span></span></code></pre></div>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/stats/coef.html" class="external-link">coef</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/glm.html" class="external-link">glm</a></span><span class="op">(</span><span class="va">mpg</span> <span class="op">~</span> <span class="va">.</span> <span class="op">-</span> <span class="va">w</span>, data <span class="op">=</span> <span class="va">mtcars</span>, weights <span class="op">=</span> <span class="va">mtcars</span><span class="op">$</span><span class="va">w</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#  (Intercept)          cyl         disp           hp         drat           wt </span></span>
-<span><span class="co"># -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 </span></span>
-<span><span class="co">#         qsec           vs           am         gear         carb </span></span>
-<span><span class="co">#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="using--index-1">Using .index<a class="anchor" aria-label="anchor" href="#using--index-1"></a>
 </h3>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mtcars_gs_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">glm</span>,</span>
 <span>  tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>na.action <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">na.omit</span>, <span class="va">na.fail</span><span class="op">)</span><span class="op">)</span>,</span>
