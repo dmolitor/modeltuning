@@ -71,14 +71,12 @@ compare_names <- function(...) {
 #' @return A list of length \code{v}, where each element is a vector of row indices for that fold.
 #'
 #' @examples
-#' folds <- cv_split(mtcars, v = 5, seed = 123)
+#' folds <- cv_split(mtcars, v = 5)
 #' str(folds)
 #'
 #' @export
 cv_split <- function(data, v = 5, seed = NULL) {
   if (!is.null(seed)) {
-    old_rng <- .Random.seed
-    on.exit({ .Random.seed <<- old_rng }, add = TRUE)
     set.seed(seed)
   }
   n <- nrow(data)

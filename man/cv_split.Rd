@@ -20,7 +20,7 @@ A list of length \code{v}, where each element is a vector of row indices for tha
 Splits row indices of a data frame or matrix into \code{k} folds for cross-validation.
 }
 \examples{
-folds <- cv_split(mtcars, v = 5, seed = 123)
+folds <- cv_split(mtcars, v = 5)
 str(folds)
 
 }

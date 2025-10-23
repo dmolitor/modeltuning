@@ -190,11 +190,18 @@ As noted above, modeltuning is built on top of the `future` package and can util
 ```{r Parallelization, eval = TRUE}
 plan(multisession)
 
-# Fit Cross Validated model
+# Fit cross validation model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
+
+plan(sequential)
 
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 ```
 
 And voila!
+
+## Examples
+
+For a bunch of worked examples with common ML frameworks, check
+out the `/examples` directory!

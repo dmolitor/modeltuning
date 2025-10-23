@@ -100,13 +100,13 @@ Now, let’s check our evaluation metrics averaged across folds.
 ``` r
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.954157
+#> [1] 0.9547646
 #> 
 #> $accuracy
-#> [1] 0.9399893
+#> [1] 0.939984
 #> 
 #> $auc
-#> [1] 0.9399695
+#> [1] 0.9347519
 ```
 
 ### Grid Search
@@ -153,7 +153,7 @@ Let’s check out the optimal decision tree hyperparameters.
 ``` r
 iris_grid_fitted$best_params
 #> $minsplit
-#> [1] 15
+#> [1] 10
 #> 
 #> $maxdepth
 #> [1] 20
@@ -204,17 +204,17 @@ Let’s check out the optimal decision tree hyperparameters
 ``` r
 iris_grid_cv_fitted$best_params
 #> $minsplit
-#> [1] 25
+#> [1] 10
 #> 
 #> $maxdepth
-#> [1] 24
+#> [1] 30
 ```
 
 as well as the cross validation ROC AUC for those parameters
 
 ``` r
 iris_grid_cv_fitted$best_metric
-#> [1] 0.9626623
+#> [1] 0.9494811
 ```
 
 ### Parallelization
@@ -229,41 +229,26 @@ local parallelization.
 ``` r
 plan(multisession)
 
-iris_cv <- CV$new(
-  learner = rpart,
-  learner_args = list(method = "class"),
-  splitter = splitter,
-  splitter_args = list(v = 3, strata = Species),
-  scorer = list(
-    f_meas = f_meas_vec,
-    accuracy = accuracy_vec,
-    auc = roc_auc_vec
-  ), 
-  prediction_args = list(
-    f_meas = list(type = "class"),
-    accuracy = list(type = "class"), 
-    auc = list(type = "prob")
-  ),
-  convert_predictions = list(
-    f_meas = NULL,
-    accuracy = NULL,
-    auc = function(.x) .x[, "FALSE"]
-  )
-)
-
-# Fit Cross Validated model
+# Fit cross validation model
 iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_train)
+
+plan(sequential)
 
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9515073
+#> [1] 0.9615669
 #> 
 #> $accuracy
-#> [1] 0.9405637
+#> [1] 0.9500891
 #> 
 #> $auc
-#> [1] 0.9406566
+#> [1] 0.9386447
 ```
 
 And voila!
+
+## Examples
+
+For a bunch of worked examples with common ML frameworks, check out the
+`/examples` directory!
