@@ -70,8 +70,11 @@
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
-<p>You can install the development version of <code>modeltuning</code> with:</p>
+<p>You can install the released version of modeltuning from CRAN with:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"modeltuning"</span><span class="op">)</span></span></code></pre></div>
+<p>and the development version of modeltuning with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># install.packages("pak")</span></span>
 <span><span class="fu">pak</span><span class="fu">::</span><span class="fu"><a href="https://pak.r-lib.org/reference/pkg_install.html" class="external-link">pkg_install</a></span><span class="op">(</span><span class="st">"dmolitor/modeltuning"</span><span class="op">)</span></span></code></pre></div>
 </div>
@@ -84,7 +87,7 @@
 </h3>
 <p>First we’ll train a binary classification Decision Tree model to predict whether the flowers in <code>iris</code> are of Species <code>virginica</code> and we’ll specify a 3-fold cross validation scheme with stratification by Species to estimate our model’s true error rate.</p>
 <p>First, let’s split our data into a train and test set.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://future.futureverse.org" class="external-link">future</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://www.dmolitor.com/modeltuning/" class="external-link">modeltuning</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bethatkinson/rpart" class="external-link">rpart</a></span><span class="op">)</span></span>
@@ -96,10 +99,10 @@
 <span><span class="va">iris_train</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, <span class="op">]</span></span>
 <span><span class="va">iris_test</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">150</span>, <span class="op">]</span></span></code></pre></div>
 <p>Next, we’ll define a function to generate cross validation splits.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">splitter</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="fu"><a href="https://rsample.tidymodels.org/reference/vfold_cv.html" class="external-link">vfold_cv</a></span><span class="op">(</span><span class="va">data</span>, <span class="va">...</span><span class="op">)</span><span class="op">$</span><span class="va">splits</span>, \<span class="op">(</span><span class="va">.x</span><span class="op">)</span> <span class="va">.x</span><span class="op">$</span><span class="va">in_id</span><span class="op">)</span></span></code></pre></div>
 <p>Now, let’s specify and fit a 3-fold cross validation scheme and calculate the <em>F-Measure</em>, <em>Accuracy</em>, and <em>ROC AUC</em> as our hold-out set evaluation metrics.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify cross validation schema</span></span>
 <span><span class="va">iris_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/CV.html">CV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
@@ -126,22 +129,22 @@
 <span><span class="co"># Fit cross validated model</span></span>
 <span><span class="va">iris_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span>formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>, data <span class="op">=</span> <span class="va">iris_new</span><span class="op">)</span></span></code></pre></div>
 <p>Now, let’s check our evaluation metrics averaged across folds.</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9492091</span></span>
+<span><span class="co">#&gt; [1] 0.9393568</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
-<span><span class="co">#&gt; [1] 0.9333173</span></span>
+<span><span class="co">#&gt; [1] 0.9199787</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9304813</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9146985</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="grid-search">Grid Search<a class="anchor" aria-label="anchor" href="#grid-search"></a>
 </h3>
 <p>Another common model-tuning method is grid search. We’ll use it to tune the <code>minsplit</code> and <code>maxdepth</code> parameters of our decision tree. We will choose our optimal hyper-parameters as those that maximize the ROC AUC on the validation set.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify Grid Search schema</span></span>
 <span><span class="va">iris_grid</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/GridSearch.html">GridSearch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
@@ -172,7 +175,7 @@
 <span>  data <span class="op">=</span> <span class="va">iris_train</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Let’s check out the optimal decision tree hyperparameters.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span><span class="co">#&gt; $minsplit</span></span>
 <span><span class="co">#&gt; [1] 10</span></span>
@@ -184,7 +187,7 @@
 <h3 id="grid-search-with-cross-validation">Grid Search with cross validation<a class="anchor" aria-label="anchor" href="#grid-search-with-cross-validation"></a>
 </h3>
 <p>Finally, <code>modeltuning</code> supports model-tuning with Grid Search using cross validation to estimate each model’s true error rate instead of a hold-out validation set. We’ll use cross validation to tune the same parameters as above.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># Specify Grid Search schema with cross validation</span></span>
 <span><span class="va">iris_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
 <span>  learner <span class="op">=</span> <span class="va">rpart</span>,</span>
@@ -216,7 +219,7 @@
 <span>  data <span class="op">=</span> <span class="va">iris_train</span></span>
 <span><span class="op">)</span></span></code></pre></div>
 <p>Let’s check out the optimal decision tree hyperparameters</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
 <span><span class="co">#&gt; $minsplit</span></span>
 <span><span class="co">#&gt; [1] 10</span></span>
@@ -224,15 +227,15 @@
 <span><span class="co">#&gt; $maxdepth</span></span>
 <span><span class="co">#&gt; [1] 28</span></span></code></pre></div>
 <p>as well as the cross validation ROC AUC for those parameters</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span></span>
-<span><span class="co">#&gt; [1] 0.9555556</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9616682</span></span></code></pre></div>
 </div>
 <div class="section level3">
 <h3 id="parallelization">Parallelization<a class="anchor" aria-label="anchor" href="#parallelization"></a>
 </h3>
 <p>As noted above, modeltuning is built on top of the <code>future</code> package and can utilize any parallelization method supported by the <a href="https://future.futureverse.org/" class="external-link"><code>future</code></a> package when fitting cross-validated models or tuning models with grid search. The code below evaluates the same cross-validated binary classification model using local parallelization.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://future.futureverse.org/reference/plan.html" class="external-link">plan</a></span><span class="op">(</span><span class="va">multisession</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># Fit cross validation model</span></span>
@@ -243,13 +246,13 @@
 <span><span class="co"># Model performance metrics</span></span>
 <span><span class="va">iris_cv_fitted</span><span class="op">$</span><span class="va">mean_metrics</span></span>
 <span><span class="co">#&gt; $f_meas</span></span>
-<span><span class="co">#&gt; [1] 0.9564668</span></span>
+<span><span class="co">#&gt; [1] 0.9507937</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $accuracy</span></span>
 <span><span class="co">#&gt; [1] 0.939951</span></span>
 <span><span class="co">#&gt; </span></span>
 <span><span class="co">#&gt; $auc</span></span>
-<span><span class="co">#&gt; [1] 0.9480072</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0.9411477</span></span></code></pre></div>
 <p>And voila!</p>
 </div>
 </div>
