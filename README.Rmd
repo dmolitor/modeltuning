@@ -30,7 +30,13 @@ The goal of modeltuning is to provide common model selection and tuning utilitie
 
 ## Installation
 
-You can install the development version of `modeltuning` with:
+You can install the released version of modeltuning from CRAN with:
+
+``` r
+install.packages("modeltuning")
+```
+
+and the development version of modeltuning with:
 
 ``` r
 # install.packages("pak")

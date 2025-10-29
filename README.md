@@ -25,7 +25,13 @@ utilities in an intuitive manner. Additionally, modeltuning aims to be:
 
 ## Installation
 
-You can install the development version of `modeltuning` with:
+You can install the released version of modeltuning from CRAN with:
+
+``` r
+install.packages("modeltuning")
+```
+
+and the development version of modeltuning with:
 
 ``` r
 # install.packages("pak")
@@ -102,13 +108,13 @@ Now, let’s check our evaluation metrics averaged across folds.
 ``` r
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9492091
+#> [1] 0.9393568
 #> 
 #> $accuracy
-#> [1] 0.9333173
+#> [1] 0.9199787
 #> 
 #> $auc
-#> [1] 0.9304813
+#> [1] 0.9146985
 ```
 
 ### Grid Search
@@ -216,7 +222,7 @@ as well as the cross validation ROC AUC for those parameters
 
 ``` r
 iris_grid_cv_fitted$best_metric
-#> [1] 0.9555556
+#> [1] 0.9616682
 ```
 
 ### Parallelization
@@ -239,13 +245,13 @@ plan(sequential)
 # Model performance metrics
 iris_cv_fitted$mean_metrics
 #> $f_meas
-#> [1] 0.9564668
+#> [1] 0.9507937
 #> 
 #> $accuracy
 #> [1] 0.939951
 #> 
 #> $auc
-#> [1] 0.9480072
+#> [1] 0.9411477
 ```
 
 And voila!
