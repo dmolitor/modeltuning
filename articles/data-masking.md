@@ -1,0 +1,239 @@
+# Data masking
+
+This vignette demonstrates how to use data-masking to dynamically
+specify `learner_args`, `scorer_args`, `prediction_args`, and
+`splitter_args` so that each is evaluated on the appropriate subset of
+data. The modeltuning package provides two special verbs for use inside
+these argument lists: `.data` and `.index`.
+
+- `.data`: Accesses the data available at the time the model is fit. For
+  example, if the training data includes a column `w` of
+  observation-level weights and you’re performing cross-validation,
+  using `.data$w` within `learner_args` ensures that the correct subset
+  of weights is used for each fold.
+
+- `.index`: Accesses the indices of the current subset of data. In the
+  same example, using `.data$w[.index]` inside `learner_args` also
+  guarantees that only the relevant subset of weights is used for each
+  fold.
+
+The following sections provide worked examples illustrating the use of
+`.data` and `.index` in the CV, GridSearch, and GridSearchCV classes.
+
+## CV Example
+
+Below we show how to supply observation-level weights in
+cross-validation using both `.data` and `.index`. We’ll use the `mtcars`
+dataset and create a new column `w` of random weights.
+
+``` r
+library(rsample)
+library(yardstick)
+library(modeltuning)
+
+mtcars$w <- abs(rnorm(nrow(mtcars)))
+
+splitter <- function(data, ...) lapply(vfold_cv(data, ...)$splits, \(.x) .x$in_id)
+```
+
+### Using .data
+
+First, we show how to use `.data` to supply the weights via
+`learner_args`. We can also supply the weights for the out-of-sample
+predictions via `prediction_args` and `scorer_args`. Finally, note that
+we can also supply dynamic arguments to the `splitter` function via
+`splitter_args`. Here we demonstrate by stratifying the folds by `cyl`.
+
+``` r
+mtcars_cv <- CV$new(
+  learner = glm,
+  learner_args = list(weights = .data$w, family = gaussian),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = .data$cyl),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = .data$w)),
+  prediction_args = list("rmse" = list(weights = .data$w))
+)
+mtcars_cv_fitted <- mtcars_cv$fit(formula = mpg ~ . - w, data = mtcars)
+
+coef(mtcars_cv_fitted$model)
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
+
+We demonstrate that the fully fitted model is identical to using `glm`
+directly with the full dataset and weights.
+
+``` r
+coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
+
+### Using .index
+
+Next, we demonstrate that we can achieve the same result using `.index`
+instead of `.data`. Instead of accessing the underlying data with
+`.data`, we instead subset the raw weights vector with the indices of
+the current subset using `.index`.
+
+``` r
+mtcars_cv <- CV$new(
+  learner = glm,
+  learner_args = list(weights = mtcars$w[.index], family = gaussian),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = cyl),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = mtcars$w[.index])),
+  prediction_args = list("rmse" = list(weights = mtcars$w[.index]))
+)
+mtcars_cv_fitted <- mtcars_cv$fit(formula = mpg ~ . - w, data = mtcars)
+
+coef(mtcars_cv_fitted$model)
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
+
+We again demonstrate that the fully fitted model is identical to using
+`glm` directly with the full dataset and weights.
+
+``` r
+coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
+
+## GridSearch Example
+
+While this is less essential for grid search, since the training and
+evaluation datasets are fixed, we can still use the `.data` verb to
+dynamically access attributes of the in-sample and evalutaion datasets.
+However, since there is no sub-sampling, the `.index` verb is not
+defined and will result in an error. We demonstrate both below.
+
+### Using .data
+
+``` r
+mtcars_train <- mtcars[1:25, ]
+mtcars_eval <- mtcars[26:nrow(mtcars), ]
+
+mtcars_gs <- GridSearch$new(
+  learner = glm,
+  tune_params = list(na.action = c(na.omit, na.fail)),
+  learner_args = list(weights = .data$w, family = gaussian),
+  evaluation_data = list(x = mtcars_eval, y = mtcars_eval$mpg),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = .data$w)),
+  prediction_args = list("rmse" = list(weights = .data$w))
+)
+mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
+
+mtcars_gs_fitted$best_params
+# $na.action
+# $na.action[[1]]
+# function (object, ...) 
+# UseMethod("na.omit")
+# <bytecode: 0x55f004d053e0>
+# <environment: namespace:stats>
+```
+
+### Will ERROR when .index is used
+
+``` r
+mtcars_gs <- GridSearch$new(
+  learner = glm,
+  tune_params = list(na.action = c(na.omit, na.fail)),
+  learner_args = list(weights = mtcars$w[.index], family = gaussian),
+  evaluation_data = list(x = mtcars_eval[, -1], y = mtcars_eval[, 1]),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = mtcars$w[.index])),
+  prediction_args = list("rmse" = list(weights = mtcars$w[.index]))
+)
+mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
+# Error: object '.index' not found
+```
+
+### Raw weight vectors
+
+As discussed above, since the training and evaluation datasets are
+fixed, we can also just supply the raw weight vectors directly.
+
+``` r
+mtcars_gs <- GridSearch$new(
+  learner = glm,
+  tune_params = list(na.action = c(na.omit, na.fail)),
+  learner_args = list(weights = mtcars_train$w, family = gaussian),
+  evaluation_data = list(x = mtcars_eval[, -1], y = mtcars_eval[, 1]),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = mtcars_eval$w)),
+  prediction_args = list("rmse" = list(weights = mtcars_eval$w))
+)
+mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
+
+coef(mtcars_gs_fitted$best_model)
+#   (Intercept)           cyl          disp            hp          drat 
+# -38.707155465   1.511529167   0.019242023  -0.006235128   5.283209175 
+#            wt          qsec            vs            am          gear 
+#  -4.323591254   2.098625048  -1.189431926   2.665482820   1.315329076 
+#          carb 
+#  -0.880945258
+```
+
+## GridSearchCV Example
+
+Finally, we combine both these ideas in `GridSearchCV`, which performs
+grid search with cross-validation for error estimation. Here, as with
+`CV`, both `.data` and `.index` can be used to dynamically access the
+correct subsets of data.
+
+### Using .data
+
+``` r
+mtcars_gs_cv <- GridSearchCV$new(
+  learner = glm,
+  tune_params = list(na.action = c(na.omit, na.fail)),
+  learner_args = list(weights = .data$w, family = gaussian),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = cyl),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = .data$w)),
+  prediction_args = list("rmse" = list(weights = .data$w))
+)
+mtcars_gs_cv_fitted <- mtcars_gs_cv$fit(formula = mpg ~ . - w, data = mtcars)
+
+coef(mtcars_gs_cv_fitted$best_model)
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
+
+### Using .index
+
+``` r
+mtcars_gs_cv <- GridSearchCV$new(
+  learner = glm,
+  tune_params = list(na.action = c(na.omit, na.fail)),
+  learner_args = list(weights = mtcars$w[.index], family = gaussian),
+  splitter = splitter,
+  splitter_args = list(v = 2, strata = cyl),
+  scorer = list("rmse" = yardstick::rmse_vec),
+  scorer_args = list("rmse" = list(case_weights = mtcars$w[.index])),
+  prediction_args = list("rmse" = list(weights = mtcars$w[.index]))
+)
+mtcars_gs_cv_fitted <- mtcars_gs_cv$fit(formula = mpg ~ . - w, data = mtcars)
+
+coef(mtcars_gs_cv_fitted$best_model)
+#  (Intercept)          cyl         disp           hp         drat           wt 
+# -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
+#         qsec           vs           am         gear         carb 
+#   1.98022624  -2.57648339   1.79120221   0.25917276   0.40006363
+```
