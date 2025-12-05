@@ -14,6 +14,7 @@ Provides a lightweight framework for model selection and hyperparameter tuning i
 Useful links:
 \itemize{
   \item \url{https://www.dmolitor.com/modeltuning/}
+  \item Report bugs at \url{https://github.com/dmolitor/modeltuning/issues}
 }
 
 }

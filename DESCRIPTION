@@ -1,6 +1,6 @@
 Package: modeltuning
 Title: Model Selection and Tuning Utilities
-Version: 0.1.2
+Version: 0.1.3
 Authors@R: 
     person("Daniel", "Molitor", , "molitdj97@gmail.com", role = c("aut", "cre"))
 Description: Provides a lightweight framework for model selection
@@ -22,6 +22,7 @@ Imports:
     R6,
     rlang
 Suggests:
+    Matrix,
     e1071,
     future,
     parallelly,
@@ -32,4 +33,5 @@ Suggests:
     knitr,
     rmarkdown
 URL: https://www.dmolitor.com/modeltuning/
+BugReports: https://github.com/dmolitor/modeltuning/issues
 VignetteBuilder: knitr
