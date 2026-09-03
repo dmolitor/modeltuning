@@ -7,6 +7,7 @@ to predict whether a flower’s species is Virginica or not.
 ## Load Packages
 
 ``` r
+
 library(e1071)
 library(modeltuning) # devtools::install_github("dmolitor/modeltuning")
 library(yardstick)
@@ -19,6 +20,7 @@ random noise to the original `iris` features and combining it into one
 big dataframe.
 
 ``` r
+
 iris_new <- do.call(
   what = rbind,
   args = replicate(n = 10, iris, simplify = FALSE)
@@ -141,6 +143,7 @@ We’ll show simple examples of each of `CV`, `GridSearch` and
 #### CV
 
 ``` r
+
 iris_cv <- CV$new(
   learner = svm,
   learner_args = list(type = "C-classification", probability = TRUE),
@@ -162,6 +165,7 @@ iris_cv_fitted$mean_metrics
 #### GridSearch
 
 ``` r
+
 iris_new_train <- iris_new[1:1000, ]
 iris_new_eval <- iris_new[1000:nrow(iris_new), ]
 
@@ -193,6 +197,7 @@ iris_grid_fitted$best_params
 #### GridSearchCV
 
 ``` r
+
 iris_grid <- GridSearchCV$new(
   learner = svm,
   tune_params = list(

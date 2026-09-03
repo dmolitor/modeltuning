@@ -311,6 +311,7 @@ The objects of this class are cloneable with this method.
 ## Examples
 
 ``` r
+
 ## ------------------------------------------------
 ## Method `GridSearchCV$fit`
 ## ------------------------------------------------
@@ -407,5 +408,6 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
   )
 
 }
+#> Warning: Variable(s) ‘am’ constant. Cannot scale data.
 # }
 ```

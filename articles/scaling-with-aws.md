@@ -10,6 +10,7 @@ document](https://github.com/paws-r/paws/blob/main/docs/credentials.md).
 ## Requisite Packages
 
 ``` r
+
 library(e1071)
 library(future)
 library(modeltuning) # devtools::install_github("dmolitor/modeltuning")
@@ -31,6 +32,7 @@ random noise to the original `iris` features and combining it into one
 big dataframe.
 
 ``` r
+
 iris_new <- do.call(
   what = rbind,
   args = replicate(n = 10, iris, simplify = FALSE)
@@ -66,6 +68,7 @@ in combination with 5-fold Cross-Validation to find the optimal values
 for the `cost` and `kernel` hyper-parameters.
 
 ``` r
+
 # Create a splitter function that will return CV folds
 splitter_fn <- function(data) lapply(vfold_cv(data, v = 5)$splits, \(y) y$in_id)
 
@@ -104,6 +107,7 @@ Now that we’ve specified our Grid Search schema let’s check out the
 hyper-parameter grid and see how many models we’re going to estimate.
 
 ``` r
+
 cat("We will estimate", nrow(iris_grid$tune_params), "SVM models\n")
 # We will estimate 18 SVM models
 ```
@@ -124,6 +128,7 @@ instances may vary greatly depending on your account’s security
 configurations.
 
 ``` r
+
 ec2_client <- ec2()
 
 # Request Instances
@@ -156,6 +161,7 @@ wait for ~ 1 minute for the instances to initialize or they’ll reject
 our SSH login attempts).
 
 ``` r
+
 # Chalk up a quick function to return instance IDs from our request
 instance_ids <- function(response) {
   vapply(response$Instances, function(i) i$InstanceId, character(1))
@@ -187,6 +193,7 @@ Now, in order to set up our compute cluster we need to get the IP
 addresses from these instances.
 
 ``` r
+
 # Get public IPs
 inst_public_ips <- vapply(
   ec2_client$
@@ -201,6 +208,7 @@ inst_public_ips <- vapply(
 Finally, we can create a compute cluster on these worker nodes via SSH.
 
 ``` r
+
 cl <- makeClusterPSOCK(
   worker = inst_public_ips,
   user = "ubuntu",
@@ -224,6 +232,7 @@ parallelize each model’s cross-validation across the cores of the
 instance it is being evaluated on.
 
 ``` r
+
 plan(
   list(
     tweak(cluster, workers = cl),
@@ -235,6 +244,7 @@ plan(
 Finally, let’s estimate our Grid Search models in parallel!
 
 ``` r
+
 iris_grid_fitted <- iris_grid$fit(
   formula = Species ~ .,
   data = iris_new,
@@ -247,6 +257,7 @@ iris_grid_fitted <- iris_grid$fit(
 Let’s check out the info on our best model.
 
 ``` r
+
 best_idx <- iris_grid_fitted$best_idx
 metrics <- iris_grid_fitted$metrics
 
@@ -278,6 +289,7 @@ our AWS resources. Since all we’ve done is launch EC2 instances, all
 this consists of is making sure that the instances are all shut down.
 
 ``` r
+
 ec2_client$stop_instances(
   InstanceIds = instance_ids(instance_req)
 )

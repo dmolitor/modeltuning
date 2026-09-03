@@ -17,12 +17,14 @@ utilities in an intuitive manner. Additionally, modeltuning aims to be:
 You can install the released version of modeltuning from CRAN with:
 
 ``` r
+
 install.packages("modeltuning")
 ```
 
 and the development version of modeltuning with:
 
 ``` r
+
 # install.packages("pak")
 pak::pkg_install("dmolitor/modeltuning")
 ```
@@ -42,6 +44,7 @@ to estimate our model’s true error rate.
 First, let’s split our data into a train and test set.
 
 ``` r
+
 library(future)
 library(modeltuning)
 library(rpart)
@@ -57,6 +60,7 @@ iris_test <- iris_new[101:150, ]
 Next, we’ll define a function to generate cross validation splits.
 
 ``` r
+
 splitter <- function(data, ...) lapply(vfold_cv(data, ...)$splits, \(.x) .x$in_id)
 ```
 
@@ -65,6 +69,7 @@ calculate the *F-Measure*, *Accuracy*, and *ROC AUC* as our hold-out set
 evaluation metrics.
 
 ``` r
+
 # Specify cross validation schema
 iris_cv <- CV$new(
   learner = rpart,
@@ -95,6 +100,7 @@ iris_cv_fitted <- iris_cv$fit(formula = Species ~ ., data = iris_new)
 Now, let’s check our evaluation metrics averaged across folds.
 
 ``` r
+
 iris_cv_fitted$mean_metrics
 #> $f_meas
 #> [1] 0.9393568
@@ -114,6 +120,7 @@ choose our optimal hyper-parameters as those that maximize the ROC AUC
 on the validation set.
 
 ``` r
+
 # Specify Grid Search schema
 iris_grid <- GridSearch$new(
   learner = rpart,
@@ -148,6 +155,7 @@ iris_grid_fitted <- iris_grid$fit(
 Let’s check out the optimal decision tree hyperparameters.
 
 ``` r
+
 iris_grid_fitted$best_params
 #> $minsplit
 #> [1] 10
@@ -164,6 +172,7 @@ hold-out validation set. We’ll use cross validation to tune the same
 parameters as above.
 
 ``` r
+
 # Specify Grid Search schema with cross validation
 iris_grid_cv <- GridSearchCV$new(
   learner = rpart,
@@ -199,6 +208,7 @@ iris_grid_cv_fitted <- iris_grid_cv$fit(
 Let’s check out the optimal decision tree hyperparameters
 
 ``` r
+
 iris_grid_cv_fitted$best_params
 #> $minsplit
 #> [1] 10
@@ -210,6 +220,7 @@ iris_grid_cv_fitted$best_params
 as well as the cross validation ROC AUC for those parameters
 
 ``` r
+
 iris_grid_cv_fitted$best_metric
 #> [1] 0.9616682
 ```
@@ -224,6 +235,7 @@ evaluates the same cross-validated binary classification model using
 local parallelization.
 
 ``` r
+
 plan(multisession)
 
 # Fit cross validation model

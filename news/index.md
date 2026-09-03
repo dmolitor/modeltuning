@@ -2,6 +2,8 @@
 
 ## modeltuning 0.1.3
 
+CRAN release: 2025-12-06
+
 - Fixes [\#4](https://github.com/dmolitor/modeltuning/issues/4) and
   [\#3](https://github.com/dmolitor/modeltuning/issues/3).
 

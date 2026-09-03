@@ -27,6 +27,7 @@ cross-validation using both `.data` and `.index`. We’ll use the `mtcars`
 dataset and create a new column `w` of random weights.
 
 ``` r
+
 library(rsample)
 library(yardstick)
 library(modeltuning)
@@ -45,6 +46,7 @@ we can also supply dynamic arguments to the `splitter` function via
 `splitter_args`. Here we demonstrate by stratifying the folds by `cyl`.
 
 ``` r
+
 mtcars_cv <- CV$new(
   learner = glm,
   learner_args = list(weights = .data$w, family = gaussian),
@@ -67,6 +69,7 @@ We demonstrate that the fully fitted model is identical to using `glm`
 directly with the full dataset and weights.
 
 ``` r
+
 coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 #  (Intercept)          cyl         disp           hp         drat           wt 
 # -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
@@ -82,6 +85,7 @@ instead of `.data`. Instead of accessing the underlying data with
 the current subset using `.index`.
 
 ``` r
+
 mtcars_cv <- CV$new(
   learner = glm,
   learner_args = list(weights = mtcars$w[.index], family = gaussian),
@@ -104,6 +108,7 @@ We again demonstrate that the fully fitted model is identical to using
 `glm` directly with the full dataset and weights.
 
 ``` r
+
 coef(glm(mpg ~ . - w, data = mtcars, weights = mtcars$w))
 #  (Intercept)          cyl         disp           hp         drat           wt 
 # -10.12417770  -0.03254447   0.02172360  -0.01713639   2.10320708  -5.30769856 
@@ -122,6 +127,7 @@ defined and will result in an error. We demonstrate both below.
 ### Using .data
 
 ``` r
+
 mtcars_train <- mtcars[1:25, ]
 mtcars_eval <- mtcars[26:nrow(mtcars), ]
 
@@ -141,13 +147,14 @@ mtcars_gs_fitted$best_params
 # $na.action[[1]]
 # function (object, ...) 
 # UseMethod("na.omit")
-# <bytecode: 0x55f004d053e0>
+# <bytecode: 0x56479eeec2e8>
 # <environment: namespace:stats>
 ```
 
 ### Will ERROR when .index is used
 
 ``` r
+
 mtcars_gs <- GridSearch$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
@@ -158,7 +165,8 @@ mtcars_gs <- GridSearch$new(
   prediction_args = list("rmse" = list(weights = mtcars$w[.index]))
 )
 mtcars_gs_fitted <- mtcars_gs$fit(formula = mpg ~ . - w, data = mtcars_train)
-# Error: object '.index' not found
+# Error:
+# ! object '.index' not found
 ```
 
 ### Raw weight vectors
@@ -167,6 +175,7 @@ As discussed above, since the training and evaluation datasets are
 fixed, we can also just supply the raw weight vectors directly.
 
 ``` r
+
 mtcars_gs <- GridSearch$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
@@ -197,6 +206,7 @@ correct subsets of data.
 ### Using .data
 
 ``` r
+
 mtcars_gs_cv <- GridSearchCV$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
@@ -219,6 +229,7 @@ coef(mtcars_gs_cv_fitted$best_model)
 ### Using .index
 
 ``` r
+
 mtcars_gs_cv <- GridSearchCV$new(
   learner = glm,
   tune_params = list(na.action = c(na.omit, na.fail)),
