@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 [![CRAN status](https://www.r-pkg.org/badges/version/modeltuning)](https://CRAN.R-project.org/package=modeltuning)
 <!-- badges: end -->
 
-The goal of modeltuning is to provide common model selection and tuning utilities in an intuitive manner. Additionally, modeltuning aims to be:
+The goal of modeltuning is to provide common model selection and tuning utilities in an intuitive manner. modeltuning aims to be:
 
 - Fairly lightweight and not force you to learn an entirely new modeling paradigm
 - Model/type agnostic and work easily with most R modeling packages and various data types including data frames, standard dense matrices, and `Matrix` sparse matrices
