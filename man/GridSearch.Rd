@@ -11,7 +11,7 @@ model and performance metrics.
 \examples{
 
 ## ------------------------------------------------
-## Method `GridSearch$fit`
+## Method `GridSearch$fit()`
 ## ------------------------------------------------
 
 if (require(e1071) && require(rpart) && require(yardstick)) {
@@ -104,73 +104,69 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
 }
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{learner}}{Predictive modeling function.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{learner}}{Predictive modeling function.}
 
-\item{\code{scorer}}{List of performance metric functions.}
+    \item{\code{scorer}}{List of performance metric functions.}
 
-\item{\code{tune_params}}{Data.frame of full hyper-parameter grid created from \verb{$tune_params}}
-}
-\if{html}{\out{</div>}}
+    \item{\code{tune_params}}{Data.frame of full hyper-parameter grid created from \verb{$tune_params}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-GridSearch-fit}{\code{GridSearch$fit()}}
-\item \href{#method-GridSearch-new}{\code{GridSearch$new()}}
-\item \href{#method-GridSearch-clone}{\code{GridSearch$clone()}}
-}
+  \itemize{
+    \item \href{#method-GridSearch-fit}{\code{GridSearch$fit()}}
+    \item \href{#method-GridSearch-initialize}{\code{GridSearch$new()}}
+    \item \href{#method-GridSearch-clone}{\code{GridSearch$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GridSearch-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-GridSearch-fit}{}}}
-\subsection{Method \code{fit()}}{
-\code{fit} tunes user-specified model hyper-parameters via Grid Search.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GridSearch$fit(
+\subsection{\code{GridSearch$fit()}}{
+  \code{fit} tunes user-specified model hyper-parameters via Grid Search.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{GridSearch$fit(
   formula = NULL,
   data = NULL,
   x = NULL,
   y = NULL,
   progress = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{formula}}{An object of class \link{formula}: a symbolic description of
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{formula}}{An object of class \link{formula}: a symbolic description of
 the model to be fitted.}
-
-\item{\code{data}}{An optional data frame, or other object containing the
+      \item{\code{data}}{An optional data frame, or other object containing the
 variables in the model. If \code{data} is not provided, how \code{formula} is
 handled depends on \verb{$learner}.}
-
-\item{\code{x}}{Predictor data (independent variables), alternative interface to
+      \item{\code{x}}{Predictor data (independent variables), alternative interface to
 data with formula.}
-
-\item{\code{y}}{Response vector (dependent variable), alternative interface to
+      \item{\code{y}}{Response vector (dependent variable), alternative interface to
 data with formula.}
-
-\item{\code{progress}}{Logical; indicating whether to print progress across
+      \item{\code{progress}}{Logical; indicating whether to print progress across
 cross validation folds.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-\code{fit} follows standard R modeling convention by surfacing a formula
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    \code{fit} follows standard R modeling convention by surfacing a formula
 modeling interface as well as an alternate matrix option. The user should
 use whichever interface is supported by the specified \verb{$learner}
 function.
-}
-
-\subsection{Returns}{
-An object of class \link{FittedGridSearch}.
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
+  }
+  \subsection{Returns}{
+    An object of class \link{FittedGridSearch}.
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
   iris_train <- iris_new[1:100, ]
@@ -259,18 +255,18 @@ An object of class \link{FittedGridSearch}.
 
 }
 }
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-GridSearch-new"></a>}}
-\if{latex}{\out{\hypertarget{method-GridSearch-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \link{GridSearch} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GridSearch$new(
+\if{html}{\out{<a id="method-GridSearch-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-GridSearch-initialize}{}}}
+\subsection{\code{GridSearch$new()}}{
+  Create a new \link{GridSearch} object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{GridSearch$new(
   learner = NULL,
   tune_params = NULL,
   evaluation_data = NULL,
@@ -280,76 +276,71 @@ Create a new \link{GridSearch} object.
   scorer_args = NULL,
   prediction_args = NULL,
   convert_predictions = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{learner}}{Function that estimates a predictive model. It is
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{learner}}{Function that estimates a predictive model. It is
 essential that this function support either a formula interface with
 \code{formula} and \code{data} arguments, or an alternate matrix interface with
 \code{x} and \code{y} arguments.}
-
-\item{\code{tune_params}}{A named list specifying the arguments of \verb{$learner} to
+      \item{\code{tune_params}}{A named list specifying the arguments of \verb{$learner} to
 tune.}
-
-\item{\code{evaluation_data}}{A two-element list containing the following
+      \item{\code{evaluation_data}}{A two-element list containing the following
 elements: \code{x}, the validation data to generate predicted values with;
 \code{y}, the validation response values to evaluate predictive performance.}
-
-\item{\code{scorer}}{A named list of metric functions to evaluate model
+      \item{\code{scorer}}{A named list of metric functions to evaluate model
 performance on \code{evaluation_data}. Any provided metric function
 must have \code{truth} and \code{estimate} arguments, for true outcome values and
 predicted outcome values respectively, and must return a single numeric
 metric value. The last metric function will be the one used to identify
 the optimal model from the Grid Search.}
-
-\item{\code{optimize_score}}{One of "max" or "min"; Whether to maximize or
+      \item{\code{optimize_score}}{One of "max" or "min"; Whether to maximize or
 minimize the metric defined in \code{scorer} to find the optimal Grid Search
 parameters.}
-
-\item{\code{learner_args}}{A named list of additional arguments to pass to
+      \item{\code{learner_args}}{A named list of additional arguments to pass to
 \code{learner}.}
-
-\item{\code{scorer_args}}{A named list of additional arguments to pass to
+      \item{\code{scorer_args}}{A named list of additional arguments to pass to
 \code{scorer}. \code{scorer_args} must either be length 1 or \code{length(scorer)} in
 the case where different arguments are being passed to each scoring
 function.}
-
-\item{\code{prediction_args}}{A named list of additional arguments to pass to
+      \item{\code{prediction_args}}{A named list of additional arguments to pass to
 \code{predict}. \code{prediction_args} must either be length 1 or
 \code{length(scorer)} in the case where different arguments are being passed
 to each scoring function.}
-
-\item{\code{convert_predictions}}{A list of functions to convert predicted
+      \item{\code{convert_predictions}}{A list of functions to convert predicted
 values prior to being evaluated by the metric functions supplied in
 \code{scorer}. This list should either be length 1, in which case the same
 function will be applied to all predicted values, or \code{length(scorer)}
 in which case each function in \code{convert_predictions} will correspond
 with each function in \code{scorer}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An object of class \link{GridSearch}.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An object of class \link{GridSearch}.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-GridSearch-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-GridSearch-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{GridSearch$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{GridSearch$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{GridSearch$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

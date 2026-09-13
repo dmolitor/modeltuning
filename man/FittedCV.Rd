@@ -9,79 +9,79 @@ returned by \code{CV$fit()} and contains relevant model components,
 cross-validation metrics, validation set predicted values, etc.
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{folds}}{A list of length \verb{$nfolds} where each element contains the
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{folds}}{A list of length \verb{$nfolds} where each element contains the
 indices of the observations contained in that fold.}
 
-\item{\code{model}}{Predictive model fitted on the full data set.}
+    \item{\code{model}}{Predictive model fitted on the full data set.}
 
-\item{\code{mean_metrics}}{Numeric list; Cross-validation performance metrics
+    \item{\code{mean_metrics}}{Numeric list; Cross-validation performance metrics
 averaged across folds.}
 
-\item{\code{metrics}}{Numeric list; Cross-validation performance metrics on each
+    \item{\code{metrics}}{Numeric list; Cross-validation performance metrics on each
 fold.}
 
-\item{\code{nfolds}}{An integer specifying the number of cross-validation folds.}
+    \item{\code{nfolds}}{An integer specifying the number of cross-validation folds.}
 
-\item{\code{predictions}}{A list containing the predicted hold-out values on
+    \item{\code{predictions}}{A list containing the predicted hold-out values on
 every fold.}
-}
-\if{html}{\out{</div>}}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-FittedCV-new}{\code{FittedCV$new()}}
-\item \href{#method-FittedCV-clone}{\code{FittedCV$clone()}}
-}
+  \itemize{
+    \item \href{#method-FittedCV-initialize}{\code{FittedCV$new()}}
+    \item \href{#method-FittedCV-clone}{\code{FittedCV$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-FittedCV-new"></a>}}
-\if{latex}{\out{\hypertarget{method-FittedCV-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \link{FittedCV} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FittedCV$new(folds, model, metrics, nfolds, predictions)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{folds}}{A list of length \verb{$nfolds} where each element contains the
+\if{html}{\out{<a id="method-FittedCV-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-FittedCV-initialize}{}}}
+\subsection{\code{FittedCV$new()}}{
+  Create a new \link{FittedCV} object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FittedCV$new(folds, model, metrics, nfolds, predictions)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{folds}}{A list of length \verb{$nfolds} where each element contains the
 indices of the observations contained in that fold.}
-
-\item{\code{model}}{Predictive model fitted on the full data set.}
-
-\item{\code{metrics}}{Numeric list; Cross-validation performance metrics on each
+      \item{\code{model}}{Predictive model fitted on the full data set.}
+      \item{\code{metrics}}{Numeric list; Cross-validation performance metrics on each
 fold.}
-
-\item{\code{nfolds}}{An integer specifying the number of cross-validation folds.}
-
-\item{\code{predictions}}{A list containing the predicted hold-out values on
+      \item{\code{nfolds}}{An integer specifying the number of cross-validation folds.}
+      \item{\code{predictions}}{A list containing the predicted hold-out values on
 every fold.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An object of class \link{FittedCV}.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An object of class \link{FittedCV}.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-FittedCV-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-FittedCV-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{FittedCV$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{FittedCV$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{FittedCV$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

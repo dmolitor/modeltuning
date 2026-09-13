@@ -11,7 +11,7 @@ among other essential parameters.
 \examples{
 
 ## ------------------------------------------------
-## Method `CV$fit`
+## Method `CV$fit()`
 ## ------------------------------------------------
 
 if (require(e1071) && require(rpart) && require(yardstick)) {
@@ -96,31 +96,32 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
 }
 }
 \section{Public fields}{
-\if{html}{\out{<div class="r6-fields">}}
-\describe{
-\item{\code{learner}}{Predictive modeling function.}
+  \if{html}{\out{<div class="r6-fields">}}
+  \describe{
+    \item{\code{learner}}{Predictive modeling function.}
 
-\item{\code{scorer}}{List of performance metric functions.}
+    \item{\code{scorer}}{List of performance metric functions.}
 
-\item{\code{splitter}}{Function that splits data into cross validation folds.}
-}
-\if{html}{\out{</div>}}
+    \item{\code{splitter}}{Function that splits data into cross validation folds.}
+  }
+  \if{html}{\out{</div>}}
 }
 \section{Methods}{
 \subsection{Public methods}{
-\itemize{
-\item \href{#method-CV-fit}{\code{CV$fit()}}
-\item \href{#method-CV-new}{\code{CV$new()}}
-\item \href{#method-CV-clone}{\code{CV$clone()}}
-}
+  \itemize{
+    \item \href{#method-CV-fit}{\code{CV$fit()}}
+    \item \href{#method-CV-initialize}{\code{CV$new()}}
+    \item \href{#method-CV-clone}{\code{CV$clone()}}
+  }
 }
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CV-fit"></a>}}
 \if{latex}{\out{\hypertarget{method-CV-fit}{}}}
-\subsection{Method \code{fit()}}{
-\code{fit} performs cross validation with user-specified parameters.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CV$fit(
+\subsection{\code{CV$fit()}}{
+  \code{fit} performs cross validation with user-specified parameters.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CV$fit(
   formula = NULL,
   data = NULL,
   x = NULL,
@@ -128,50 +129,43 @@ if (require(e1071) && require(rpart) && require(yardstick)) {
   response = NULL,
   convert_response = NULL,
   progress = FALSE
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{formula}}{An object of class \link{formula}: a symbolic description of
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{formula}}{An object of class \link{formula}: a symbolic description of
 the model to be fitted.}
-
-\item{\code{data}}{An optional data frame, or other object containing the
+      \item{\code{data}}{An optional data frame, or other object containing the
 variables in the model. If \code{data} is not provided, how \code{formula} is
 handled depends on \verb{$learner}.}
-
-\item{\code{x}}{Predictor data (independent variables), alternative interface to
+      \item{\code{x}}{Predictor data (independent variables), alternative interface to
 data with formula.}
-
-\item{\code{y}}{Response vector (dependent variable), alternative interface to
+      \item{\code{y}}{Response vector (dependent variable), alternative interface to
 data with formula.}
-
-\item{\code{response}}{String; In the absence of \code{formula} or \code{y}, this specifies
+      \item{\code{response}}{String; In the absence of \code{formula} or \code{y}, this specifies
 which element of \code{learner_args} is the response vector.}
-
-\item{\code{convert_response}}{Function; This should be a single function that
+      \item{\code{convert_response}}{Function; This should be a single function that
 transforms the response vector. E.g. a function converting a numeric binary
 variable to a factor variable.}
-
-\item{\code{progress}}{Logical; indicating whether to print progress across
+      \item{\code{progress}}{Logical; indicating whether to print progress across
 cross validation folds.}
-}
-\if{html}{\out{</div>}}
-}
-\subsection{Details}{
-\code{fit} follows standard R modeling convention by surfacing a formula
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Details}{
+    \code{fit} follows standard R modeling convention by surfacing a formula
 modeling interface as well as an alternate matrix option. The user should
 use whichever interface is supported by the specified \verb{$learner}
 function.
-}
-
-\subsection{Returns}{
-An object of class \link{FittedCV}.
-}
-\subsection{Examples}{
-\if{html}{\out{<div class="r example copy">}}
-\preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
+  }
+  \subsection{Returns}{
+    An object of class \link{FittedCV}.
+  }
+  \subsection{Examples}{
+    \if{html}{\out{<div class="r example copy">}}
+    \preformatted{if (require(e1071) && require(rpart) && require(yardstick)) {
   iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
   iris_new$Species <- factor(iris_new$Species == "virginica")
 
@@ -252,18 +246,18 @@ An object of class \link{FittedCV}.
   )
 }
 }
-\if{html}{\out{</div>}}
-
+    \if{html}{\out{</div>}}
+  }
 }
 
-}
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-CV-new"></a>}}
-\if{latex}{\out{\hypertarget{method-CV-new}{}}}
-\subsection{Method \code{new()}}{
-Create a new \link{CV} object.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CV$new(
+\if{html}{\out{<a id="method-CV-initialize"></a>}}
+\if{latex}{\out{\hypertarget{method-CV-initialize}{}}}
+\subsection{\code{CV$new()}}{
+  Create a new \link{CV} object.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CV$new(
   learner = NULL,
   splitter = NULL,
   scorer = NULL,
@@ -272,75 +266,71 @@ Create a new \link{CV} object.
   scorer_args = NULL,
   prediction_args = NULL,
   convert_predictions = NULL
-)}\if{html}{\out{</div>}}
-}
-
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{learner}}{Function that estimates a predictive model. It is
+)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{learner}}{Function that estimates a predictive model. It is
 essential that this function support either a formula interface with
 \code{formula} and \code{data} arguments, or an alternate matrix interface with
 \code{x} and \code{y} arguments.}
-
-\item{\code{splitter}}{A function that computes cross validation folds from an
+      \item{\code{splitter}}{A function that computes cross validation folds from an
 input data set or a pre-computed list of cross validation fold indices.
 If \code{splitter} is a function, it must have a \code{data} argument for the
 input data, and it must return a list of cross validation fold indices.
 If \code{splitter} is a list of integers, the number of cross validation
 folds is \code{length(splitter)} and each element contains the indices of
 the data observations that are included in that fold.}
-
-\item{\code{scorer}}{A named list of metric functions to evaluate model
+      \item{\code{scorer}}{A named list of metric functions to evaluate model
 performance on each cross validation fold. Any provided metric function
 must have \code{truth} and \code{estimate} arguments for true outcome values and
 predicted outcome values respectively, and must return a single numeric
 metric value.}
-
-\item{\code{learner_args}}{A named list of additional arguments to pass to
+      \item{\code{learner_args}}{A named list of additional arguments to pass to
 \code{learner}.}
-
-\item{\code{splitter_args}}{A named list of additional arguments to pass to
+      \item{\code{splitter_args}}{A named list of additional arguments to pass to
 \code{splitter}.}
-
-\item{\code{scorer_args}}{A named list of additional arguments to pass to
+      \item{\code{scorer_args}}{A named list of additional arguments to pass to
 \code{scorer}. \code{scorer_args} must either be length 1 or \code{length(scorer)} in
 the case where different arguments are being passed to each scoring
 function.}
-
-\item{\code{prediction_args}}{A named list of additional arguments to pass to
+      \item{\code{prediction_args}}{A named list of additional arguments to pass to
 \code{predict}. \code{prediction_args} must either be length 1 or
 \code{length(scorer)} in the case where different arguments are being passed
 to each scoring function.}
-
-\item{\code{convert_predictions}}{A list of functions to convert predicted
+      \item{\code{convert_predictions}}{A list of functions to convert predicted
 values prior to being evaluated by the metric functions supplied in
 \code{scorer}. This list should either be length 1, in which case the same
 function will be applied to all predicted values, or \code{length(scorer)}
 in which case each function in \code{convert_predictions} will correspond
 with each function in \code{scorer}.}
+    }
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Returns}{
+    An object of class \link{CV}.
+  }
 }
-\if{html}{\out{</div>}}
-}
-\subsection{Returns}{
-An object of class \link{CV}.
-}
-}
+
 \if{html}{\out{<hr>}}
 \if{html}{\out{<a id="method-CV-clone"></a>}}
 \if{latex}{\out{\hypertarget{method-CV-clone}{}}}
-\subsection{Method \code{clone()}}{
-The objects of this class are cloneable with this method.
-\subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{CV$clone(deep = FALSE)}\if{html}{\out{</div>}}
+\subsection{\code{CV$clone()}}{
+  The objects of this class are cloneable with this method.
+  \subsection{Usage}{
+    \if{html}{\out{<div class="r">}}
+    \preformatted{CV$clone(deep = FALSE)}
+    \if{html}{\out{</div>}}
+  }
+  \subsection{Arguments}{
+    \if{html}{\out{<div class="arguments">}}
+    \describe{
+      \item{\code{deep}}{Whether to make a deep clone.}
+    }
+    \if{html}{\out{</div>}}
+  }
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{deep}}{Whether to make a deep clone.}
-}
-\if{html}{\out{</div>}}
-}
-}
 }

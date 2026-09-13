@@ -21,5 +21,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Daniel Molitor \email{molitdj97@gmail.com}
 
+Authors:
+\itemize{
+  \item Daniel Molitor \email{molitdj97@gmail.com}
+}
+
 }
 \keyword{internal}
