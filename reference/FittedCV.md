@@ -36,13 +36,13 @@ cross-validation metrics, validation set predicted values, etc.
 
 ### Public methods
 
-- [`FittedCV$new()`](#method-FittedCV-new)
+- [`FittedCV$new()`](#method-FittedCV-initialize)
 
 - [`FittedCV$clone()`](#method-FittedCV-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `FittedCV$new()`
 
 Create a new FittedCV object.
 
@@ -79,7 +79,7 @@ An object of class FittedCV.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `FittedCV$clone()`
 
 The objects of this class are cloneable with this method.
 

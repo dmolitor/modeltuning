@@ -29,13 +29,13 @@ model and performance metrics.
 
 - [`GridSearchCV$fit()`](#method-GridSearchCV-fit)
 
-- [`GridSearchCV$new()`](#method-GridSearchCV-new)
+- [`GridSearchCV$new()`](#method-GridSearchCV-initialize)
 
 - [`GridSearchCV$clone()`](#method-GridSearchCV-clone)
 
 ------------------------------------------------------------------------
 
-### Method `fit()`
+### `GridSearchCV$fit()`
 
 `fit` tunes user-specified model hyper-parameters via Grid Search and
 Cross-Validation.
@@ -105,7 +105,6 @@ An object of class
 
 #### Examples
 
-    \donttest{
     if (require(e1071) && require(rpart) && require(yardstick)) {
       iris_new <- iris[sample(1:nrow(iris), nrow(iris)), ]
       iris_new$Species <- factor(iris_new$Species == "virginica")
@@ -197,11 +196,10 @@ An object of class
       )
 
     }
-    }
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `GridSearchCV$new()`
 
 Create a new GridSearchCV object.
 
@@ -294,7 +292,7 @@ An object of class
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `GridSearchCV$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -313,7 +311,7 @@ The objects of this class are cloneable with this method.
 ``` r
 
 ## ------------------------------------------------
-## Method `GridSearchCV$fit`
+## Method `GridSearchCV$fit()`
 ## ------------------------------------------------
 
 # \donttest{

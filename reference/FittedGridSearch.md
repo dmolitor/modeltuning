@@ -45,13 +45,13 @@ best hyper-parameters, etc.
 
 ### Public methods
 
-- [`FittedGridSearch$new()`](#method-FittedGridSearch-new)
+- [`FittedGridSearch$new()`](#method-FittedGridSearch-initialize)
 
 - [`FittedGridSearch$clone()`](#method-FittedGridSearch-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `FittedGridSearch$new()`
 
 Create a new FittedGridSearch object.
 
@@ -91,7 +91,7 @@ An object of class FittedGridSearch.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `FittedGridSearch$clone()`
 
 The objects of this class are cloneable with this method.
 

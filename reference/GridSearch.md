@@ -24,13 +24,13 @@ predictive model and performance metrics.
 
 - [`GridSearch$fit()`](#method-GridSearch-fit)
 
-- [`GridSearch$new()`](#method-GridSearch-new)
+- [`GridSearch$new()`](#method-GridSearch-initialize)
 
 - [`GridSearch$clone()`](#method-GridSearch-clone)
 
 ------------------------------------------------------------------------
 
-### Method `fit()`
+### `GridSearch$fit()`
 
 `fit` tunes user-specified model hyper-parameters via Grid Search.
 
@@ -177,7 +177,7 @@ An object of class
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `GridSearch$new()`
 
 Create a new GridSearch object.
 
@@ -260,7 +260,7 @@ An object of class GridSearch.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `GridSearch$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -279,7 +279,7 @@ The objects of this class are cloneable with this method.
 ``` r
 
 ## ------------------------------------------------
-## Method `GridSearch$fit`
+## Method `GridSearch$fit()`
 ## ------------------------------------------------
 
 if (require(e1071) && require(rpart) && require(yardstick)) {

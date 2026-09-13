@@ -13,7 +13,7 @@ hyper-parameters, etc."><meta property="og:image" content="https://www.dmolitor.
 
     <a class="navbar-brand me-2" href="../index.html">modeltuning</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -59,39 +59,39 @@ hyper-parameters, etc.</p>
 contains the best-performing model.</p></dd>
 
 
-<dt><code>best_metric</code></dt>
+    <dt><code>best_metric</code></dt>
 <dd><p>The average performance metric of the best model
 across cross-validation folds.</p></dd>
 
 
-<dt><code>best_model</code></dt>
+    <dt><code>best_model</code></dt>
 <dd><p>The best performing predictive model.</p></dd>
 
 
-<dt><code>best_params</code></dt>
+    <dt><code>best_params</code></dt>
 <dd><p>A named list of the hyper-parameters that result in
 the optimal predictive model.</p></dd>
 
 
-<dt><code>folds</code></dt>
+    <dt><code>folds</code></dt>
 <dd><p>A list of length <code>$models</code> where each element contains a
 list of the cross-validation indices for each fold.</p></dd>
 
 
-<dt><code>tune_params</code></dt>
+    <dt><code>tune_params</code></dt>
 <dd><p>A <a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a> of the full hyper-parameter grid.</p></dd>
 
 
-<dt><code>models</code></dt>
+    <dt><code>models</code></dt>
 <dd><p>List of predictive models at every value of <code>$tune_params</code>.</p></dd>
 
 
-<dt><code>metrics</code></dt>
+    <dt><code>metrics</code></dt>
 <dd><p>Numeric list; Cross-validation performance metrics for
 every model in <code>$models</code>.</p></dd>
 
 
-<dt><code>predictions</code></dt>
+    <dt><code>predictions</code></dt>
 <dd><p>A list containing the cross-validation fold
 predictions for each model in <code>$models</code>.</p></dd>
 
@@ -103,11 +103,10 @@ predictions for each model in <code>$models</code>.</p></dd>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-FittedGridSearchCV-new"><code>FittedGridSearchCV$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-FittedGridSearchCV-initialize"><code>FittedGridSearchCV$new()</code></a></p></li>
 <li><p><a href="#method-FittedGridSearchCV-clone"><code>FittedGridSearchCV$clone()</code></a></p></li>
-</ul></div><p></p><hr><a id="method-FittedGridSearchCV-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+</ul></div><p></p><hr><a id="method-FittedGridSearchCV-initialize"></a><div class="section">
+<h3 id="fittedgridsearchcv-new-"><code>FittedGridSearchCV$new()</code><a class="anchor" aria-label="anchor" href="#fittedgridsearchcv-new-"></a></h3>
 <p>Create a new FittedGridSearchCV object.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/FittedGridSearchCV.html">FittedGridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -118,54 +117,46 @@ predictions for each model in <code>$models</code>.</p></dd>
 <span>  <span class="va">predictions</span>,</span>
 <span>  <span class="va">optimize_score</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>tune_params</code></dt>
 <dd><p>Data.frame of the full hyper-parameter grid.</p></dd>
 
-
-<dt><code>models</code></dt>
+      <dt><code>models</code></dt>
 <dd><p>List of predictive models at every value of <code>$tune_params</code>.</p></dd>
 
-
-<dt><code>folds</code></dt>
+      <dt><code>folds</code></dt>
 <dd><p>List of cross-validation indices at every value of
 <code>$tune_params</code>.</p></dd>
 
-
-<dt><code>metrics</code></dt>
+      <dt><code>metrics</code></dt>
 <dd><p>List of cross-validation performance metrics for
 every model in <code>$models</code>.</p></dd>
 
-
-<dt><code>predictions</code></dt>
+      <dt><code>predictions</code></dt>
 <dd><p>A list containing the predicted values on the
 cross-validation folds for every model in <code>$models</code>.</p></dd>
 
-
-<dt><code>optimize_score</code></dt>
+      <dt><code>optimize_score</code></dt>
 <dd><p>Either "max" or "min" indicating whether or not the
 specified performance metric was maximized or minimized to find the
 optimal predictive model.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>An object of class FittedGridSearchCV.</p>
 </div>
 
-</div><p></p><hr><a id="method-FittedGridSearchCV-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-FittedGridSearchCV-clone"></a><div class="section">
+<h3 id="fittedgridsearchcv-clone-"><code>FittedGridSearchCV$clone()</code><a class="anchor" aria-label="anchor" href="#fittedgridsearchcv-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">FittedGridSearchCV</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -175,6 +166,7 @@ optimal predictive model.</p></dd>
 </div>
 
 </div>
+
 
     </div>
 

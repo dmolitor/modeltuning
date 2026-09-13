@@ -24,13 +24,13 @@ metrics, among other essential parameters.
 
 - [`CV$fit()`](#method-CV-fit)
 
-- [`CV$new()`](#method-CV-new)
+- [`CV$new()`](#method-CV-initialize)
 
 - [`CV$clone()`](#method-CV-clone)
 
 ------------------------------------------------------------------------
 
-### Method `fit()`
+### `CV$fit()`
 
 `fit` performs cross validation with user-specified parameters.
 
@@ -182,7 +182,7 @@ An object of class
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `CV$new()`
 
 Create a new CV object.
 
@@ -261,7 +261,7 @@ An object of class CV.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `CV$clone()`
 
 The objects of this class are cloneable with this method.
 
@@ -280,7 +280,7 @@ The objects of this class are cloneable with this method.
 ``` r
 
 ## ------------------------------------------------
-## Method `CV$fit`
+## Method `CV$fit()`
 ## ------------------------------------------------
 
 if (require(e1071) && require(rpart) && require(yardstick)) {

@@ -19,3 +19,7 @@ Useful links:
 ## Author
 
 **Maintainer**: Daniel Molitor <molitdj97@gmail.com>
+
+Authors:
+
+- Daniel Molitor <molitdj97@gmail.com>

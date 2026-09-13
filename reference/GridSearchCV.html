@@ -13,7 +13,7 @@ metrics."><meta property="og:image" content="https://www.dmolitor.com/modelselec
 
     <a class="navbar-brand me-2" href="../index.html">modeltuning</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -58,15 +58,15 @@ metrics.</p>
 <dd><p>Predictive modeling function.</p></dd>
 
 
-<dt><code>scorer</code></dt>
+    <dt><code>scorer</code></dt>
 <dd><p>List of performance metric functions.</p></dd>
 
 
-<dt><code>splitter</code></dt>
+    <dt><code>splitter</code></dt>
 <dd><p>Function that splits data into cross validation folds.</p></dd>
 
 
-<dt><code>tune_params</code></dt>
+    <dt><code>tune_params</code></dt>
 <dd><p>Data.frame of full hyper-parameter grid created from
 <code>$tune_params</code></p></dd>
 
@@ -78,12 +78,11 @@ metrics.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-GridSearchCV-fit"><code>GridSearchCV$fit()</code></a></p></li>
-<li><p><a href="#method-GridSearchCV-new"><code>GridSearchCV$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-GridSearchCV-fit"><code>GridSearchCV$fit()</code></a></p></li>
+<li><p><a href="#method-GridSearchCV-initialize"><code>GridSearchCV$new()</code></a></p></li>
 <li><p><a href="#method-GridSearchCV-clone"><code>GridSearchCV$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-GridSearchCV-fit"></a><div class="section">
-<h3 id="method-fit-">Method <code>fit()</code><a class="anchor" aria-label="anchor" href="#method-fit-"></a></h3>
+<h3 id="gridsearchcv-fit-"><code>GridSearchCV$fit()</code><a class="anchor" aria-label="anchor" href="#gridsearchcv-fit-"></a></h3>
 <p><code>fit</code> tunes user-specified model hyper-parameters via Grid Search and
 Cross-Validation.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
@@ -96,162 +95,148 @@ Cross-Validation.</p><div class="section">
 <span>  convert_response <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>formula</code></dt>
 <dd><p>An object of class <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a>: a symbolic description of
 the model to be fitted.</p></dd>
 
-
-<dt><code>data</code></dt>
+      <dt><code>data</code></dt>
 <dd><p>An optional data frame, or other object containing the
 variables in the model. If <code>data</code> is not provided, how <code>formula</code> is
 handled depends on <code>$learner</code>.</p></dd>
 
-
-<dt><code>x</code></dt>
+      <dt><code>x</code></dt>
 <dd><p>Predictor data (independent variables), alternative interface to
 data with formula.</p></dd>
 
-
-<dt><code>y</code></dt>
+      <dt><code>y</code></dt>
 <dd><p>Response vector (dependent variable), alternative interface to
 data with formula.</p></dd>
 
-
-<dt><code>response</code></dt>
+      <dt><code>response</code></dt>
 <dd><p>String; In the absence of <code>formula</code> or <code>y</code>, this specifies
 which element of <code>learner_args</code> is the response vector.</p></dd>
 
-
-<dt><code>convert_response</code></dt>
+      <dt><code>convert_response</code></dt>
 <dd><p>Function; This should be a single function that
 transforms the response vector. E.g. a function converting a numeric binary
 variable to a factor variable.</p></dd>
 
-
-<dt><code>progress</code></dt>
+      <dt><code>progress</code></dt>
 <dd><p>Logical; indicating whether to print progress across
 the hyper-parameter grid.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
 <p><code>fit</code> follows standard R modeling convention by surfacing a formula
 modeling interface as well as an alternate matrix option. The user should
 use whichever interface is supported by the specified <code>$learner</code>
 function.</p>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>An object of class <a href="FittedGridSearchCV.html">FittedGridSearchCV</a>.</p>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h4>
-<p></p><div class="r example copy"><div class="sourceCode"><pre><code>\donttest{
-if (require(e1071) &amp;&amp; require(rpart) &amp;&amp; require(yardstick)) {
-  iris_new &lt;- iris[sample(1:nrow(iris), nrow(iris)), ]
-  iris_new$Species &lt;- factor(iris_new$Species == "virginica")
-  iris_train &lt;- iris_new[1:100, ]
-  iris_validate &lt;- iris_new[101:150, ]
-
-  ### Decision Tree example
-
-  iris_grid_cv &lt;- GridSearchCV$new(
-    learner = rpart::rpart,
-    learner_args = list(method = "class"),
-    tune_params = list(
-      minsplit = seq(10, 30, by = 5),
-      maxdepth = seq(20, 30, by = 2)
-    ),
-    splitter = cv_split,
-    splitter_args = list(v = 3),
-    scorer = list(accuracy = yardstick::accuracy_vec),
-    optimize_score = "max",
-    prediction_args = list(accuracy = list(type = "class"))
-  )
-  iris_grid_cv_fitted &lt;- iris_grid_cv$fit(
-    formula = Species ~ .,
-    data = iris_train
-  )
-
-  ### Example with multiple metric functions
-
-  iris_grid_cv &lt;- GridSearchCV$new(
-    learner = rpart::rpart,
-    learner_args = list(method = "class"),
-    tune_params = list(
-      minsplit = seq(10, 30, by = 5),
-      maxdepth = seq(20, 30, by = 2)
-    ),
-    splitter = cv_split,
-    splitter_args = list(v = 3),
-    scorer = list(
-      accuracy = yardstick::accuracy_vec,
-      auc = yardstick::roc_auc_vec
-    ),
-    optimize_score = "max",
-    prediction_args = list(
-      accuracy = list(type = "class"),
-      auc = list(type = "prob")
-    ),
-    convert_predictions = list(
-      accuracy = NULL,
-      auc = function(i) i[, "FALSE"]
-    )
-  )
-  iris_grid_cv_fitted &lt;- iris_grid_cv$fit(
-    formula = Species ~ .,
-    data = iris_train,
-  )
-
-  # Grab the best model
-  iris_grid_cv_fitted$best_model
-
-  # Grab the best hyper-parameters
-  iris_grid_cv_fitted$best_params
-
-  # Grab the best model performance metrics
-  iris_grid_cv_fitted$best_metric
-
-  ### Matrix interface example - SVM
-
-  mtcars_train &lt;- mtcars[1:25, ]
-  mtcars_eval &lt;- mtcars[26:nrow(mtcars), ]
-
-  mtcars_grid_cv &lt;- GridSearchCV$new(
-    learner = e1071::svm,
-    tune_params = list(
-      degree = 2:4,
-      kernel = c("linear", "polynomial")
-    ),
-    splitter = cv_split,
-    splitter_args = list(v = 2),
-    learner_args = list(scale = TRUE),
-    scorer = list(
-      rmse = yardstick::rmse_vec,
-      mae = yardstick::mae_vec
-    ),
-    optimize_score = "min"
-  )
-  mtcars_grid_cv_fitted &lt;- mtcars_grid_cv$fit(
-    x = mtcars_train[, -1],
-    y = mtcars_train$mpg
-  )
-
-}
-}
-</code></pre></div><p></p></div>
+<p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">e1071</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bethatkinson/rpart" class="external-link">rpart</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
+<span>  <span class="va">iris_new</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
+<span>  <span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">iris_new</span><span class="op">$</span><span class="va">Species</span> <span class="op">==</span> <span class="st">"virginica"</span><span class="op">)</span></span>
+<span>  <span class="va">iris_train</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">100</span>, <span class="op">]</span></span>
+<span>  <span class="va">iris_validate</span> <span class="op">&lt;-</span> <span class="va">iris_new</span><span class="op">[</span><span class="fl">101</span><span class="op">:</span><span class="fl">150</span>, <span class="op">]</span></span>
+<span></span>
+<span>  <span class="co">### Decision Tree example</span></span>
+<span></span>
+<span>  <span class="va">iris_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    learner <span class="op">=</span> <span class="fu">rpart</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span>,</span>
+<span>    learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
+<span>    tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      minsplit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>      maxdepth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    splitter <span class="op">=</span> <span class="va">cv_split</span>,</span>
+<span>    splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>accuracy <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/accuracy.html" class="external-link">accuracy_vec</a></span><span class="op">)</span>,</span>
+<span>    optimize_score <span class="op">=</span> <span class="st">"max"</span>,</span>
+<span>    prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>accuracy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">iris_grid_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_grid_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">iris_train</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="co">### Example with multiple metric functions</span></span>
+<span></span>
+<span>  <span class="va">iris_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    learner <span class="op">=</span> <span class="fu">rpart</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/rpart/man/rpart.html" class="external-link">rpart</a></span>,</span>
+<span>    learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>method <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
+<span>    tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      minsplit <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>,</span>
+<span>      maxdepth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fl">20</span>, <span class="fl">30</span>, by <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    splitter <span class="op">=</span> <span class="va">cv_split</span>,</span>
+<span>    splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>,</span>
+<span>    scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      accuracy <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/accuracy.html" class="external-link">accuracy_vec</a></span>,</span>
+<span>      auc <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/roc_auc.html" class="external-link">roc_auc_vec</a></span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    optimize_score <span class="op">=</span> <span class="st">"max"</span>,</span>
+<span>    prediction_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      accuracy <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"class"</span><span class="op">)</span>,</span>
+<span>      auc <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>type <span class="op">=</span> <span class="st">"prob"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    convert_predictions <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      accuracy <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>      auc <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">i</span><span class="op">)</span> <span class="va">i</span><span class="op">[</span>, <span class="st">"FALSE"</span><span class="op">]</span></span>
+<span>    <span class="op">)</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">iris_grid_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">iris_grid_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span></span>
+<span>    formula <span class="op">=</span> <span class="va">Species</span> <span class="op">~</span> <span class="va">.</span>,</span>
+<span>    data <span class="op">=</span> <span class="va">iris_train</span>,</span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span>  <span class="co"># Grab the best model</span></span>
+<span>  <span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_model</span></span>
+<span></span>
+<span>  <span class="co"># Grab the best hyper-parameters</span></span>
+<span>  <span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_params</span></span>
+<span></span>
+<span>  <span class="co"># Grab the best model performance metrics</span></span>
+<span>  <span class="va">iris_grid_cv_fitted</span><span class="op">$</span><span class="va">best_metric</span></span>
+<span></span>
+<span>  <span class="co">### Matrix interface example - SVM</span></span>
+<span></span>
+<span>  <span class="va">mtcars_train</span> <span class="op">&lt;-</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">25</span>, <span class="op">]</span></span>
+<span>  <span class="va">mtcars_eval</span> <span class="op">&lt;-</span> <span class="va">mtcars</span><span class="op">[</span><span class="fl">26</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">mtcars</span><span class="op">)</span>, <span class="op">]</span></span>
+<span></span>
+<span>  <span class="va">mtcars_grid_cv</span> <span class="op">&lt;-</span> <span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
+<span>    learner <span class="op">=</span> <span class="fu">e1071</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/e1071/man/svm.html" class="external-link">svm</a></span>,</span>
+<span>    tune_params <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      degree <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">4</span>,</span>
+<span>      kernel <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"linear"</span>, <span class="st">"polynomial"</span><span class="op">)</span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    splitter <span class="op">=</span> <span class="va">cv_split</span>,</span>
+<span>    splitter_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>v <span class="op">=</span> <span class="fl">2</span><span class="op">)</span>,</span>
+<span>    learner_args <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>scale <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>    scorer <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span></span>
+<span>      rmse <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/rmse.html" class="external-link">rmse_vec</a></span>,</span>
+<span>      mae <span class="op">=</span> <span class="fu">yardstick</span><span class="fu">::</span><span class="va"><a href="https://yardstick.tidymodels.org/reference/mae.html" class="external-link">mae_vec</a></span></span>
+<span>    <span class="op">)</span>,</span>
+<span>    optimize_score <span class="op">=</span> <span class="st">"min"</span></span>
+<span>  <span class="op">)</span></span>
+<span>  <span class="va">mtcars_grid_cv_fitted</span> <span class="op">&lt;-</span> <span class="va">mtcars_grid_cv</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span></span>
+<span>    x <span class="op">=</span> <span class="va">mtcars_train</span><span class="op">[</span>, <span class="op">-</span><span class="fl">1</span><span class="op">]</span>,</span>
+<span>    y <span class="op">=</span> <span class="va">mtcars_train</span><span class="op">$</span><span class="va">mpg</span></span>
+<span>  <span class="op">)</span></span>
+<span></span>
+<span><span class="op">}</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-GridSearchCV-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+<p></p><hr><a id="method-GridSearchCV-initialize"></a><div class="section">
+<h3 id="gridsearchcv-new-"><code>GridSearchCV$new()</code><a class="anchor" aria-label="anchor" href="#gridsearchcv-new-"></a></h3>
 <p>Create a new GridSearchCV object.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/GridSearchCV.html">GridSearchCV</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -266,9 +251,7 @@ if (require(e1071) &amp;&amp; require(rpart) &amp;&amp; require(yardstick)) {
 <span>  prediction_args <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  convert_predictions <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>learner</code></dt>
 <dd><p>Function that estimates a predictive model. It is
@@ -276,13 +259,11 @@ essential that this function support either a formula interface with
 <code>formula</code> and <code>data</code> arguments, or an alternate matrix interface with
 <code>x</code> and <code>y</code> arguments.</p></dd>
 
-
-<dt><code>tune_params</code></dt>
+      <dt><code>tune_params</code></dt>
 <dd><p>A named list specifying the arguments of <code>$learner</code> to
 tune.</p></dd>
 
-
-<dt><code>splitter</code></dt>
+      <dt><code>splitter</code></dt>
 <dd><p>A function that computes cross validation folds from an
 input data set or a pre-computed list of cross validation fold indices.
 If <code>splitter</code> is a function, it must have a <code>data</code> argument for the
@@ -291,8 +272,7 @@ If <code>splitter</code> is a list of integers, the number of cross validation
 folds is <code>length(splitter)</code> and each element contains the indices of
 the data observations that are included in that fold.</p></dd>
 
-
-<dt><code>scorer</code></dt>
+      <dt><code>scorer</code></dt>
 <dd><p>A named list of metric functions to evaluate model
 performance on <code>evaluation_data</code>. Any provided metric function
 must have <code>truth</code> and <code>estimate</code> arguments, for true outcome values and
@@ -300,38 +280,32 @@ predicted outcome values respectively, and must return a single numeric
 metric value. The last metric function will be the one used to identify
 the optimal model from the Grid Search.</p></dd>
 
-
-<dt><code>optimize_score</code></dt>
+      <dt><code>optimize_score</code></dt>
 <dd><p>One of "max" or "min"; Whether to maximize or
 minimize the metric defined in <code>scorer</code> to find the optimal Grid Search
 parameters.</p></dd>
 
-
-<dt><code>learner_args</code></dt>
+      <dt><code>learner_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>learner</code>.</p></dd>
 
-
-<dt><code>splitter_args</code></dt>
+      <dt><code>splitter_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>splitter</code>.</p></dd>
 
-
-<dt><code>scorer_args</code></dt>
+      <dt><code>scorer_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>scorer</code>. <code>scorer_args</code> must either be length 1 or <code>length(scorer)</code> in
 the case where different arguments are being passed to each scoring
 function.</p></dd>
 
-
-<dt><code>prediction_args</code></dt>
+      <dt><code>prediction_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>predict</code>. <code>prediction_args</code> must either be length 1 or
 <code>length(scorer)</code> in the case where different arguments are being passed
 to each scoring function.</p></dd>
 
-
-<dt><code>convert_predictions</code></dt>
+      <dt><code>convert_predictions</code></dt>
 <dd><p>A list of functions to convert predicted
 values prior to being evaluated by the metric functions supplied in
 <code>scorer</code>. This list should either be length 1, in which case the same
@@ -341,20 +315,19 @@ with each function in <code>scorer</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>An object of class <a href="GridSearch.html">GridSearch</a>.</p>
 </div>
 
-</div><p></p><hr><a id="method-GridSearchCV-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-GridSearchCV-clone"></a><div class="section">
+<h3 id="gridsearchcv-clone-"><code>GridSearchCV$clone()</code><a class="anchor" aria-label="anchor" href="#gridsearchcv-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GridSearchCV</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -365,13 +338,14 @@ with each function in <code>scorer</code>.</p></dd>
 
 </div>
 
+
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="co">## Method `GridSearchCV$fit`</span></span></span>
+<span class="r-in"><span><span class="co">## Method `GridSearchCV$fit()`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># \donttest{</span></span></span>

@@ -54,13 +54,13 @@ best performing model, best hyper-parameters, etc.
 
 ### Public methods
 
-- [`FittedGridSearchCV$new()`](#method-FittedGridSearchCV-new)
+- [`FittedGridSearchCV$new()`](#method-FittedGridSearchCV-initialize)
 
 - [`FittedGridSearchCV$clone()`](#method-FittedGridSearchCV-clone)
 
 ------------------------------------------------------------------------
 
-### Method `new()`
+### `FittedGridSearchCV$new()`
 
 Create a new FittedGridSearchCV object.
 
@@ -111,7 +111,7 @@ An object of class FittedGridSearchCV.
 
 ------------------------------------------------------------------------
 
-### Method `clone()`
+### `FittedGridSearchCV$clone()`
 
 The objects of this class are cloneable with this method.
 

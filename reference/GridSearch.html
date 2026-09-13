@@ -11,7 +11,7 @@ model and performance metrics."><meta property="og:image" content="https://www.d
 
     <a class="navbar-brand me-2" href="../index.html">modeltuning</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.4</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -55,11 +55,11 @@ model and performance metrics.</p>
 <dd><p>Predictive modeling function.</p></dd>
 
 
-<dt><code>scorer</code></dt>
+    <dt><code>scorer</code></dt>
 <dd><p>List of performance metric functions.</p></dd>
 
 
-<dt><code>tune_params</code></dt>
+    <dt><code>tune_params</code></dt>
 <dd><p>Data.frame of full hyper-parameter grid created from <code>$tune_params</code></p></dd>
 
 
@@ -70,12 +70,11 @@ model and performance metrics.</p>
 
 <div class="section">
 <h3 id="public-methods">Public methods<a class="anchor" aria-label="anchor" href="#public-methods"></a></h3>
-
-<ul><li><p><a href="#method-GridSearch-fit"><code>GridSearch$fit()</code></a></p></li>
-<li><p><a href="#method-GridSearch-new"><code>GridSearch$new()</code></a></p></li>
+<p></p><ul><li><p><a href="#method-GridSearch-fit"><code>GridSearch$fit()</code></a></p></li>
+<li><p><a href="#method-GridSearch-initialize"><code>GridSearch$new()</code></a></p></li>
 <li><p><a href="#method-GridSearch-clone"><code>GridSearch$clone()</code></a></p></li>
 </ul></div><p></p><hr><a id="method-GridSearch-fit"></a><div class="section">
-<h3 id="method-fit-">Method <code>fit()</code><a class="anchor" aria-label="anchor" href="#method-fit-"></a></h3>
+<h3 id="gridsearch-fit-"><code>GridSearch$fit()</code><a class="anchor" aria-label="anchor" href="#gridsearch-fit-"></a></h3>
 <p><code>fit</code> tunes user-specified model hyper-parameters via Grid Search.</p><div class="section">
 <h4 id="usage">Usage<a class="anchor" aria-label="anchor" href="#usage"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GridSearch</span><span class="op">$</span><span class="fu">fit</span><span class="op">(</span></span>
@@ -85,51 +84,41 @@ model and performance metrics.</p>
 <span>  y <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  progress <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>formula</code></dt>
 <dd><p>An object of class <a href="https://rdrr.io/r/stats/formula.html" class="external-link">formula</a>: a symbolic description of
 the model to be fitted.</p></dd>
 
-
-<dt><code>data</code></dt>
+      <dt><code>data</code></dt>
 <dd><p>An optional data frame, or other object containing the
 variables in the model. If <code>data</code> is not provided, how <code>formula</code> is
 handled depends on <code>$learner</code>.</p></dd>
 
-
-<dt><code>x</code></dt>
+      <dt><code>x</code></dt>
 <dd><p>Predictor data (independent variables), alternative interface to
 data with formula.</p></dd>
 
-
-<dt><code>y</code></dt>
+      <dt><code>y</code></dt>
 <dd><p>Response vector (dependent variable), alternative interface to
 data with formula.</p></dd>
 
-
-<dt><code>progress</code></dt>
+      <dt><code>progress</code></dt>
 <dd><p>Logical; indicating whether to print progress across
 cross validation folds.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h4>
 <p><code>fit</code> follows standard R modeling convention by surfacing a formula
 modeling interface as well as an alternate matrix option. The user should
 use whichever interface is supported by the specified <code>$learner</code>
 function.</p>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns">Returns<a class="anchor" aria-label="anchor" href="#returns"></a></h4>
 <p>An object of class <a href="FittedGridSearch.html">FittedGridSearch</a>.</p>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="examples">Examples<a class="anchor" aria-label="anchor" href="#examples"></a></h4>
 <p></p><div class="r example copy"><div class="sourceCode"><pre><code><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">e1071</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bethatkinson/rpart" class="external-link">rpart</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="va">iris_new</span> <span class="op">&lt;-</span> <span class="va">iris</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">iris</span><span class="op">)</span><span class="op">)</span>, <span class="op">]</span></span>
@@ -221,9 +210,10 @@ function.</p>
 <span><span class="op">}</span></span></code></pre></div><p></p></div>
 </div>
 
+</div>
 
-</div><p></p><hr><a id="method-GridSearch-new"></a><div class="section">
-<h3 id="method-new-">Method <code>new()</code><a class="anchor" aria-label="anchor" href="#method-new-"></a></h3>
+<p></p><hr><a id="method-GridSearch-initialize"></a><div class="section">
+<h3 id="gridsearch-new-"><code>GridSearch$new()</code><a class="anchor" aria-label="anchor" href="#gridsearch-new-"></a></h3>
 <p>Create a new GridSearch object.</p><div class="section">
 <h4 id="usage-1">Usage<a class="anchor" aria-label="anchor" href="#usage-1"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va"><a href="../reference/GridSearch.html">GridSearch</a></span><span class="op">$</span><span class="fu">new</span><span class="op">(</span></span>
@@ -237,9 +227,7 @@ function.</p>
 <span>  prediction_args <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  convert_predictions <span class="op">=</span> <span class="cn">NULL</span></span>
 <span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-1">Arguments<a class="anchor" aria-label="anchor" href="#arguments-1"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>learner</code></dt>
 <dd><p>Function that estimates a predictive model. It is
@@ -247,19 +235,16 @@ essential that this function support either a formula interface with
 <code>formula</code> and <code>data</code> arguments, or an alternate matrix interface with
 <code>x</code> and <code>y</code> arguments.</p></dd>
 
-
-<dt><code>tune_params</code></dt>
+      <dt><code>tune_params</code></dt>
 <dd><p>A named list specifying the arguments of <code>$learner</code> to
 tune.</p></dd>
 
-
-<dt><code>evaluation_data</code></dt>
+      <dt><code>evaluation_data</code></dt>
 <dd><p>A two-element list containing the following
 elements: <code>x</code>, the validation data to generate predicted values with;
 <code>y</code>, the validation response values to evaluate predictive performance.</p></dd>
 
-
-<dt><code>scorer</code></dt>
+      <dt><code>scorer</code></dt>
 <dd><p>A named list of metric functions to evaluate model
 performance on <code>evaluation_data</code>. Any provided metric function
 must have <code>truth</code> and <code>estimate</code> arguments, for true outcome values and
@@ -267,33 +252,28 @@ predicted outcome values respectively, and must return a single numeric
 metric value. The last metric function will be the one used to identify
 the optimal model from the Grid Search.</p></dd>
 
-
-<dt><code>optimize_score</code></dt>
+      <dt><code>optimize_score</code></dt>
 <dd><p>One of "max" or "min"; Whether to maximize or
 minimize the metric defined in <code>scorer</code> to find the optimal Grid Search
 parameters.</p></dd>
 
-
-<dt><code>learner_args</code></dt>
+      <dt><code>learner_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>learner</code>.</p></dd>
 
-
-<dt><code>scorer_args</code></dt>
+      <dt><code>scorer_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>scorer</code>. <code>scorer_args</code> must either be length 1 or <code>length(scorer)</code> in
 the case where different arguments are being passed to each scoring
 function.</p></dd>
 
-
-<dt><code>prediction_args</code></dt>
+      <dt><code>prediction_args</code></dt>
 <dd><p>A named list of additional arguments to pass to
 <code>predict</code>. <code>prediction_args</code> must either be length 1 or
 <code>length(scorer)</code> in the case where different arguments are being passed
 to each scoring function.</p></dd>
 
-
-<dt><code>convert_predictions</code></dt>
+      <dt><code>convert_predictions</code></dt>
 <dd><p>A list of functions to convert predicted
 values prior to being evaluated by the metric functions supplied in
 <code>scorer</code>. This list should either be length 1, in which case the same
@@ -303,20 +283,19 @@ with each function in <code>scorer</code>.</p></dd>
 
 
 </dl><p></p></div>
-</div>
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="returns-1">Returns<a class="anchor" aria-label="anchor" href="#returns-1"></a></h4>
 <p>An object of class GridSearch.</p>
 </div>
 
-</div><p></p><hr><a id="method-GridSearch-clone"></a><div class="section">
-<h3 id="method-clone-">Method <code>clone()</code><a class="anchor" aria-label="anchor" href="#method-clone-"></a></h3>
+</div>
+
+<p></p><hr><a id="method-GridSearch-clone"></a><div class="section">
+<h3 id="gridsearch-clone-"><code>GridSearch$clone()</code><a class="anchor" aria-label="anchor" href="#gridsearch-clone-"></a></h3>
 <p>The objects of this class are cloneable with this method.</p><div class="section">
 <h4 id="usage-2">Usage<a class="anchor" aria-label="anchor" href="#usage-2"></a></h4>
 <p></p><div class="r"><div class="sourceCode"><pre><code><span><span class="va">GridSearch</span><span class="op">$</span><span class="fu">clone</span><span class="op">(</span>deep <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div><p></p></div>
-</div>
-
-<div class="section">
+</div><p></p><div class="section">
 <h4 id="arguments-2">Arguments<a class="anchor" aria-label="anchor" href="#arguments-2"></a></h4>
 <p></p><div class="arguments"><dl><dt><code>deep</code></dt>
 <dd><p>Whether to make a deep clone.</p></dd>
@@ -327,13 +306,14 @@ with each function in <code>scorer</code>.</p></dd>
 
 </div>
 
+
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
-<span class="r-in"><span><span class="co">## Method `GridSearch$fit`</span></span></span>
+<span class="r-in"><span><span class="co">## Method `GridSearch$fit()`</span></span></span>
 <span class="r-in"><span><span class="co">## ------------------------------------------------</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va">e1071</span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/bethatkinson/rpart" class="external-link">rpart</a></span><span class="op">)</span> <span class="op">&amp;&amp;</span> <span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">require</a></span><span class="op">(</span><span class="va"><a href="https://github.com/tidymodels/yardstick" class="external-link">yardstick</a></span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>

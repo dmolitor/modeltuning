@@ -15,7 +15,7 @@ library(e1071)
 library(future)
 library(modeltuning) # devtools::install_github("dmolitor/modeltuning")
 library(parallelly)
-library(paws)
+library(paws.compute)
 library(rsample)
 library(yardstick)
 ```
