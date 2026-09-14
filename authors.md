@@ -7,7 +7,7 @@
 ## Citation
 
 Source:
-[`DESCRIPTION`](https://github.com/dmolitor/modeltuning/blob/main/DESCRIPTION)
+[`DESCRIPTION`](https://github.com/dmolitor/modeltuning/blob/v0.1.4/DESCRIPTION)
 
 Molitor D (2026). *modeltuning: Model Selection and Tuning Utilities*. R
 package version 0.1.4, <https://www.dmolitor.com/modeltuning/>.

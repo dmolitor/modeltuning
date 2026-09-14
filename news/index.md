@@ -2,6 +2,8 @@
 
 ## modeltuning 0.1.4
 
+CRAN release: 2026-09-14
+
 - Resolves a CRAN issue where modeltuning depended on the meta package
   `paws`. This caused reverse dependency delays so we have resolved by
   only depending on the necessary sub-package `paws.compute`.
