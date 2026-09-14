@@ -1,3 +1,5 @@
+### XGBoost classification example with the xgboost package ###
+
 library(future)
 library(modeltuning)
 library(xgboost)

@@ -1,8 +1,8 @@
-### Random Forest classification example with the ranger package ###
+### SVM classification example with the e1071 package ###
 
+library(e1071)
 library(future)
 library(modeltuning)
-library(ranger)
 library(yardstick)
 
 iris_new <- iris
@@ -15,15 +15,26 @@ iris_train <- iris_new[1:100, ]
 iris_eval <- iris_new[101:nrow(iris_new), ]
 
 iris_grid <- GridSearch$new(
-  learner = ranger,
+  learner = svm,
   tune_params = list(
-    mtry = c(1, 2, 3),
-    min.node.size = c(1, 2, 3)
+    kernel = c("linear", "polynomial"),
+    degree = c(3, 5),
+    cost = c(0.5, 1)
   ),
-  learner_args = list(num.trees = 1000, probability = TRUE),
+  learner_args = list(type = "C-classification", probability = TRUE),
   evaluation_data = list(x = iris_eval[, -5], y = iris_eval$Species),
-  scorer = list("roc_auc" = roc_auc_vec),
-  convert_predictions = list("roc_auc" = function(.x) .x$predictions[, "0"]),
+  scorer = list(
+    "accuracy" = accuracy_vec,
+    "roc_auc" = roc_auc_vec
+  ),
+  prediction_args = list(
+    "accuracy" = NULL,
+    "roc_auc" = list(probability = TRUE)
+  ),
+  convert_predictions = list(
+    "accuracy" = NULL,
+    "roc_auc" = function(.x) attr(.x, "probabilities")[, "0"]
+  ),
   optimize_score = "max"
 )
 iris_grid_fitted <- iris_grid$fit(
@@ -50,17 +61,27 @@ plan(sequential)
 # Cross validation ------------------------------------------------------------
 
 iris_cv <- CV$new(
-  learner = ranger,
+  learner = svm,
   learner_args = list(
-    mtry = 3,
-    min.node.size = 3,
-    num.trees = 1000,
+    kernel = "linear",
+    cost = 0.5,
+    type = "C-classification",
     probability = TRUE
   ),
   splitter = cv_split,
   splitter_args = list(v = 3),
-  scorer = list("roc_auc" = roc_auc_vec),
-  convert_predictions = list("roc_auc" = function(.x) .x$predictions[, "0"])
+  scorer = list(
+    "accuracy" = accuracy_vec,
+    "roc_auc" = roc_auc_vec
+  ),
+  prediction_args = list(
+    "accuracy" = NULL,
+    "roc_auc" = list(probability = TRUE)
+  ),
+  convert_predictions = list(
+    "accuracy" = NULL,
+    "roc_auc" = function(.x) attr(.x, "probabilities")[, "0"]
+  )
 )
 iris_cv_fitted <- iris_cv$fit(
   formula = Species ~ .,
@@ -86,19 +107,27 @@ plan(sequential)
 # Grid search with cross validation -------------------------------------------
 
 iris_grid_cv <- GridSearchCV$new(
-  learner = ranger,
+  learner = svm,
   tune_params = list(
-    mtry = c(1, 2, 3),
-    min.node.size = c(1, 2, 3)
+    kernel = c("linear", "polynomial"),
+    degree = c(3, 5),
+    cost = c(0.5, 1)
   ),
-  learner_args = list(
-    num.trees = 1000,
-    probability = TRUE
-  ),
+  learner_args = list(type = "C-classification", probability = TRUE),
   splitter = cv_split,
   splitter_args = list(v = 3),
-  scorer = list("roc_auc" = roc_auc_vec),
-  convert_predictions = list("roc_auc" = function(.x) .x$predictions[, "0"]),
+  scorer = list(
+    "accuracy" = accuracy_vec,
+    "roc_auc" = roc_auc_vec
+  ),
+  prediction_args = list(
+    "accuracy" = NULL,
+    "roc_auc" = list(probability = TRUE)
+  ),
+  convert_predictions = list(
+    "accuracy" = NULL,
+    "roc_auc" = function(.x) attr(.x, "probabilities")[, "0"]
+  ),
   optimize_score = "max"
 )
 iris_grid_cv_fitted <- iris_grid_cv$fit(

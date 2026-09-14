@@ -1,3 +1,5 @@
+### Standard OLS regression example with the fixest package ###
+
 library(fixest)
 library(future)
 library(modeltuning)

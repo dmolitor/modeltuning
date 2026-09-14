@@ -1,3 +1,5 @@
+### LightGBM classification example with the lightgbm package ###
+
 library(future)
 library(modeltuning)
 library(lightgbm)
